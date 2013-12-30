@@ -127,3 +127,10 @@
 (global-set-key (kbd "C-c <right>") 'windmove-right)        ; move to right window
 (global-set-key (kbd "C-c <up>") 'windmove-up)              ; move to upper window
 (global-set-key (kbd "C-c <down>") 'windmove-down)          ; move to downer window
+
+(defun iwb ()
+  "indent whole buffer"
+  (interactive)
+  (delete-trailing-whitespace)
+  (indent-region (point-min) (point-max) nil)
+  (untabify (point-min) (point-max)))
