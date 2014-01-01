@@ -128,9 +128,25 @@
 (global-set-key (kbd "C-c <up>") 'windmove-up)              ; move to upper window
 (global-set-key (kbd "C-c <down>") 'windmove-down)          ; move to downer window
 
+(setq cider-repl-history-file ".cider-repl.log")
+ 
+   
+
 (defun iwb ()
   "indent whole buffer"
   (interactive)
   (delete-trailing-whitespace)
   (indent-region (point-min) (point-max) nil)
   (untabify (point-min) (point-max)))
+
+(eval-after-load "cider"
+  '(define-key cider-mode-map (kbd "C-c C-d") 'ac-nrepl-popup-doc))
+ 
+
+
+
+
+
+
+
+(define-key cider-repl-mode-map (kbd "C-c C-d") 'ac-nrepl-popup-doc)
