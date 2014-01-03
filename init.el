@@ -72,6 +72,7 @@
 
 (require 'ac-nrepl)
 (add-hook 'cider-repl-mode-hook 'ac-nrepl-setup)
+
 (add-hook 'cider-mode-hook 'ac-nrepl-setup)
 (add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
 
@@ -85,7 +86,7 @@
 (add-hook 'cider-repl-mode-hook 'set-auto-complete-as-completion-at-point-function)
 (add-hook 'cider-mode-hook 'set-auto-complete-as-completion-at-point-function)
 
-(load-theme 'solarized-dark t)
+(load-theme 'cyberpunk t)
 
 (smartparens-global-mode)
 
@@ -179,11 +180,6 @@
  
 
 
-
-
-
-
-
 (define-key cider-repl-mode-map (kbd "C-c C-d") 'ac-nrepl-popup-doc)
 
 
@@ -198,7 +194,7 @@
 
 
  (require 'highlight-tail)
- (setq highlight-tail-steps 10
+ (setq highlight-tail-steps 15
        highlight-tail-timer 0.03)
  (highlight-tail-reload)
 
@@ -213,3 +209,20 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+(global-set-key (kbd "C-c j") 'join-line)          ; move to downer window
+(global-set-key (kbd "M-x") 'smex)
+
+  (setq ido-enable-flex-matching t)
+  (setq ido-everywhere t)
+  (ido-mode 1) 
+
+
+(add-hook 'cider-repl-mode-hook 'turn-on-eldoc-mode)
+
+(add-hook 'cider-mode-hook 'turn-on-eldoc-mode)
+
+
+
+
+
