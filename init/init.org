@@ -58,8 +58,19 @@
 #+END_SRC
 * UI
 #+BEGIN_SRC emacs-lisp
-(use-package monokai-theme)
+  (use-package monokai-theme)
+  (use-package powerline)
+  (require 'powerline)
+  (powerline-center-theme)
+  (setq powerline-color1 "#073642")
+  (setq powerline-color2 "#002b36")
 
+  (set-face-attribute 'mode-line nil
+                      :foreground "#fdf6e3"
+                      :background "#000020"
+                      :box nil)
+  (set-face-attribute 'mode-line-inactive nil
+                      :box nil)
 #+END_SRC
 
 * org-mode 
@@ -67,18 +78,277 @@
 
 (require 'org)
 (setq org-src-fontify-natively t)
+(setq org-src-tab-acts-natively t)
+
+(setq org-agenda-files (quote ("~/Dropbox/sync/org")))
+(global-set-key "\C-ca" 'org-agenda)
+(setq org-todo-keywords
+      '((sequence "TODO" "STARTED" "WAITING" "|" "DONE" "CANCELLED" )))
+
+(setq org-directory "~/Dropbox/sync/org")
+(setq org-mobile-directory "~/Dropbox/MobileOrg")
+(setq org-mobile-files '("~/Dropbox/sync/org"))
+(setq org-mobile-inbox-for-pull "~/Dropbox/sync/org/inbox.org")
+
+;; moble sync
+(defvar org-mobile-sync-timer nil)
+(defvar org-mobile-sync-idle-secs (* 60 10))
+                                        ;(defvar org-mobile-sync-idle-secs 1)
+(defun org-mobile-sync ()
+  (interactive)
+  (org-mobile-pull)
+  (org-mobile-push))
+(defun org-mobile-sync-enable ()
+  "enable mobile org idle sync"
+  (interactive)
+  (setq org-mobile-sync-timer
+        (run-with-idle-timer org-mobile-sync-idle-secs t
+                             'org-mobile-sync)))
+(defun org-mobile-sync-disable ()
+  "disable mobile org idle sync"
+  (interactive)
+  (cancel-timer org-mobile-sync-timer))
+(org-mobile-sync-enable)
+
+(set-variable 'org-export-allow-bind-keywords t)
+
+
+(org-add-link-type "thunderlink" 'org-thunderlink-open)
+
+(defun org-thunderlink-open (path)
+  (let ( (command (concat  "thunderbird -thunderlink " "thunderlink:" path)))
+    (message command)
+    (shell-command command)))
+
+(setq org-default-notes-file (concat org-directory "/notes.org"))
+(define-key global-map "\C-cc" 'org-capture)
+(setq org-capture-templates
+      '(("t" "Simple todo" entry (file+headline (concat org-directory "/notes.org") "Tasks")
+         "* TODO %?\n")))
+
+
 
 #+END_SRC
 * ess
 #+BEGIN_SRC emacs-lisp
 (use-package ess)
-#+END_SRC
- 
-* other
-#+BEGIN_SRC emacs-lisp
-;;(dired "~")
-(use-package projectile)
-(use-package magit)
+(require 'ess-site)
+
+
 
 #+END_SRC
  
+* projectile
+#+BEGIN_SRC emacs-lisp
+(use-package projectile)
+(projectile-global-mode)
+#+END_SRC
+
+* company
+#+BEGIN_SRC emacs-lisp
+(use-package company) 
+(require 'company)
+(add-hook 'after-init-hook 'global-company-mode)
+(global-set-key "\t" 'company-complete)
+(global-company-mode)
+(use-package company-quickhelp)
+(company-quickhelp-mode 1)
+#+END_SRC
+   
+* undo tree
+#+BEGIN_SRC emacs-lisp
+  (use-package undo-tree)
+  (global-undo-tree-mode)
+  (setq undo-tree-visualizer-timestamps t)
+  (setq undo-tree-visualizer-diff t)
+  (global-set-key (kbd "C-z") 'undo-tree-visualize)
+#+END_SRC
+
+* highlight-tail
+#+BEGIN_SRC emacs-lisp
+(use-package highlight-tail)
+(require 'highlight-tail)
+(setq highlight-tail-colors '(("black" . 0)
+                              ("#bc2525" . 25)
+                              ("black" . 100)))
+(setq highlight-tail-steps 10
+      highlight-tail-timer 0.05)
+
+(highlight-tail-reload)
+#+END_SRC
+ 
+* helm
+#+BEGIN_SRC emacs-lisp
+(use-package helm)
+(require 'helm-config)
+(helm-mode 1)
+ (global-set-key (kbd "M-x") 'helm-M-x)
+(global-set-key (kbd "C-x f") 'helm-recentf)
+(global-set-key (kbd "C-x C-f") 'helm-for-files)
+(setq helm-autoresize-mode 1)
+(use-package helm-projectile)
+(require 'helm-projectile)
+(helm-projectile-on)
+#+END_SRC
+
+* Magit
+#+BEGIN_SRC emacs-lisp
+(use-package magit)
+
+
+(defun magit-toggle-whitespace ()
+  (interactive)
+  (if (member "-w" magit-diff-options)
+      (magit-dont-ignore-whitespace)
+    (magit-ignore-whitespace)))
+
+(defun magit-ignore-whitespace ()
+  (interactive)
+  (add-to-list 'magit-diff-options "-w")
+  (magit-refresh))
+
+(defun magit-dont-ignore-whitespace ()
+  (interactive)
+  (setq magit-diff-options (remove "-w" magit-diff-options))
+  (magit-refresh))
+
+
+(define-key magit-status-mode-map (kbd "W") 'magit-toggle-whitespace)
+
+(setq magit-diff-refine-hunk t)
+
+#+END_SRC
+
+* polymode
+#+BEGIN_SRC emacs-lisp
+(use-package polymode)
+(use-package markdown-mode)
+(require 'poly-markdown)
+(require 'poly-R)
+
+(defun save-buffer-if-visiting-file
+  "Save the current buffer only if it is visiting a file"
+  (interactive)
+  (if (and (buffer-file-name) (buffer-modified-p))
+      (save-buffer args)))
+
+
+(defun ess-rmarkdown ()
+  "Compile R markdown (.Rmd). Should work for any output type."
+  (interactive)
+  (when (bound-and-true-p poly-markdown+r-mode)
+    (save-buffer-if-visiting-file)
+                                        ; Check if attached R-session
+    (condition-case nil
+        (ess-get-process)
+      ((error ""  ARGS)
+       (ess-switch-process)))
+    (let* ((rmd-buf (current-buffer)))
+
+      (save-excursion
+        (let* ((sprocess (ess-get-process ess-current-process-name))
+               (sbuffer (process-buffer sprocess))
+               (buf-coding (symbol-name buffer-file-coding-system))
+               (R-cmd
+                (format "library(rmarkdown); rmarkdown::render(\"%s\")"
+                        buffer-file-name)))
+          (message "Running rmarkdown on %s" buffer-file-name)
+          (ess-execute R-cmd 'buffer nil nil)
+          (switch-to-buffer rmd-buf)
+          (ess-show-buffer (buffer-name sbuffer) nil))))))
+
+
+(define-key polymode-mode-map "\M-ns" 'ess-rmarkdown)
+(defun ess-auto-rmarkdown-enable ()
+  (interactive)
+  (run-with-idle-timer 1 t #'ess-rmarkdown))
+
+
+#+END_SRC
+
+* other
+#+BEGIN_SRC emacs-lisp
+         (use-package google-this)
+         (require 'google-this)
+          (global-set-key (kbd "C-c g") 'google-this-mode-submap)
+         (setq browse-url-browser-function 'browse-url-chromium)
+
+         (use-package expand-region)
+         (define-key global-map (kbd "C-c C-SPC") 'er/expand-region)
+      ;;(use-package smart-mode-line)
+      ;;(require 'smart-mode-line)
+
+        (use-package guide-key)
+        (require 'guide-key)
+      (guide-key-mode 1)
+    (setq guide-key/guide-key-sequence '("C-x" "C-c"))
+    (setq guide-key/recursive-key-sequence-flag t)
+
+    (use-package hydra)
+    (require 'hydra)
+    (defhydra hydra-zoom (global-map "<f5>")
+      "zoom"
+      ("g" text-scale-increase "in")
+      ("l" text-scale-decrease "out"))
+
+    (use-package move-text)
+  (require 'move-text)
+  (move-text-default-bindings)
+
+  (defun copy-line (arg)
+    "Copy lines (as many as prefix argument) in the kill ring.
+        Ease of use features:
+        - Move to start of next line.
+        - Appends the copy on sequential calls.
+        - Use newline as last char even on the last line of the buffer.
+        - If region is active, copy its lines."
+    (interactive "p")
+    (let ((beg (line-beginning-position))
+          (end (line-end-position arg)))
+      (when mark-active
+        (if (> (point) (mark))
+            (setq beg (save-excursion (goto-char (mark)) (line-beginning-position)))
+          (setq end (save-excursion (goto-char (mark)) (line-end-position)))))
+      (if (eq last-command 'copy-line)
+          (kill-append (buffer-substring beg end) (< end beg))
+        (kill-ring-save beg end)))
+    (kill-append "\n" nil)
+    (beginning-of-line (or (and arg (1+ arg)) 2))
+    (if (and arg (not (= 1 arg))) (message "%d lines copied" arg)))
+
+  (defun duplicate-current-line (&optional n)
+    "duplicate current line, make more than 1 copy given a numeric argument"
+    (interactive "p")
+    (save-excursion
+      (let ((nb (or n 1))
+            (current-line (thing-at-point 'line)))
+        ;; when on last line, insert a newline first
+        (when (or (= 1 (forward-line 1)) (eq (point) (point-max)))
+          (insert "\n"))
+
+        ;; now insert as many time as requested
+        (while (> n 0)
+          (insert current-line)
+          (decf n)))))
+
+
+  (global-set-key "\C-c\C-k" 'copy-line)
+  (global-set-key (kbd "C-c C-l") 'duplicate-current-line)
+
+
+  (defun hide-eol ()
+    "Do not show ^M in files containing mixed UNIX and DOS line endings."
+    (interactive)
+    (setq buffer-display-table (make-display-table))
+    (aset buffer-display-table ?\^M []))
+
+  (defun clear-shell ()
+    (interactive)
+    (let ((old-max comint-buffer-maximum-size))
+      (setq comint-buffer-maximum-size 0)
+      (comint-truncate-buffer)
+      (setq comint-buffer-maximum-size old-max)))
+
+
+#+END_SRC 
+
