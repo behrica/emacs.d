@@ -1,0 +1,84 @@
+* boot-UI
+#+BEGIN_SRC emacs-lisp
+
+(when (string= system-name "surface-linux")
+  (set-frame-font "DejaVu Sans Mono-20" t t))
+
+(set-frame-font "Droid Sans Mono-13" t t)
+
+(menu-bar-mode 0)
+(tool-bar-mode 0)
+(scroll-bar-mode -1)
+(setq inhibit-splash-screen t)
+
+
+#+END_SRC
+
+* init
+
+#+BEGIN_SRC emacs-lisp
+
+
+(setq custom-file "~/.emacs.d/custom.el")
+;;(load custom-file 'noerror)
+
+(setq url-proxy-services
+      '(("no_proxy" . "^\\(localhost\\|10.*\\)")
+        ("http" . "127.0.0.1:3128")
+        ("https" . "127.0.0.1:3128")))
+
+
+#+END_SRC
+
+* packages
+#+BEGIN_SRC emacs-lisp
+(require 'package)
+
+(require 'cl)
+  
+
+
+(setq package-enable-at-startup nil)
+(mapc (lambda(p) (push p package-archives))
+      '(
+        ("melpa" . "http://melpa.milkbox.net/packages/")))
+
+
+(package-initialize)
+
+(if (not (package-installed-p 'use-package))
+    (progn
+      (package-refresh-contents)
+      (package-install 'use-package)))
+
+(require 'use-package)
+(setq use-package-always-ensure t)
+
+
+#+END_SRC
+* UI
+#+BEGIN_SRC emacs-lisp
+(use-package monokai-theme)
+
+#+END_SRC
+
+* org-mode 
+#+BEGIN_SRC emacs-lisp
+
+(require 'org)
+(setq org-src-fontify-natively t)
+
+#+END_SRC
+* ess
+#+BEGIN_SRC emacs-lisp
+(use-package ess)
+#+END_SRC
+ 
+* other
+#+BEGIN_SRC emacs-lisp
+;;(dired "~")
+(use-package projectile)
+(use-package magit)
+
+#+END_SRC
+ 
