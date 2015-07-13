@@ -76,66 +76,63 @@
 * org-mode 
 #+BEGIN_SRC emacs-lisp
 
-(require 'org)
-(setq org-src-fontify-natively t)
-(setq org-src-tab-acts-natively t)
+  (require 'org)
+  (setq org-src-fontify-natively t)
+  (setq org-src-tab-acts-natively t)
 
-(setq org-agenda-files (quote ("~/Dropbox/sync/org")))
-(global-set-key "\C-ca" 'org-agenda)
-(setq org-todo-keywords
-      '((sequence "TODO" "STARTED" "WAITING" "|" "DONE" "CANCELLED" )))
+  (setq org-agenda-files (quote ("~/Dropbox/sync/org")))
+  (global-set-key "\C-ca" 'org-agenda)
+  (setq org-todo-keywords
+        '((sequence "TODO" "STARTED" "WAITING" "|" "DONE" "CANCELLED" )))
 
-(setq org-directory "~/Dropbox/sync/org")
-(setq org-mobile-directory "~/Dropbox/MobileOrg")
-(setq org-mobile-files '("~/Dropbox/sync/org"))
-(setq org-mobile-inbox-for-pull "~/Dropbox/sync/org/inbox.org")
+  (setq org-directory "~/Dropbox/sync/org")
+  (setq org-mobile-directory "~/Dropbox/MobileOrg")
+  (setq org-mobile-files '("~/Dropbox/sync/org"))
+  (setq org-mobile-inbox-for-pull "~/Dropbox/sync/org/inbox.org")
 
-;; moble sync
-(defvar org-mobile-sync-timer nil)
-(defvar org-mobile-sync-idle-secs (* 60 10))
-                                        ;(defvar org-mobile-sync-idle-secs 1)
-(defun org-mobile-sync ()
-  (interactive)
-  (org-mobile-pull)
-  (org-mobile-push))
-(defun org-mobile-sync-enable ()
-  "enable mobile org idle sync"
-  (interactive)
-  (setq org-mobile-sync-timer
-        (run-with-idle-timer org-mobile-sync-idle-secs t
-                             'org-mobile-sync)))
-(defun org-mobile-sync-disable ()
-  "disable mobile org idle sync"
-  (interactive)
-  (cancel-timer org-mobile-sync-timer))
-(org-mobile-sync-enable)
+  ;; moble sync
+  (defvar org-mobile-sync-timer nil)
+  (defvar org-mobile-sync-idle-secs (* 60 10))
 
-(set-variable 'org-export-allow-bind-keywords t)
+  (defun org-mobile-sync ()
+    (interactive)
+    (org-mobile-pull)
+    (org-mobile-push))
+  (defun org-mobile-sync-enable ()
+    "enable mobile org idle sync"
+    (interactive)
+    (setq org-mobile-sync-timer
+          (run-with-idle-timer org-mobile-sync-idle-secs t
+                               'org-mobile-sync)))
+  (defun org-mobile-sync-disable ()
+    "disable mobile org idle sync"
+    (interactive)
+    (cancel-timer org-mobile-sync-timer))
+  (org-mobile-sync-enable)
+
+  (set-variable 'org-export-allow-bind-keywords t)
 
 
-(org-add-link-type "thunderlink" 'org-thunderlink-open)
+  (org-add-link-type "thunderlink" 'org-thunderlink-open)
 
-(defun org-thunderlink-open (path)
-  (let ( (command (concat  "thunderbird -thunderlink " "thunderlink:" path)))
-    (message command)
-    (shell-command command)))
+  (defun org-thunderlink-open (path)
+    (let ( (command (concat  "thunderbird -thunderlink " "thunderlink:" path)))
+      (message command)
+      (shell-command command)))
 
-(setq org-default-notes-file (concat org-directory "/notes.org"))
-(define-key global-map "\C-cc" 'org-capture)
-(setq org-capture-templates
-      '(("t" "Simple todo" entry (file+headline (concat org-directory "/notes.org") "Tasks")
-         "* TODO %?\n")))
+  (setq org-default-notes-file (concat org-directory "/notes.org"))
+  (define-key global-map "\C-cc" 'org-capture)
+  (setq org-capture-templates
+        '(("t" "Simple todo" entry (file+headline (concat org-directory "/notes.org") "Tasks")
+           "* TODO %?\n")))
 
 
 
 #+END_SRC
 * ess
 #+BEGIN_SRC emacs-lisp
-(use-package ess)
-(require 'ess-site)
-
-
-
+  (use-package ess)
+  (require 'ess-site)
 #+END_SRC
  
 * projectile
@@ -214,7 +211,6 @@
 
 
 (define-key magit-status-mode-map (kbd "W") 'magit-toggle-whitespace)
-
 (setq magit-diff-refine-hunk t)
 
 #+END_SRC
@@ -268,40 +264,38 @@
 
 * other
 #+BEGIN_SRC emacs-lisp
-         (use-package google-this)
-         (require 'google-this)
-          (global-set-key (kbd "C-c g") 'google-this-mode-submap)
-         (setq browse-url-browser-function 'browse-url-chromium)
+  (use-package google-this)
+  (require 'google-this)
+  (global-set-key (kbd "C-c g") 'google-this-mode-submap)
+  (setq browse-url-browser-function 'browse-url-chromium)
 
-         (use-package expand-region)
-         (define-key global-map (kbd "C-c C-SPC") 'er/expand-region)
-      ;;(use-package smart-mode-line)
-      ;;(require 'smart-mode-line)
+  (use-package expand-region)
+  (define-key global-map (kbd "C-c C-SPC") 'er/expand-region)
 
-        (use-package guide-key)
-        (require 'guide-key)
-      (guide-key-mode 1)
-    (setq guide-key/guide-key-sequence '("C-x" "C-c"))
-    (setq guide-key/recursive-key-sequence-flag t)
+  (use-package guide-key)
+  (require 'guide-key)
+  (guide-key-mode 1)
+  (setq guide-key/guide-key-sequence '("C-x" "C-c"))
+  (setq guide-key/recursive-key-sequence-flag t)
 
-    (use-package hydra)
-    (require 'hydra)
-    (defhydra hydra-zoom (global-map "<f5>")
-      "zoom"
-      ("g" text-scale-increase "in")
-      ("l" text-scale-decrease "out"))
+  (use-package hydra)
+  (require 'hydra)
+  (defhydra hydra-zoom (global-map "<f5>")
+    "zoom"
+    ("g" text-scale-increase "in")
+    ("l" text-scale-decrease "out"))
 
-    (use-package move-text)
+  (use-package move-text)
   (require 'move-text)
   (move-text-default-bindings)
 
   (defun copy-line (arg)
     "Copy lines (as many as prefix argument) in the kill ring.
-        Ease of use features:
-        - Move to start of next line.
-        - Appends the copy on sequential calls.
-        - Use newline as last char even on the last line of the buffer.
-        - If region is active, copy its lines."
+  Ease of use features:
+          - Move to start of next line.
+          - Appends the copy on sequential calls.
+          - Use newline as last char even on the last line of the buffer.
+          - If region is active, copy its lines."
     (interactive "p")
     (let ((beg (line-beginning-position))
           (end (line-end-position arg)))
@@ -350,7 +344,7 @@
       (setq comint-buffer-maximum-size old-max)))
 
 
-#+END_SRC 
+  #+END_SRC 
 
 
 * start server
