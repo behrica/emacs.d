@@ -352,3 +352,9 @@
 
 #+END_SRC 
 
+
+* start server
+#+BEGIN_SRC emacs-lisp
+(server-start)
+
+#+END_SRC 
