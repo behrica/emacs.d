@@ -221,135 +221,145 @@
 
 * polymode
 #+BEGIN_SRC emacs-lisp
-(use-package polymode)
-(use-package markdown-mode)
-(require 'poly-markdown)
-(require 'poly-R)
-
-(defun save-buffer-if-visiting-file
-  "Save the current buffer only if it is visiting a file"
-  (interactive)
-  (if (and (buffer-file-name) (buffer-modified-p))
-      (save-buffer args)))
-
-
-(defun ess-rmarkdown ()
-  "Compile R markdown (.Rmd). Should work for any output type."
-  (interactive)
-  (when (bound-and-true-p poly-markdown+r-mode)
-    (save-buffer-if-visiting-file)
-                                        ; Check if attached R-session
-    (condition-case nil
-        (ess-get-process)
-      ((error ""  ARGS)
-       (ess-switch-process)))
-    (let* ((rmd-buf (current-buffer)))
-
-      (save-excursion
-        (let* ((sprocess (ess-get-process ess-current-process-name))
-               (sbuffer (process-buffer sprocess))
-               (buf-coding (symbol-name buffer-file-coding-system))
-               (R-cmd
-                (format "library(rmarkdown); rmarkdown::render(\"%s\")"
-                        buffer-file-name)))
-          (message "Running rmarkdown on %s" buffer-file-name)
-          (ess-execute R-cmd 'buffer nil nil)
-          (switch-to-buffer rmd-buf)
-          (ess-show-buffer (buffer-name sbuffer) nil))))))
+  (use-package polymode)
+  (use-package markdown-mode)
+  (require 'poly-markdown)
+  (require 'poly-R)
+  (add-to-list 'auto-mode-alist '("\\.Rmd" . poly-markdown+r-mode))
+  (defun save-buffer-if-visiting-file ()
+    "Save the current buffer only if it is visiting a file"
+    (interactive)
+    (if (and (buffer-file-name) (buffer-modified-p))
+        (save-buffer)))
 
 
-(define-key polymode-mode-map "\M-ns" 'ess-rmarkdown)
-(defun ess-auto-rmarkdown-enable ()
-  (interactive)
-  (run-with-idle-timer 1 t #'ess-rmarkdown))
+  (defun ess-rmarkdown ()
+    "Compile R markdown (.Rmd). Should work for any output type."
+    (interactive)
+    (when (bound-and-true-p poly-markdown+r-mode)
+      (save-buffer-if-visiting-file)
+                                          ; Check if attached R-session
+      (condition-case nil
+          (ess-get-process)
+        ((error ""  ARGS)
+         (ess-switch-process)))
+      (let* ((rmd-buf (current-buffer)))
+
+        (save-excursion
+          (let* ((sprocess (ess-get-process ess-current-process-name))
+                 (sbuffer (process-buffer sprocess))
+                 (buf-coding (symbol-name buffer-file-coding-system))
+                 (R-cmd
+                  (format "library(rmarkdown); rmarkdown::render(\"%s\")"
+                          buffer-file-name)))
+            (message "Running rmarkdown on %s" buffer-file-name)
+            (ess-execute R-cmd 'buffer nil nil)
+            (switch-to-buffer rmd-buf)
+            (ess-show-buffer (buffer-name sbuffer) nil))))))
+
+
+  (define-key polymode-mode-map "\M-ns" 'ess-rmarkdown)
+  (defun ess-auto-rmarkdown-enable ()
+    (interactive)
+    (run-with-idle-timer 1 t #'ess-rmarkdown))
+  
 
 
 #+END_SRC
 
 * other
 #+BEGIN_SRC emacs-lisp
-         (use-package google-this)
-         (require 'google-this)
-          (global-set-key (kbd "C-c g") 'google-this-mode-submap)
-         (setq browse-url-browser-function 'browse-url-chromium)
+           (use-package google-this)
+           (require 'google-this)
+            (global-set-key (kbd "C-c g") 'google-this-mode-submap)
+           (setq browse-url-browser-function 'browse-url-chromium)
 
-         (use-package expand-region)
-         (define-key global-map (kbd "C-c C-SPC") 'er/expand-region)
-      ;;(use-package smart-mode-line)
-      ;;(require 'smart-mode-line)
+           (use-package expand-region)
+           (define-key global-map (kbd "C-c C-SPC") 'er/expand-region)
+        ;;(use-package smart-mode-line)
+        ;;(require 'smart-mode-line)
 
-        (use-package guide-key)
-        (require 'guide-key)
-      (guide-key-mode 1)
-    (setq guide-key/guide-key-sequence '("C-x" "C-c"))
-    (setq guide-key/recursive-key-sequence-flag t)
+          (use-package guide-key)
+          (require 'guide-key)
+        (guide-key-mode 1)
+      (setq guide-key/guide-key-sequence '("C-x" "C-c"))
+      (setq guide-key/recursive-key-sequence-flag t)
 
-    (use-package hydra)
-    (require 'hydra)
-    (defhydra hydra-zoom (global-map "<f5>")
-      "zoom"
-      ("g" text-scale-increase "in")
-      ("l" text-scale-decrease "out"))
+      (use-package hydra)
+      (require 'hydra)
+      (defhydra hydra-zoom (global-map "<f5>")
+        "zoom"
+        ("g" text-scale-increase "in")
+        ("l" text-scale-decrease "out"))
 
-    (use-package move-text)
-  (require 'move-text)
-  (move-text-default-bindings)
+      (use-package move-text)
+    (require 'move-text)
+    (move-text-default-bindings)
 
-  (defun copy-line (arg)
-    "Copy lines (as many as prefix argument) in the kill ring.
-        Ease of use features:
-        - Move to start of next line.
-        - Appends the copy on sequential calls.
-        - Use newline as last char even on the last line of the buffer.
-        - If region is active, copy its lines."
-    (interactive "p")
-    (let ((beg (line-beginning-position))
-          (end (line-end-position arg)))
-      (when mark-active
-        (if (> (point) (mark))
-            (setq beg (save-excursion (goto-char (mark)) (line-beginning-position)))
-          (setq end (save-excursion (goto-char (mark)) (line-end-position)))))
-      (if (eq last-command 'copy-line)
-          (kill-append (buffer-substring beg end) (< end beg))
-        (kill-ring-save beg end)))
-    (kill-append "\n" nil)
-    (beginning-of-line (or (and arg (1+ arg)) 2))
-    (if (and arg (not (= 1 arg))) (message "%d lines copied" arg)))
+    (defun copy-line (arg)
+      "Copy lines (as many as prefix argument) in the kill ring.
+          Ease of use features:
+          - Move to start of next line.
+          - Appends the copy on sequential calls.
+          - Use newline as last char even on the last line of the buffer.
+          - If region is active, copy its lines."
+      (interactive "p")
+      (let ((beg (line-beginning-position))
+            (end (line-end-position arg)))
+        (when mark-active
+          (if (> (point) (mark))
+              (setq beg (save-excursion (goto-char (mark)) (line-beginning-position)))
+            (setq end (save-excursion (goto-char (mark)) (line-end-position)))))
+        (if (eq last-command 'copy-line)
+            (kill-append (buffer-substring beg end) (< end beg))
+          (kill-ring-save beg end)))
+      (kill-append "\n" nil)
+      (beginning-of-line (or (and arg (1+ arg)) 2))
+      (if (and arg (not (= 1 arg))) (message "%d lines copied" arg)))
 
-  (defun duplicate-current-line (&optional n)
-    "duplicate current line, make more than 1 copy given a numeric argument"
-    (interactive "p")
-    (save-excursion
-      (let ((nb (or n 1))
-            (current-line (thing-at-point 'line)))
-        ;; when on last line, insert a newline first
-        (when (or (= 1 (forward-line 1)) (eq (point) (point-max)))
-          (insert "\n"))
+    (defun duplicate-current-line (&optional n)
+      "duplicate current line, make more than 1 copy given a numeric argument"
+      (interactive "p")
+      (save-excursion
+        (let ((nb (or n 1))
+              (current-line (thing-at-point 'line)))
+          ;; when on last line, insert a newline first
+          (when (or (= 1 (forward-line 1)) (eq (point) (point-max)))
+            (insert "\n"))
 
-        ;; now insert as many time as requested
-        (while (> n 0)
-          (insert current-line)
-          (decf n)))))
-
-
-  (global-set-key "\C-c\C-k" 'copy-line)
-  (global-set-key (kbd "C-c C-l") 'duplicate-current-line)
+          ;; now insert as many time as requested
+          (while (> n 0)
+            (insert current-line)
+            (decf n)))))
 
 
-  (defun hide-eol ()
-    "Do not show ^M in files containing mixed UNIX and DOS line endings."
-    (interactive)
-    (setq buffer-display-table (make-display-table))
-    (aset buffer-display-table ?\^M []))
-
-  (defun clear-shell ()
-    (interactive)
-    (let ((old-max comint-buffer-maximum-size))
-      (setq comint-buffer-maximum-size 0)
-      (comint-truncate-buffer)
-      (setq comint-buffer-maximum-size old-max)))
+    (global-set-key "\C-c\C-k" 'copy-line)
+    (global-set-key (kbd "C-c C-l") 'duplicate-current-line)
 
 
+    (defun hide-eol ()
+      "Do not show ^M in files containing mixed UNIX and DOS line endings."
+      (interactive)
+      (setq buffer-display-table (make-display-table))
+      (aset buffer-display-table ?\^M []))
+
+    (defun clear-shell ()
+      (interactive)
+      (let ((old-max comint-buffer-maximum-size))
+        (setq comint-buffer-maximum-size 0)
+        (comint-truncate-buffer)
+        (setq comint-buffer-maximum-size old-max)))
+  (use-package rainbow-delimiters)
+  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+
+  (use-package keyfreq)
+  (keyfreq-mode 1)
+  (keyfreq-autosave-mode 1)
+
+
+ (setq gnus-select-method '(nnimap "localhost"
+(nnimap-server-port 1143
+				  ))
 #+END_SRC 
 
 
