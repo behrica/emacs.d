@@ -93,7 +93,7 @@
 ;; moble sync
 (defvar org-mobile-sync-timer nil)
 (defvar org-mobile-sync-idle-secs (* 60 10))
-                                        ;(defvar org-mobile-sync-idle-secs 1)
+
 (defun org-mobile-sync ()
   (interactive)
   (org-mobile-pull)
@@ -133,9 +133,6 @@
 #+BEGIN_SRC emacs-lisp
 (use-package ess)
 (require 'ess-site)
-
-
-
 #+END_SRC
  
 * projectile
@@ -214,7 +211,6 @@
 
 
 (define-key magit-status-mode-map (kbd "W") 'magit-toggle-whitespace)
-
 (setq magit-diff-refine-hunk t)
 
 #+END_SRC
@@ -276,8 +272,6 @@
 
            (use-package expand-region)
            (define-key global-map (kbd "C-c C-SPC") 'er/expand-region)
-        ;;(use-package smart-mode-line)
-        ;;(require 'smart-mode-line)
 
           (use-package guide-key)
           (require 'guide-key)
