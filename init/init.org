@@ -23,7 +23,7 @@
 ;;(load custom-file 'noerror)
 
 (setq url-proxy-services
-      '(("no_proxy" . "^\\(localhost\\|10.*\\)")
+      '(("no_proxy" . "^\\localhost")
         ("http" . "127.0.0.1:3128")
         ("https" . "127.0.0.1:3128")))
 
@@ -33,16 +33,12 @@
 * packages
 #+BEGIN_SRC emacs-lisp
 (require 'package)
-
 (require 'cl)
-  
-
 
 (setq package-enable-at-startup nil)
 (mapc (lambda(p) (push p package-archives))
       '(
         ("melpa" . "http://melpa.milkbox.net/packages/")))
-
 
 (package-initialize)
 
@@ -59,72 +55,128 @@
 * UI
 #+BEGIN_SRC emacs-lisp
   (use-package monokai-theme)
-  (use-package powerline)
-  (require 'powerline)
-  (powerline-center-theme)
-  (setq powerline-color1 "#073642")
-  (setq powerline-color2 "#002b36")
+  (use-package powerline
+    :config
+    (powerline-center-theme)
+    (setq powerline-color1 "#073642")
+    (setq powerline-color2 "#002b36")
+    
+    (set-face-attribute 'mode-line nil
+                        :foreground "#fdf6e3"
+                        :background "#000020"
+                        :box nil)
+    (set-face-attribute 'mode-line-inactive nil
+                        :box nil))
+   (use-package eval-sexp-fu
+     :config
+     (eval-sexp-fu-flash-mode))
 
-  (set-face-attribute 'mode-line nil
-                      :foreground "#fdf6e3"
-                      :background "#000020"
-                      :box nil)
-  (set-face-attribute 'mode-line-inactive nil
-                      :box nil)
+  (setq display-time-24hr-format t)
+  (display-time-mode 1)
+
+
+#+END_SRC
+
+* Edit
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "RET") 'newline-and-indent)
+  (defun copy-line (arg)
+    "Copy lines (as many as prefix argument) in the kill ring.
+                           Ease of use features:
+                           - Move to start of next line.
+                           - Appends the copy on sequential calls.
+                           - Use newline as last char even on the last line of the buffer.
+                           - If region is active, copy its lines."
+    (interactive "p")
+    (let ((beg (line-beginning-position))
+          (end (line-end-position arg)))
+      (when mark-active
+        (if (> (point) (mark))
+            (setq beg (save-excursion (goto-char (mark)) (line-beginning-position)))
+          (setq end (save-excursion (goto-char (mark)) (line-end-position)))))
+      (if (eq last-command 'copy-line)
+          (kill-append (buffer-substring beg end) (< end beg))
+        (kill-ring-save beg end)))
+    (kill-append "\n" nil)
+    (beginning-of-line (or (and arg (1+ arg)) 2))
+    (if (and arg (not (= 1 arg))) (message "%d lines copied" arg)))
+
+  (defun duplicate-current-line (&optional n)
+    "duplicate current line, make more than 1 copy given a numeric argument"
+    (interactive "p")
+    (save-excursion
+      (let ((nb (or n 1))
+            (current-line (thing-at-point 'line)))
+        ;; when on last line, insert a newline first
+        (when (or (= 1 (forward-line 1)) (eq (point) (point-max)))
+          (insert "\n"))
+
+        ;; now insert as many time as requested
+        (while (> n 0)
+          (insert current-line)
+          (decf n)))))
+
+
+  (bind-key "\C-c\C-k" 'copy-line)
+  (bind-key "C-c C-l" 'duplicate-current-line)
+
+  (use-package move-text
+    :config
+    (move-text-default-bindings))
+
+
 #+END_SRC
 
 * org-mode 
 #+BEGIN_SRC emacs-lisp
 
-(require 'org)
-(setq org-src-fontify-natively t)
-(setq org-src-tab-acts-natively t)
+    (use-package org
+      :config
+      (setq org-src-fontify-natively t)
+      (setq org-src-tab-acts-natively t)
+      (setq org-agenda-files (quote ("~/Dropbox/sync/org")))
+      (setq org-todo-keywords
+            '((sequence "TODO" "STARTED" "WAITING" "|" "DONE" "CANCELLED" )))
+      
+      (setq org-directory "~/Dropbox/sync/org")
+      (setq org-mobile-directory "~/Dropbox/MobileOrg")
+      (setq org-mobile-files '("~/Dropbox/sync/org"))
+      (setq org-mobile-inbox-for-pull "~/Dropbox/sync/org/inbox.org")
+      (setq org-default-notes-file (concat org-directory "/notes.org"))
+      (setq org-capture-templates
+            '(("t" "Simple todo" entry (file+headline (concat org-directory "/notes.org") "Tasks")
+               "* TODO %?\n")))
+      (set-variable 'org-export-allow-bind-keywords t)
+     (setq org-src-window-setup 'current-window)
+      ;; moble sync
+      (defvar org-mobile-sync-timer nil)
+      (defvar org-mobile-sync-idle-secs (* 60 10))
 
-(setq org-agenda-files (quote ("~/Dropbox/sync/org")))
-(global-set-key "\C-ca" 'org-agenda)
-(setq org-todo-keywords
-      '((sequence "TODO" "STARTED" "WAITING" "|" "DONE" "CANCELLED" )))
+      (defun org-mobile-sync ()
+        (interactive)
+        (org-mobile-pull)
+        (org-mobile-push))
+      (defun org-mobile-sync-enable ()
+        "enable mobile org idle sync"
+        (interactive)
+        (setq org-mobile-sync-timer
+            (run-with-idle-timer org-mobile-sync-idle-secs t
+                                 'org-mobile-sync)))
+      (defun org-mobile-sync-disable ()
+        "disable mobile org idle sync"
+        (interactive)
+        (cancel-timer org-mobile-sync-timer))
+      
+      (org-mobile-sync-enable)
+       
+      (org-add-link-type "thunderlink" 'org-thunderlink-open)
 
-(setq org-directory "~/Dropbox/sync/org")
-(setq org-mobile-directory "~/Dropbox/MobileOrg")
-(setq org-mobile-files '("~/Dropbox/sync/org"))
-(setq org-mobile-inbox-for-pull "~/Dropbox/sync/org/inbox.org")
-
-;; moble sync
-(defvar org-mobile-sync-timer nil)
-(defvar org-mobile-sync-idle-secs (* 60 10))
-
-(defun org-mobile-sync ()
-  (interactive)
-  (org-mobile-pull)
-  (org-mobile-push))
-(defun org-mobile-sync-enable ()
-  "enable mobile org idle sync"
-  (interactive)
-  (setq org-mobile-sync-timer
-        (run-with-idle-timer org-mobile-sync-idle-secs t
-                             'org-mobile-sync)))
-(defun org-mobile-sync-disable ()
-  "disable mobile org idle sync"
-  (interactive)
-  (cancel-timer org-mobile-sync-timer))
-(org-mobile-sync-enable)
-
-(set-variable 'org-export-allow-bind-keywords t)
-
-
-(org-add-link-type "thunderlink" 'org-thunderlink-open)
-
-(defun org-thunderlink-open (path)
-  (let ( (command (concat  "thunderbird -thunderlink " "thunderlink:" path)))
-    (message command)
-    (shell-command command)))
-
-(setq org-default-notes-file (concat org-directory "/notes.org"))
-(define-key global-map "\C-cc" 'org-capture)
-(setq org-capture-templates
-      '(("t" "Simple todo" entry (file+headline (concat org-directory "/notes.org") "Tasks")
-         "* TODO %?\n")))
+      (defun org-thunderlink-open (path)
+        (let ( (command (concat  "thunderbird -thunderlink " "thunderlink:" path)))
+          (message command)
+          (shell-command command)))
+      :bind (("\C-ca"  . org-agenda)
+             ("\C-cc" . org-capture)))
 
 
 
@@ -137,92 +189,100 @@
  
 * projectile
 #+BEGIN_SRC emacs-lisp
-(use-package projectile)
-(projectile-global-mode)
+  (use-package projectile
+    :config
+    (projectile-global-mode))
 #+END_SRC
 
 * company
 #+BEGIN_SRC emacs-lisp
-(use-package company) 
-(require 'company)
-(add-hook 'after-init-hook 'global-company-mode)
-(global-set-key "\t" 'company-complete)
-(global-company-mode)
-(use-package company-quickhelp)
-(company-quickhelp-mode 1)
+    (use-package company 
+      :config
+      (add-hook 'after-init-hook 'global-company-mode)
+      
+      (global-company-mode)
+      :diminish company-mode)
 #+END_SRC
-   
+  
 * undo tree
 #+BEGIN_SRC emacs-lisp
-  (use-package undo-tree)
-  (global-undo-tree-mode)
-  (setq undo-tree-visualizer-timestamps t)
-  (setq undo-tree-visualizer-diff t)
-  (global-set-key (kbd "C-z") 'undo-tree-visualize)
+    (use-package undo-tree
+      :config
+      (global-undo-tree-mode)
+      (setq undo-tree-visualizer-timestamps t)
+      (setq undo-tree-visualizer-diff t)
+      :diminish undo-tree-mode 
+      :bind ("C-z" . undo-tree-visualize))
 #+END_SRC
 
 * highlight-tail
 #+BEGIN_SRC emacs-lisp
-(use-package highlight-tail)
-(require 'highlight-tail)
-(setq highlight-tail-colors '(("black" . 0)
-                              ("#bc2525" . 25)
-                              ("black" . 100)))
-(setq highlight-tail-steps 10
-      highlight-tail-timer 0.05)
+    (use-package highlight-tail
+      :config
+      (setq highlight-tail-colors '(("black" . 0)
+                                  ("#bc2525" . 25)
+                                  ("black" . 100)))
+      (setq highlight-tail-steps 10
+            highlight-tail-timer 0.05)
 
-(highlight-tail-reload)
+      (highlight-tail-reload)
+      :diminish highlight-tail-mode)
+
 #+END_SRC
- 
+  
 * helm
 #+BEGIN_SRC emacs-lisp
-(use-package helm)
-(require 'helm-config)
-(helm-mode 1)
- (global-set-key (kbd "M-x") 'helm-M-x)
-(global-set-key (kbd "C-x f") 'helm-recentf)
-(global-set-key (kbd "C-x C-f") 'helm-for-files)
-(setq helm-autoresize-mode 1)
-;(use-package helm-projectile)
-;(require 'helm-projectile)
-;(helm-projectile-on)
-#+END_SRC
+     (use-package helm
+       :config
+       (helm-mode 1)
+       (setq helm-autoresize-mode 1)
+       :diminish helm-mode
+       :bind (("M-x". helm-M-x)
+              ("C-x f" . helm-recentf)
+              ("C-x C-f" . helm-for-files)))
 
+       (use-package helm-projectile
+         :config
+         (helm-projectile-on))
+#+END_SRC
+  
 * Magit
 #+BEGIN_SRC emacs-lisp
-(use-package magit)
 
+    (defun magit-toggle-whitespace ()
+      (interactive)
+      (if (member "-w" magit-diff-arguments)
+          (magit-dont-ignore-whitespace)
+        (magit-ignore-whitespace)))
 
-(defun magit-toggle-whitespace ()
-  (interactive)
-  (if (member "-w" magit-diff-arguments)
-      (magit-dont-ignore-whitespace)
-    (magit-ignore-whitespace)))
+    (defun magit-ignore-whitespace ()
+      (interactive)
+      (add-to-list 'magit-diff-arguments "-w")
+      (magit-refresh))
 
-(defun magit-ignore-whitespace ()
-  (interactive)
-  (add-to-list 'magit-diff-arguments "-w")
-  (magit-refresh))
+    (defun magit-dont-ignore-whitespace ()
+      (interactive)
+      (setq magit-diff-options (remove "-w" magit-diff-arguments))
+      (magit-refresh))
 
-(defun magit-dont-ignore-whitespace ()
-  (interactive)
-  (setq magit-diff-options (remove "-w" magit-diff-arguments))
-  (magit-refresh))
-
-
-(define-key magit-status-mode-map (kbd "W") 'magit-toggle-whitespace)
-(setq magit-diff-refine-hunk t)
-(global-set-key (kbd "C-x g") 'magit-status)
+   (use-package magit
+      :config
+      (bind-key "W"  'magit-toggle-whitespace magit-status-mode-map)
+       (setq magit-diff-refine-hunk t)
+      :bind ("C-x g" . magit-status))
 
 #+END_SRC
 
 * polymode
 #+BEGIN_SRC emacs-lisp
-  (use-package polymode)
+  (use-package polymode
+    :config
+    (bind-key  "\M-ns"  'ess-rmarkdown  polymode-mode-map))
   (use-package markdown-mode)
   (require 'poly-markdown)
   (require 'poly-R)
   (add-to-list 'auto-mode-alist '("\\.Rmd" . poly-markdown+r-mode))
+
   (defun save-buffer-if-visiting-file ()
     "Save the current buffer only if it is visiting a file"
     (interactive)
@@ -255,17 +315,18 @@
             (ess-show-buffer (buffer-name sbuffer) nil))))))
 
 
-  (define-key polymode-mode-map "\M-ns" 'ess-rmarkdown)
+  ;(define-key polymode-mode-map "\M-ns" 'ess-rmarkdown)
   (defun ess-auto-rmarkdown-enable ()
     (interactive)
     (run-with-idle-timer 1 t #'ess-rmarkdown))
-  
+
 
 
 #+END_SRC
 
 * Gnus 
 #+BEGIN_SRC emacs-lisp
+
     (setq gnus-secondary-select-methods
 
      '((nnimap "davmail"
@@ -273,79 +334,75 @@
              (nnimap-address "localhost")
              (nnimap-stream network))))
 
-    (setq gnus-summary-line-format "%U%R%z%I%(%[%4L: %-23,23f%]%) %d %s
-  ")
+    (setq gnus-summary-line-format "%U%R%I%   %-50,50s   %-30,30n   %D
+")
 
 #+END_SRC 
 
+* Keychord
+#+BEGIN_SRC emacs-lisp
 
+  (use-package key-chord
+    :config
+    (key-chord-mode 1)
+    (key-chord-define-global "xx"     'er/expand-region)
+    (key-chord-define-global "uu"     'undo) 
+    
+    (key-chord-define-global "yy"
+                             (defhydra my/window-movement ()
+                               ("<left>" windmove-left)
+                               ("<right>" windmove-right)
+                               ("<down>" windmove-down)
+                               ("<up>" windmove-up)
+                               ("o" delete-other-windows :color blue)
+                               ("d" delete-window)
+                               ("b" helm-buffers-list)
+                               ("v" (progn (split-window-right) (windmove-right)))
+                               ("x" (progn (split-window-below) (windmove-down)))
+
+                               ("q" nil)))
+
+
+    (key-chord-define-global "jj"
+                             (defhydra join-lines ()
+                               ("<up>" join-line)
+                               ("<down>" (join-line 1))
+                               ("t" join-line)
+                               ("n" (join-line 1)))))
+
+
+
+
+#+END_SRC 
 
 * other
 #+BEGIN_SRC emacs-lisp
-  (use-package google-this)
-  (require 'google-this)
-  (global-set-key (kbd "C-c g") 'google-this-mode-submap)
-  (setq browse-url-browser-function 'browse-url-chromium)
-
-  (use-package expand-region)
-  (define-key global-map (kbd "C-c C-SPC") 'er/expand-region)
-
-  (use-package guide-key)
-  (require 'guide-key)
-  (guide-key-mode 1)
-  (setq guide-key/guide-key-sequence '("C-x" "C-c"))
-  (setq guide-key/recursive-key-sequence-flag t)
-
-  (use-package hydra)
-  (require 'hydra)
-  (defhydra hydra-zoom (global-map "<f5>")
-    "zoom"
-    ("g" text-scale-increase "in")
-    ("l" text-scale-decrease "out"))
-
-  (use-package move-text)
-  (require 'move-text)
-  (move-text-default-bindings)
-
-  (defun copy-line (arg)
-    "Copy lines (as many as prefix argument) in the kill ring.
-                    Ease of use features:
-                    - Move to start of next line.
-                    - Appends the copy on sequential calls.
-                    - Use newline as last char even on the last line of the buffer.
-                    - If region is active, copy its lines."
-    (interactive "p")
-    (let ((beg (line-beginning-position))
-          (end (line-end-position arg)))
-      (when mark-active
-        (if (> (point) (mark))
-            (setq beg (save-excursion (goto-char (mark)) (line-beginning-position)))
-          (setq end (save-excursion (goto-char (mark)) (line-end-position)))))
-      (if (eq last-command 'copy-line)
-          (kill-append (buffer-substring beg end) (< end beg))
-        (kill-ring-save beg end)))
-    (kill-append "\n" nil)
-    (beginning-of-line (or (and arg (1+ arg)) 2))
-    (if (and arg (not (= 1 arg))) (message "%d lines copied" arg)))
-
-  (defun duplicate-current-line (&optional n)
-    "duplicate current line, make more than 1 copy given a numeric argument"
-    (interactive "p")
-    (save-excursion
-      (let ((nb (or n 1))
-            (current-line (thing-at-point 'line)))
-        ;; when on last line, insert a newline first
-        (when (or (= 1 (forward-line 1)) (eq (point) (point-max)))
-          (insert "\n"))
-
-        ;; now insert as many time as requested
-        (while (> n 0)
-          (insert current-line)
-          (decf n)))))
 
 
-  (global-set-key "\C-c\C-k" 'copy-line)
-  (global-set-key (kbd "C-c C-l") 'duplicate-current-line)
+  (use-package diminish)
+  (use-package google-this
+    :bind ("C-c g"  . google-this-mode-submap)
+    :config
+    (global-set-key (kbd "C-c g") 'google-this-mode-submap)
+    (setq browse-url-browser-function 'browse-url-chromium))
+
+  (use-package expand-region
+    :bind ("C-c C-SPC" . er/expand-region))
+
+  (use-package guide-key
+    :config
+    (guide-key-mode 1)
+    (setq guide-key/guide-key-sequence '("C-x" "C-c" "C-h"))
+    (setq guide-key/recursive-key-sequence-flag t)
+    :diminish guide-key-mode)
+
+  (use-package hydra
+    :config
+    (defhydra hydra-zoom (global-map "<f5>")
+      "zoom"
+      ("g" text-scale-increase "in")
+      ("l" text-scale-decrease "out")))
+
 
 
   (defun hide-eol ()
@@ -360,22 +417,51 @@
       (setq comint-buffer-maximum-size 0)
       (comint-truncate-buffer)
       (setq comint-buffer-maximum-size old-max)))
-  (use-package rainbow-delimiters)
-  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
 
-  (use-package keyfreq)
-  (keyfreq-mode 1)
-  (keyfreq-autosave-mode 1)
+  (use-package rainbow-delimiters
+    :config
+    (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
+
+  (use-package keyfreq
+    :config
+    (keyfreq-mode 1)
+    (keyfreq-autosave-mode 1))
 
 
-  (display-time-mode 1)
-  (setq display-time-24hr-format t)
+  (use-package org-caldav 
+    :config      
+    (setq org-caldav-url "http://localhost:1080/users"
+          org-caldav-calendar-id "carsten.behring@efsa.europa.eu/calendar"
+          org-caldav-uuid-extension ".EML")
+    (setq org-caldav-inbox "~/Dropbox/sync/org/efsa-cal.org")
+    (setq org-caldav-files '("~/Dropbox/sync/org/appointments.org"))
+    (setq org-caldav-debug-level 2))
 
+
+  (require 'excorporate)
+  (setq excorporate-configuration '("carsten.behring@efsa.europa.eu" . "https://mail.efsa.europa.eu/EWS/Exchange.asmx"))
+  (setq gnutls-log-level 2)
+
+
+  (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+  (fset 'yes-or-no-p 'y-or-n-p)
+
+
+;;  (use-package 'sunrise-commander) 
+;;  (require 'sunrise-commander)
 #+END_SRC 
 
 
 * start server
 #+BEGIN_SRC emacs-lisp
-(server-start)
-
+  (server-start)
 #+END_SRC 
+
+
+
+
+
+
+
+
+
