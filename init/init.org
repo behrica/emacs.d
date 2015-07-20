@@ -540,7 +540,7 @@ Git gutter:
        :color blue))
 
 )
-
+(use-package ranger)
     ;;(use-package sunrise-commander) 
     ;;  (require 'sunrise-commander)
   #+END_SRC 
