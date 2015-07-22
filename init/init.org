@@ -546,11 +546,12 @@
         ;;  (require 'sunrise-commander)
     (use-package calfw
       :config
+      (require 'calfw-org)
       (bind-key "C-c m" 'cfw:open-org-calendar))
 
-    )
-    (require 'calfw)
-    (require 'calfw-org)
+    
+    
+       
 
   #+END_SRC 
   
