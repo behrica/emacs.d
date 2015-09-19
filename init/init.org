@@ -1,18 +1,18 @@
 * boot-UI
-#+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp
 
-(when (string= system-name "surface-linux")
-  (set-frame-font "DejaVu Sans Mono-20" t t))
+    (when (string= system-name "surface-linux")
+      (set-frame-font "DejaVu Sans Mono-20" t t))
 
-(set-frame-font "Droid Sans Mono-13" t t)
+    ;;(set-frame-font "Droid Sans Mono-13" t t)
+    (set-frame-font "Hack 14" t t)
+    (menu-bar-mode 0)
+    (tool-bar-mode 0)
+    (scroll-bar-mode -1)
+    (setq inhibit-splash-screen t)
 
-(menu-bar-mode 0)
-(tool-bar-mode 0)
-(scroll-bar-mode -1)
-(setq inhibit-splash-screen t)
 
-
-#+END_SRC
+  #+END_SRC
 
 * init
   
@@ -54,20 +54,33 @@
 
   #+END_SRC
 * UI
-  #+BEGIN_SRC emacs-lisp
-    (use-package monokai-theme)
+  #+BEGIN_SRC emacs-lisp 
+
+
+    (use-package ample-theme
+      :init (progn (load-theme 'ample t t)
+                   (load-theme 'ample-flat t t)
+                   (load-theme 'ample-light t t)
+                   (enable-theme 'ample))
+      :defer t
+      :ensure t)
+
+    ;;(use-package monokai-theme)
     (use-package powerline
       :config
       (powerline-center-theme)
-      (setq powerline-color1 "#073642")
-      (setq powerline-color2 "#002b36")
-      
-      (set-face-attribute 'mode-line nil
-                          :foreground "#fdf6e3"
-                          :background "#000020"
-                          :box nil)
-      (set-face-attribute 'mode-line-inactive nil
-                          :box nil))
+
+      ;;      (set-face-attribute 'powerline-active1 nil
+      ;;                          :foreground "#00ff00"
+      ;;                          :background "#000000"
+      ;;                          :box nil)
+      ;; (set-face-attribute 'powerline-active2 nil
+      ;;                     :foreground "#0000ff"
+      ;;                     :box nil)
+
+      )
+
+
     (use-package eval-sexp-fu
       :config
       (eval-sexp-fu-flash-mode))
@@ -114,7 +127,7 @@
           ;; when on last line, insert a newline first
           (when (or (= 1 (forward-line 1)) (eq (point) (point-max)))
             (insert "\n"))
-          
+
           ;; now insert as many time as requested
           (while (> n 0)
             (insert current-line)
@@ -139,11 +152,10 @@
     (electric-indent-mode)
 
 
-
   #+END_SRC
   
 * org-mode 
-#+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp
 
     (use-package org
       :config
@@ -152,15 +164,15 @@
       (setq org-agenda-files (quote ("~/Dropbox/sync/org")))
       (setq org-todo-keywords
             '((sequence "TODO" "STARTED" "WAITING" "|" "DONE" "CANCELLED" )))
-      
+
       (setq org-directory "~/Dropbox/sync/org")
       (setq org-default-notes-file (concat org-directory "/notes.org"))
       (setq org-capture-templates
             '(("t" "Simple todo" entry (file+headline (concat org-directory "/notes.org") "Tasks")
                "* TODO %?\n")))
       (set-variable 'org-export-allow-bind-keywords t)
-     (setq org-src-window-setup 'current-window)
-       
+      (setq org-src-window-setup 'current-window)
+
       (org-add-link-type "thunderlink" 'org-thunderlink-open)
 
       (defun org-thunderlink-open (path)
@@ -172,32 +184,47 @@
 
 
 
-#+END_SRC
+  #+END_SRC
 * ess
-#+BEGIN_SRC emacs-lisp
-(use-package ess)
-(require 'ess-site)
-#+END_SRC
+  #+BEGIN_SRC emacs-lisp
+    (use-package ess)
+    (require 'ess-site)
+    (setq ess-R-font-lock-keywords
+
+          (quote
+           ((ess-R-fl-keyword:modifiers . t)
+            (ess-R-fl-keyword:fun-defs . t)
+            (ess-R-fl-keyword:keywords . t)
+            (ess-R-fl-keyword:assign-ops . t)
+            (ess-R-fl-keyword:constants . t)
+            (ess-fl-keyword:fun-calls . t)
+            (ess-fl-keyword:numbers . t)
+            (ess-fl-keyword:operators . t)
+            (ess-fl-keyword:delimiters . t)
+            (ess-fl-keyword:= . t)
+            (ess-R-fl-keyword:F&T . t)
+            (ess-R-fl-keyword:%op% . t))))
+  #+END_SRC
  
 * projectile
-#+BEGIN_SRC emacs-lisp
-  (use-package projectile
-    :config
-    (projectile-global-mode))
-#+END_SRC
+  #+BEGIN_SRC emacs-lisp
+    (use-package projectile
+      :config
+      (projectile-global-mode))
+  #+END_SRC
 
 * company
-#+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp
     (use-package company 
       :config
       (add-hook 'after-init-hook 'global-company-mode)
-      
+
       (global-company-mode)
       :diminish company-mode)
-#+END_SRC
+  #+END_SRC
   
 * undo tree
-#+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp
     (use-package undo-tree
       :config
       (global-undo-tree-mode)
@@ -205,41 +232,41 @@
       (setq undo-tree-visualizer-diff t)
       :diminish undo-tree-mode 
       :bind ("C-z" . undo-tree-visualize))
-#+END_SRC
+  #+END_SRC
 
 * highlight-tail
-#+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp
     (use-package highlight-tail
       :config
       (setq highlight-tail-colors '(("black" . 0)
-                                  ("#bc2525" . 25)
-                                  ("black" . 100)))
+                                    ("#bc2525" . 25)
+                                    ("black" . 100)))
       (setq highlight-tail-steps 10
             highlight-tail-timer 0.05)
 
       (highlight-tail-reload)
       :diminish highlight-tail-mode)
 
-#+END_SRC
+  #+END_SRC
   
 * helm
-#+BEGIN_SRC emacs-lisp
-     (use-package helm
-       :config
-       (helm-mode 1)
-       (setq helm-autoresize-mode 1)
-       :diminish helm-mode
-       :bind (("M-x". helm-M-x)
-              ("C-x f" . helm-recentf)
-              ("C-x C-f" . helm-find-files)))
+  #+BEGIN_SRC emacs-lisp
+    (use-package helm
+      :config
+      (helm-mode 1)
+      (setq helm-autoresize-mode 1)
+      :diminish helm-mode
+      :bind (("M-x". helm-M-x)
+             ("C-x f" . helm-recentf)
+             ("C-x C-f" . helm-find-files)))
 
-       (use-package helm-projectile
-         :config
-         (helm-projectile-on))
-#+END_SRC
+    (use-package helm-projectile
+      :config
+      (helm-projectile-on))
+  #+END_SRC
   
 * Magit
-#+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp
 
     (defun magit-toggle-whitespace ()
       (interactive)
@@ -257,80 +284,80 @@
       (setq magit-diff-options (remove "-w" magit-diff-arguments))
       (magit-refresh))
 
-   (use-package magit
+    (use-package magit
       :config
       (bind-key "W"  'magit-toggle-whitespace magit-status-mode-map)
-       (setq magit-diff-refine-hunk t)
+      (setq magit-diff-refine-hunk t)
       :bind ("C-x g" . magit-status))
 
-#+END_SRC
+  #+END_SRC
 
 * polymode
-#+BEGIN_SRC emacs-lisp
-  (use-package polymode
-    :config
-    (bind-key  "\M-ns"  'ess-rmarkdown  polymode-mode-map))
-  (use-package markdown-mode)
-  (require 'poly-markdown)
-  (require 'poly-R)
-  (add-to-list 'auto-mode-alist '("\\.Rmd" . poly-markdown+r-mode))
+  #+BEGIN_SRC emacs-lisp
+    (use-package polymode
+      :config
+      (bind-key  "\M-ns"  'ess-rmarkdown  polymode-mode-map))
+    (use-package markdown-mode)
+    (require 'poly-markdown)
+    (require 'poly-R)
+    (add-to-list 'auto-mode-alist '("\\.Rmd" . poly-markdown+r-mode))
 
-  (defun save-buffer-if-visiting-file ()
-    "Save the current buffer only if it is visiting a file"
-    (interactive)
-    (if (and (buffer-file-name) (buffer-modified-p))
-        (save-buffer)))
-
-
-  (defun ess-rmarkdown ()
-    "Compile R markdown (.Rmd). Should work for any output type."
-    (interactive)
-    (when (bound-and-true-p poly-markdown+r-mode)
-      (save-buffer-if-visiting-file)
-                                          ; Check if attached R-session
-      (condition-case nil
-          (ess-get-process)
-        ((error ""  ARGS)
-         (ess-switch-process)))
-      (let* ((rmd-buf (current-buffer)))
-
-        (save-excursion
-          (let* ((sprocess (ess-get-process ess-current-process-name))
-                 (sbuffer (process-buffer sprocess))
-                 (buf-coding (symbol-name buffer-file-coding-system))
-                 (R-cmd
-                  (format "library(rmarkdown); rmarkdown::render(\"%s\")"
-                          buffer-file-name)))
-            (message "Running rmarkdown on %s" buffer-file-name)
-            (ess-execute R-cmd 'buffer nil nil)
-            (switch-to-buffer rmd-buf)
-            (ess-show-buffer (buffer-name sbuffer) nil))))))
+    (defun save-buffer-if-visiting-file ()
+      "Save the current buffer only if it is visiting a file"
+      (interactive)
+      (if (and (buffer-file-name) (buffer-modified-p))
+          (save-buffer)))
 
 
-  ;(define-key polymode-mode-map "\M-ns" 'ess-rmarkdown)
-  (defun ess-auto-rmarkdown-enable ()
-    (interactive)
-    (run-with-idle-timer 1 t #'ess-rmarkdown))
+    (defun ess-rmarkdown ()
+      "Compile R markdown (.Rmd). Should work for any output type."
+      (interactive)
+      (when (bound-and-true-p poly-markdown+r-mode)
+        (save-buffer-if-visiting-file)
+                                            ; Check if attached R-session
+        (condition-case nil
+            (ess-get-process)
+          ((error ""  ARGS)
+           (ess-switch-process)))
+        (let* ((rmd-buf (current-buffer)))
+
+          (save-excursion
+            (let* ((sprocess (ess-get-process ess-current-process-name))
+                   (sbuffer (process-buffer sprocess))
+                   (buf-coding (symbol-name buffer-file-coding-system))
+                   (R-cmd
+                    (format "library(rmarkdown); rmarkdown::render(\"%s\")"
+                            buffer-file-name)))
+              (message "Running rmarkdown on %s" buffer-file-name)
+              (ess-execute R-cmd 'buffer nil nil)
+              (switch-to-buffer rmd-buf)
+              (ess-show-buffer (buffer-name sbuffer) nil))))))
+
+
+                                            ;(define-key polymode-mode-map "\M-ns" 'ess-rmarkdown)
+    (defun ess-auto-rmarkdown-enable ()
+      (interactive)
+      (run-with-idle-timer 1 t #'ess-rmarkdown))
 
 
 
-#+END_SRC
+  #+END_SRC
 
 * Gnus 
-#+BEGIN_SRC emacs-lisp
-(setq gnus-select-method 
-      '(nnmaildir "EFSA" 
-                  (directory "~/.mails/")))
+  #+BEGIN_SRC emacs-lisp
+    (setq gnus-select-method 
+          '(nnmaildir "EFSA" 
+                      (directory "~/.mails/")))
 
 
     (setq gnus-secondary-select-methods
 
-     '())
-        
-    (setq gnus-summary-line-format "%U%R%I%   %-50,50s   %-30,30n   %D
-")
+          '())
 
-#+END_SRC 
+    (setq gnus-summary-line-format "%U%R%I%   %-50,50s   %-30,30n   %D
+    ")
+
+  #+END_SRC 
  
 * Keychord
   #+BEGIN_SRC emacs-lisp
@@ -340,7 +367,7 @@
       (key-chord-mode 1)
       (key-chord-define-global "xx"     'er/expand-region)
       (key-chord-define-global "uu"     'undo) 
-      
+
       (key-chord-define-global "yy"
                                (defhydra my/window-movement ()
                                  ("<left>" windmove-left)
@@ -353,8 +380,8 @@
                                  ("v" (progn (split-window-right) (windmove-right)))
                                  ("x" (progn (split-window-below) (windmove-down)))
                                  ("q" nil)))
-      
-      
+
+
       (key-chord-define-global "jj"
                                (defhydra join-lines ()
                                  ("<up>" join-line)
@@ -370,165 +397,163 @@
 * other
   #+BEGIN_SRC emacs-lisp
 
-        (use-package focus)
+    (use-package focus)
 
-        (use-package google-this
-          :bind ("C-c g"  . google-this-mode-submap)
-          :config
-          (global-set-key (kbd "C-c g") 'google-this-mode-submap)
-          (setq browse-url-browser-function 'browse-url-chromium))
+    (use-package google-this
+      :bind ("C-c g"  . google-this-mode-submap)
+      :config
+      (global-set-key (kbd "C-c g") 'google-this-mode-submap))
+    (setq browse-url-browser-function 'browse-url-chromium)
 
+    (use-package guide-key
+      :config
+      (guide-key-mode 1)
+      (setq guide-key/guide-key-sequence '("C-x" "C-c" "C-h"))
+      (setq guide-key/recursive-key-sequence-flag t)
+      :diminish guide-key-mode)
 
-        (use-package guide-key
-          :config
-          (guide-key-mode 1)
-          (setq guide-key/guide-key-sequence '("C-x" "C-c" "C-h"))
-          (setq guide-key/recursive-key-sequence-flag t)
-          :diminish guide-key-mode)
+    (use-package hydra
+      :init
+      (defhydra hydra-zoom (global-map "<f5>")
+        "zoom"
+        ("+" text-scale-increase "in")
+        ("-" text-scale-decrease "out"))
 
-        (use-package hydra
-          :config
-          (defhydra hydra-zoom (global-map "<f5>")
-            "zoom"
-            ("+" text-scale-increase "in")
-            ("-" text-scale-decrease "out"))
-          
-          (defhydra hydra-magit (:color teal :hint nil)
-            "
-                 PROJECTILE: %(projectile-project-root)
+      (defhydra hydra-magit (:color teal :hint nil)
+        "
+                     PROJECTILE: %(projectile-project-root)
 
-                 Immuting            Mutating
-            -----------------------------------------
-              _w_: blame line      _b_: checkout
-              _a_: annotate file   _B_: branch mgr
-              _d_: diff            _c_: commit
-              _s_: status          _e_: rebase
-              _l_: log
-              _t_: time machine
+                     Immuting            Mutating
+                -----------------------------------------
+                  _w_: blame line      _b_: checkout
+                  _a_: annotate file   _B_: branch mgr
+                  _d_: diff            _c_: commit
+                  _s_: status          _e_: rebase
+                  _l_: log
+                  _t_: time machine
 
-            "
-            ("w" git-messenger:popup-message)
-            ("a" vc-annotate)
-            ("b" magit-checkout)
-            ("B" magit-branch-manager)
-            ("c" vc-next-action)
-            ("d" magit-diff-working-tree)
-            ("e" magit-interactive-rebase)
-            ("s" magit-status)
-            ("l" magit-log)
-            ("t" git-timemachine))
-          
-          (bind-key "C-x g" 'hydra-magit/body)
-          
-          (defhydra hydra-highlight-symbol ()
-            "
-            Highlight -----------> Dim
-            _h_: Highlight at Point _f_: focus-mode
-            _j_: Previous Symbol    _r_: focus-ro
-            _k_: Next Symbol
-            _d_: Clear All Symbols
-            _a_: Toggle AHS
-            "
-            ("h" highlight-symbol-at-point)
-            ("j" highlight-symbol-prev)
-            ("k" highlight-symbol-next)
-            ("d" (progn (highlight-symbol-remove-all)
-                        (evil-search-highlight-persist-remove-all)))
-            ("a" auto-highlight-symbol-mode)
-            ("f" focus-mode)
-            ("r" focus-read-only-mode))
-          
-          (bind-key "C-c h" 'hydra-highlight-symbol/body)
-          
-          
-          )
+                "
+        ("w" git-messenger:popup-message)
+        ("a" vc-annotate)
+        ("b" magit-checkout)
+        ("B" magit-branch-manager)
+        ("c" vc-next-action)
+        ("d" magit-diff-working-tree)
+        ("e" magit-interactive-rebase)
+        ("s" magit-status)
+        ("l" magit-log)
+        ("t" git-timemachine))
+
+      (bind-key "C-x g" 'hydra-magit/body)
+
+      (defhydra hydra-highlight-symbol ()
+        "
+                Highlight -----------> Dim
+                _h_: Highlight at Point _f_: focus-mode
+                _j_: Previous Symbol    _r_: focus-ro
+                _k_: Next Symbol
+                _d_: Clear All Symbols
+                _a_: Toggle AHS
+                "
+        ("h" highlight-symbol-at-point)
+        ("j" highlight-symbol-prev)
+        ("k" highlight-symbol-next)
+        ("d" (progn (highlight-symbol-remove-all)
+                    (evil-search-highlight-persist-remove-all)))
+        ("a" auto-highlight-symbol-mode)
+        ("f" focus-mode)
+        ("r" focus-read-only-mode))
+
+      (bind-key "C-c h" 'hydra-highlight-symbol/body))
 
 
 
-        (defun hide-eol ()
-          "Do not show ^M in files containing mixed UNIX and DOS line endings."
-          (interactive)
-          (setq buffer-display-table (make-display-table))
-          (aset buffer-display-table ?\^M []))
+    (defun hide-eol ()
+      "Do not show ^M in files containing mixed UNIX and DOS line endings."
+      (interactive)
+      (setq buffer-display-table (make-display-table))
+      (aset buffer-display-table ?\^M []))
 
-        (defun clear-shell ()
-          (interactive)
-          (let ((old-max comint-buffer-maximum-size))
-            (setq comint-buffer-maximum-size 0)
-            (comint-truncate-buffer)
-            (setq comint-buffer-maximum-size old-max)))
+    (defun clear-shell ()
+      (interactive)
+      (let ((old-max comint-buffer-maximum-size))
+        (setq comint-buffer-maximum-size 0)
+        (comint-truncate-buffer)
+        (setq comint-buffer-maximum-size old-max)))
 
-        (use-package rainbow-delimiters
-          :config
-          (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
+    (use-package rainbow-delimiters
+      :config
+      (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
 
-        (use-package keyfreq
-          :config
-          (keyfreq-mode 1)
-          (keyfreq-autosave-mode 1))
-
-
-        (use-package org-caldav 
-          :config      
-          (setq org-caldav-url "http://localhost:1080/users"
-                org-caldav-calendar-id "carsten.behring@efsa.europa.eu/calendar"
-                org-caldav-uuid-extension ".EML")
-          (setq org-caldav-inbox "~/Dropbox/sync/org/efsa-cal.org")
-          (setq org-caldav-files '("~/Dropbox/sync/org/appointments.org"))
-          (setq org-caldav-debug-level 2))
+    (use-package keyfreq
+      :config
+      (keyfreq-mode 1)
+      (keyfreq-autosave-mode 1))
 
 
-        ;; (require 'excorporate)
-        ;; (setq excorporate-configuration '("carsten.behring@efsa.europa.eu" . "https://mail.efsa.europa.eu/EWS/Exchange.asmx"))
-        ;; (setq gnutls-log-level 2)
+    (use-package org-caldav 
+      :config      
+      (setq org-caldav-url "http://localhost:1080/users"
+            org-caldav-calendar-id "carsten.behring@efsa.europa.eu/calendar"
+            org-caldav-uuid-extension ".EML")
+      (setq org-caldav-inbox "~/Dropbox/sync/org/efsa-cal.org")
+      (setq org-caldav-files '("~/Dropbox/sync/org/appointments.org"))
+      (setq org-caldav-debug-level 2))
 
 
-        (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
-        (fset 'yes-or-no-p 'y-or-n-p)
+    ;; (require 'excorporate)
+    ;; (setq excorporate-configuration '("carsten.behring@efsa.europa.eu" . "https://mail.efsa.europa.eu/EWS/Exchange.asmx"))
+    ;; (setq gnutls-log-level 2)
 
-        (use-package git-gutter-fringe
-          :config
-          (global-git-gutter-mode)
-    (defhydra hydra-git-gutter (:body-pre (git-gutter-mode 1)
-                                :hint nil)
-      "
-    Git gutter:
-      _j_: next hunk        _s_tage hunk     _q_uit
-      _k_: previous hunk    _r_evert hunk    _Q_uit and deactivate git-gutter
-      ^ ^                   _p_opup hunk
-      _h_: first hunk
-      _l_: last hunk        set start _R_evision
-    "
-      ("j" git-gutter:next-hunk)
-      ("k" git-gutter:previous-hunk)
-      ("h" (progn (goto-char (point-min))
-                  (git-gutter:next-hunk 1)))
-      ("l" (progn (goto-char (point-min))
-                  (git-gutter:previous-hunk 1)))
-      ("s" git-gutter:stage-hunk)
-      ("r" git-gutter:revert-hunk)
-      ("p" git-gutter:popup-hunk)
-      ("R" git-gutter:set-start-revision)
-      ("q" nil :color blue)
-      ("Q" (progn (git-gutter-mode -1)
-                  ;; git-gutter-fringe doesn't seem to
-                  ;; clear the markup right away
-                  (sit-for 0.1)
-                  (git-gutter:clear))
-           :color blue))
 
-    )
+    (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+    (fset 'yes-or-no-p 'y-or-n-p)
+
+    (use-package git-gutter-fringe
+      :config
+      (global-git-gutter-mode)
+      (defhydra hydra-git-gutter (:body-pre (git-gutter-mode 1)
+                                            :hint nil)
+        "
+        Git gutter:
+          _j_: next hunk        _s_tage hunk     _q_uit
+          _k_: previous hunk    _r_evert hunk    _Q_uit and deactivate git-gutter
+          ^ ^                   _p_opup hunk
+          _h_: first hunk
+          _l_: last hunk        set start _R_evision
+        "
+        ("j" git-gutter:next-hunk)
+        ("k" git-gutter:previous-hunk)
+        ("h" (progn (goto-char (point-min))
+                    (git-gutter:next-hunk 1)))
+        ("l" (progn (goto-char (point-min))
+                    (git-gutter:previous-hunk 1)))
+        ("s" git-gutter:stage-hunk)
+        ("r" git-gutter:revert-hunk)
+        ("p" git-gutter:popup-hunk)
+        ("R" git-gutter:set-start-revision)
+        ("q" nil :color blue)
+        ("Q" (progn (git-gutter-mode -1)
+                    ;; git-gutter-fringe doesn't seem to
+                    ;; clear the markup right away
+                    (sit-for 0.1)
+                    (git-gutter:clear))
+         :color blue))
+
+      )
     (use-package ranger)
-        ;;(use-package sunrise-commander) 
-        ;;  (require 'sunrise-commander)
+    ;;(use-package sunrise-commander) 
+    ;;  (require 'sunrise-commander)
     (use-package calfw
       :config
       (require 'calfw-org)
       (bind-key "C-c m" 'cfw:open-org-calendar))
 
-    
-    
-       
+
+    (use-package pandoc-mode)
+
+
+
 
   #+END_SRC 
   
