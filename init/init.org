@@ -5,7 +5,7 @@
       (set-frame-font "DejaVu Sans Mono-20" t t))
 
     ;;(set-frame-font "Droid Sans Mono-13" t t)
-    (set-frame-font "Hack 14" t t)
+    (set-frame-font "Hack" t t)
     (menu-bar-mode 0)
     (tool-bar-mode 0)
     (scroll-bar-mode -1)
@@ -394,161 +394,176 @@
 
   #+END_SRC 
   
+* cider
+  #+BEGIN_SRC emacs-lisp
+(use-package cider)
+#+END_SRC
 * other
   #+BEGIN_SRC emacs-lisp
+            (setq browse-url-browser-function 'browse-url-chromium)
+        (use-package focus)
 
-    (use-package focus)
+        (use-package google-this
+          :bind ("C-c g"  . google-this-mode-submap)
+          :config
+          (global-set-key (kbd "C-c g") 'google-this-mode-submap)
+          (setq browse-url-browser-function 'browse-url-chromium))
 
-    (use-package google-this
-      :bind ("C-c g"  . google-this-mode-submap)
-      :config
-      (global-set-key (kbd "C-c g") 'google-this-mode-submap))
-    (setq browse-url-browser-function 'browse-url-chromium)
+        (use-package guide-key
+          :config
+          (guide-key-mode 1)
+          (setq guide-key/guide-key-sequence '("C-x" "C-c" "C-h"))
+          (setq guide-key/recursive-key-sequence-flag t)
+          :diminish guide-key-mode)
 
-    (use-package guide-key
-      :config
-      (guide-key-mode 1)
-      (setq guide-key/guide-key-sequence '("C-x" "C-c" "C-h"))
-      (setq guide-key/recursive-key-sequence-flag t)
-      :diminish guide-key-mode)
-
-    (use-package hydra
+        (use-package hydra
       :init
-      (defhydra hydra-zoom (global-map "<f5>")
-        "zoom"
-        ("+" text-scale-increase "in")
-        ("-" text-scale-decrease "out"))
+          (defhydra hydra-zoom (global-map "<f6>")
+            "zoom"
+            ("+" text-scale-increase "in")
+            ("-" text-scale-decrease "out"))
 
-      (defhydra hydra-magit (:color teal :hint nil)
-        "
-                     PROJECTILE: %(projectile-project-root)
+          (defhydra hydra-magit (:color teal :hint nil)
+            "
+                 PROJECTILE: %(projectile-project-root)
 
-                     Immuting            Mutating
-                -----------------------------------------
-                  _w_: blame line      _b_: checkout
-                  _a_: annotate file   _B_: branch mgr
-                  _d_: diff            _c_: commit
-                  _s_: status          _e_: rebase
-                  _l_: log
-                  _t_: time machine
+                 Immuting            Mutating
+            -----------------------------------------
+              _w_: blame line      _b_: checkout
+              _a_: annotate file   _B_: branch mgr
+              _d_: diff            _c_: commit
+              _s_: status          _e_: rebase
+              _l_: log
+              _t_: time machine
 
-                "
-        ("w" git-messenger:popup-message)
-        ("a" vc-annotate)
-        ("b" magit-checkout)
-        ("B" magit-branch-manager)
-        ("c" vc-next-action)
-        ("d" magit-diff-working-tree)
-        ("e" magit-interactive-rebase)
-        ("s" magit-status)
-        ("l" magit-log)
-        ("t" git-timemachine))
+            "
+            ("w" git-messenger:popup-message)
+            ("a" vc-annotate)
+            ("b" magit-checkout)
+            ("B" magit-branch-manager)
+            ("c" vc-next-action)
+            ("d" magit-diff-working-tree)
+            ("e" magit-interactive-rebase)
+            ("s" magit-status)
+            ("l" magit-log)
+            ("t" git-timemachine))
 
-      (bind-key "C-x g" 'hydra-magit/body)
+          (bind-key "C-x g" 'hydra-magit/body)
 
-      (defhydra hydra-highlight-symbol ()
-        "
-                Highlight -----------> Dim
-                _h_: Highlight at Point _f_: focus-mode
-                _j_: Previous Symbol    _r_: focus-ro
-                _k_: Next Symbol
-                _d_: Clear All Symbols
-                _a_: Toggle AHS
-                "
-        ("h" highlight-symbol-at-point)
-        ("j" highlight-symbol-prev)
-        ("k" highlight-symbol-next)
-        ("d" (progn (highlight-symbol-remove-all)
-                    (evil-search-highlight-persist-remove-all)))
-        ("a" auto-highlight-symbol-mode)
-        ("f" focus-mode)
-        ("r" focus-read-only-mode))
+          (defhydra hydra-highlight-symbol ()
+            "
+            Highlight -----------> Dim
+            _h_: Highlight at Point _f_: focus-mode
+            _j_: Previous Symbol    _r_: focus-ro
+            _k_: Next Symbol
+            _d_: Clear All Symbols
+            _a_: Toggle AHS
+            "
+            ("h" highlight-symbol-at-point)
+            ("j" highlight-symbol-prev)
+            ("k" highlight-symbol-next)
+            ("d" (progn (highlight-symbol-remove-all)
+                        (evil-search-highlight-persist-remove-all)))
+            ("a" auto-highlight-symbol-mode)
+            ("f" focus-mode)
+            ("r" focus-read-only-mode))
 
       (bind-key "C-c h" 'hydra-highlight-symbol/body))
 
 
 
-    (defun hide-eol ()
-      "Do not show ^M in files containing mixed UNIX and DOS line endings."
-      (interactive)
-      (setq buffer-display-table (make-display-table))
-      (aset buffer-display-table ?\^M []))
+        (defun hide-eol ()
+          "Do not show ^M in files containing mixed UNIX and DOS line endings."
+          (interactive)
+          (setq buffer-display-table (make-display-table))
+          (aset buffer-display-table ?\^M []))
 
-    (defun clear-shell ()
-      (interactive)
-      (let ((old-max comint-buffer-maximum-size))
-        (setq comint-buffer-maximum-size 0)
-        (comint-truncate-buffer)
-        (setq comint-buffer-maximum-size old-max)))
+        (defun clear-shell ()
+          (interactive)
+          (let ((old-max comint-buffer-maximum-size))
+            (setq comint-buffer-maximum-size 0)
+            (comint-truncate-buffer)
+            (setq comint-buffer-maximum-size old-max)))
 
-    (use-package rainbow-delimiters
-      :config
-      (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
+        (use-package rainbow-delimiters
+          :config
+          (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
 
-    (use-package keyfreq
-      :config
-      (keyfreq-mode 1)
-      (keyfreq-autosave-mode 1))
-
-
-    (use-package org-caldav 
-      :config      
-      (setq org-caldav-url "http://localhost:1080/users"
-            org-caldav-calendar-id "carsten.behring@efsa.europa.eu/calendar"
-            org-caldav-uuid-extension ".EML")
-      (setq org-caldav-inbox "~/Dropbox/sync/org/efsa-cal.org")
-      (setq org-caldav-files '("~/Dropbox/sync/org/appointments.org"))
-      (setq org-caldav-debug-level 2))
+        (use-package keyfreq
+          :config
+          (keyfreq-mode 1)
+          (keyfreq-autosave-mode 1))
 
 
-    ;; (require 'excorporate)
-    ;; (setq excorporate-configuration '("carsten.behring@efsa.europa.eu" . "https://mail.efsa.europa.eu/EWS/Exchange.asmx"))
-    ;; (setq gnutls-log-level 2)
+        (use-package org-caldav 
+          :config      
+          (setq org-caldav-url "http://localhost:1080/users"
+                org-caldav-calendar-id "carsten.behring@efsa.europa.eu/calendar"
+                org-caldav-uuid-extension ".EML")
+          (setq org-caldav-inbox "~/Dropbox/sync/org/efsa-cal.org")
+          (setq org-caldav-files '("~/Dropbox/sync/org/appointments.org"))
+          (setq org-caldav-debug-level 2))
 
 
-    (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
-    (fset 'yes-or-no-p 'y-or-n-p)
+        ;; (require 'excorporate)
+        ;; (setq excorporate-configuration '("carsten.behring@efsa.europa.eu" . "https://mail.efsa.europa.eu/EWS/Exchange.asmx"))
+        ;; (setq gnutls-log-level 2)
 
-    (use-package git-gutter-fringe
-      :config
-      (global-git-gutter-mode)
-      (defhydra hydra-git-gutter (:body-pre (git-gutter-mode 1)
-                                            :hint nil)
-        "
-        Git gutter:
-          _j_: next hunk        _s_tage hunk     _q_uit
-          _k_: previous hunk    _r_evert hunk    _Q_uit and deactivate git-gutter
-          ^ ^                   _p_opup hunk
-          _h_: first hunk
-          _l_: last hunk        set start _R_evision
-        "
-        ("j" git-gutter:next-hunk)
-        ("k" git-gutter:previous-hunk)
-        ("h" (progn (goto-char (point-min))
-                    (git-gutter:next-hunk 1)))
-        ("l" (progn (goto-char (point-min))
-                    (git-gutter:previous-hunk 1)))
-        ("s" git-gutter:stage-hunk)
-        ("r" git-gutter:revert-hunk)
-        ("p" git-gutter:popup-hunk)
-        ("R" git-gutter:set-start-revision)
-        ("q" nil :color blue)
-        ("Q" (progn (git-gutter-mode -1)
-                    ;; git-gutter-fringe doesn't seem to
-                    ;; clear the markup right away
-                    (sit-for 0.1)
-                    (git-gutter:clear))
-         :color blue))
 
-      )
-    (use-package ranger)
-    ;;(use-package sunrise-commander) 
-    ;;  (require 'sunrise-commander)
-    (use-package calfw
-      :config
-      (require 'calfw-org)
-      (bind-key "C-c m" 'cfw:open-org-calendar))
+        (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+        (fset 'yes-or-no-p 'y-or-n-p)
 
+        (use-package git-gutter-fringe
+          :config
+          (global-git-gutter-mode)
+    (defhydra hydra-git-gutter (:body-pre (git-gutter-mode 1)
+                                :hint nil)
+      "
+    Git gutter:
+      _j_: next hunk        _s_tage hunk     _q_uit
+      _k_: previous hunk    _r_evert hunk    _Q_uit and deactivate git-gutter
+      ^ ^                   _p_opup hunk
+      _h_: first hunk
+      _l_: last hunk        set start _R_evision
+    "
+      ("j" git-gutter:next-hunk)
+      ("k" git-gutter:previous-hunk)
+      ("h" (progn (goto-char (point-min))
+                  (git-gutter:next-hunk 1)))
+      ("l" (progn (goto-char (point-min))
+                  (git-gutter:previous-hunk 1)))
+      ("s" git-gutter:stage-hunk)
+      ("r" git-gutter:revert-hunk)
+      ("p" git-gutter:popup-hunk)
+      ("R" git-gutter:set-start-revision)
+      ("q" nil :color blue)
+      ("Q" (progn (git-gutter-mode -1)
+                  ;; git-gutter-fringe doesn't seem to
+                  ;; clear the markup right away
+                  (sit-for 0.1)
+                  (git-gutter:clear))
+           :color blue))
+
+    )
+            (use-package ranger)
+        ;;(use-package sunrise-commander) 
+        ;;  (require 'sunrise-commander)
+            (use-package calfw
+              :config
+              (require 'calfw-org)
+              (bind-key "C-c m" 'cfw:open-org-calendar))
+
+        (defun sudo-edit (&optional arg)
+          "Edit currently visited file as root.
+
+        With a prefix ARG prompt for a file to visit.
+        Will also prompt for a file to visit if current
+        buffer is not visiting a file."
+          (interactive "P")
+          (if (or arg (not buffer-file-name))
+              (find-file (concat "/sudo:root@localhost:"
+                                 (ido-read-file-name "Find file(as root): ")))
+            (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name))))
 
     (use-package pandoc-mode)
 
@@ -557,15 +572,22 @@
     (use-package cider-eval-sexp-fu)
     (use-package clj-refactor)
 
-(defun my-clojure-mode-hook ()
     (clj-refactor-mode 1)
     (yas-minor-mode 1) ; for adding require/use/import
-    (cljr-add-keybindings-with-prefix "C-c C-m"))
+    (cljr-add-keybindings-with-prefix "C-c C-m")
+    (defun save-all-and-compile ()
+      (interactive)
+      (save-some-buffers 1)
+      (compile compile-command))
 
+    
 (add-hook 'clojure-mode-hook #'my-clojure-mode-hook)
 
+    (global-set-key [f5] 'save-all-and-compile)
 
-  #+END_SRC 
+ #+END_SRC 
+
+
   
   
 * start server
