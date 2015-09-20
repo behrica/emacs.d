@@ -9,7 +9,7 @@
     (menu-bar-mode 0)
     (tool-bar-mode 0)
     (scroll-bar-mode -1)
-    (setq inhibit-splash-screen t)
+      (setq inhibit-splash-screen t)
 
 
   #+END_SRC
@@ -268,27 +268,27 @@
 * Magit
   #+BEGIN_SRC emacs-lisp
 
-    (defun magit-toggle-whitespace ()
-      (interactive)
-      (if (member "-w" magit-diff-arguments)
-          (magit-dont-ignore-whitespace)
-        (magit-ignore-whitespace)))
+    ;; (defun magit-toggle-whitespace ()
+    ;;   (interactive)
+    ;;   (if (member "-w" magit-diff-arguments)
+    ;;       (magit-dont-ignore-whitespace)
+    ;;     (magit-ignore-whitespace)))
 
-    (defun magit-ignore-whitespace ()
-      (interactive)
-      (add-to-list 'magit-diff-arguments "-w")
-      (magit-refresh))
+    ;; (defun magit-ignore-whitespace ()
+    ;;   (interactive)
+    ;;   (add-to-list 'magit-diff-arguments "-w")
+    ;;   (magit-refresh))
 
-    (defun magit-dont-ignore-whitespace ()
-      (interactive)
-      (setq magit-diff-options (remove "-w" magit-diff-arguments))
-      (magit-refresh))
+    ;; (defun magit-dont-ignore-whitespace ()
+    ;;   (interactive)
+    ;;   (setq magit-diff-options (remove "-w" magit-diff-arguments))
+    ;;   (magit-refresh))
 
-    (use-package magit
-      :config
-      (bind-key "W"  'magit-toggle-whitespace magit-status-mode-map)
-      (setq magit-diff-refine-hunk t)
-      :bind ("C-x g" . magit-status))
+    ;; (use-package magit
+    ;;   :config
+    ;;   (bind-key "W"  'magit-toggle-whitespace magit-status-mode-map)
+    ;;   (setq magit-diff-refine-hunk t)
+    ;;   :bind ("C-x g" . magit-status))
 
   #+END_SRC
 
@@ -553,6 +553,16 @@
     (use-package pandoc-mode)
 
 
+    (use-package cider)
+    (use-package cider-eval-sexp-fu)
+    (use-package clj-refactor)
+
+(defun my-clojure-mode-hook ()
+    (clj-refactor-mode 1)
+    (yas-minor-mode 1) ; for adding require/use/import
+    (cljr-add-keybindings-with-prefix "C-c C-m"))
+
+(add-hook 'clojure-mode-hook #'my-clojure-mode-hook)
 
 
   #+END_SRC 
