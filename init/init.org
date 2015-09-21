@@ -398,6 +398,12 @@
   #+BEGIN_SRC emacs-lisp
     (use-package cider)
   #+END_SRC
+* elpy
+  #+BEGIN_SRC emacs-lisp
+    (use-package elpy)
+  #+END_SRC
+
+
 * other
   #+BEGIN_SRC emacs-lisp
     (setq browse-url-browser-function 'browse-url-chromium)
