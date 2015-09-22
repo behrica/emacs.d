@@ -298,7 +298,7 @@
   #+BEGIN_SRC emacs-lisp
     (use-package polymode
       :config
-      (bind-key  "\M-ns"  'ess-rmarkdown  polymode-mode-map))
+      (bind-key  "C-c C-r"  'ess-rmarkdown  polymode-mode-map))
     (use-package markdown-mode)
     (require 'poly-markdown)
     (require 'poly-R)
@@ -400,6 +400,8 @@
   #+BEGIN_SRC emacs-lisp
     (use-package cider)
   #+END_SRC
+1<<<<<<< HEAD
+=======
 * other
   #+BEGIN_SRC emacs-lisp
     (setq browse-url-browser-function 'browse-url-chromium)
@@ -411,9 +413,18 @@
       (global-set-key (kbd "C-c g") 'google-this-mode-submap)
       (setq browse-url-browser-function 'browse-url-chromium))
 
+<<<<<<< HEAD
     (use-package which-key 
       :init (which-key-mode)
       :diminish  which-key-mode)
+=======
+    (use-package guide-key
+      :config
+      (guide-key-mode 1)
+      (setq guide-key/guide-key-sequence '("C-x" "C-c" "C-h"))
+      (setq guide-key/recursive-key-sequence-flag t)
+      :diminish guide-key-mode)
+>>>>>>> 6c8c9d5f4b9275dd95e96e669589abd638ecf383
 
     (use-package hydra
       :init
@@ -424,6 +435,7 @@
 
       (defhydra hydra-magit (:color teal :hint nil)
         "
+<<<<<<< HEAD
                                 PROJECTILE: %(projectile-project-root)
 
                                 Immuting            Mutating
@@ -436,6 +448,20 @@
                              _t_: time machine
 
                            "
+=======
+                     PROJECTILE: %(projectile-project-root)
+
+                     Immuting            Mutating
+                -----------------------------------------
+                  _w_: blame line      _b_: checkout
+                  _a_: annotate file   _B_: branch mgr
+                  _d_: diff            _c_: commit
+                  _s_: status          _e_: rebase
+                  _l_: log
+                  _t_: time machine
+
+                "
+>>>>>>> 6c8c9d5f4b9275dd95e96e669589abd638ecf383
         ("w" git-messenger:popup-message)
         ("a" vc-annotate)
         ("b" magit-checkout)
@@ -451,6 +477,7 @@
 
       (defhydra hydra-highlight-symbol ()
         "
+<<<<<<< HEAD
                            Highlight -----------> Dim
                            _h_: Highlight at Point _f_: focus-mode
                            _j_: Previous Symbol    _r_: focus-ro
@@ -458,6 +485,15 @@
                            _d_: Clear All Symbols
                            _a_: Toggle AHS
                            "
+=======
+                Highlight -----------> Dim
+                _h_: Highlight at Point _f_: focus-mode
+                _j_: Previous Symbol    _r_: focus-ro
+                _k_: Next Symbol
+                _d_: Clear All Symbols
+                _a_: Toggle AHS
+                "
+>>>>>>> 6c8c9d5f4b9275dd95e96e669589abd638ecf383
         ("h" highlight-symbol-at-point)
         ("j" highlight-symbol-prev)
         ("k" highlight-symbol-next)
@@ -518,6 +554,7 @@
       (defhydra hydra-git-gutter (:body-pre (git-gutter-mode 1)
                                             :hint nil)
         "
+<<<<<<< HEAD
                    Git gutter:
                      _j_: next hunk        _s_tage hunk     _q_uit
                      _k_: previous hunk    _r_evert hunk    _Q_uit and deactivate git-gutter
@@ -525,6 +562,15 @@
                      _h_: first hunk
                      _l_: last hunk        set start _R_evision
                    "
+=======
+        Git gutter:
+          _j_: next hunk        _s_tage hunk     _q_uit
+          _k_: previous hunk    _r_evert hunk    _Q_uit and deactivate git-gutter
+          ^ ^                   _p_opup hunk
+          _h_: first hunk
+          _l_: last hunk        set start _R_evision
+        "
+>>>>>>> 6c8c9d5f4b9275dd95e96e669589abd638ecf383
         ("j" git-gutter:next-hunk)
         ("k" git-gutter:previous-hunk)
         ("h" (progn (goto-char (point-min))
@@ -555,9 +601,15 @@
     (defun sudo-edit (&optional arg)
       "Edit currently visited file as root.
 
+<<<<<<< HEAD
                        With a prefix ARG prompt for a file to visit.
                        Will also prompt for a file to visit if current
                        buffer is not visiting a file."
+=======
+            With a prefix ARG prompt for a file to visit.
+            Will also prompt for a file to visit if current
+            buffer is not visiting a file."
+>>>>>>> 6c8c9d5f4b9275dd95e96e669589abd638ecf383
       (interactive "P")
       (if (or arg (not buffer-file-name))
           (find-file (concat "/sudo:root@localhost:"
@@ -585,6 +637,7 @@
     (global-set-key [f5] 'save-all-and-compile)
 
   #+END_SRC 
+<<<<<<< HEAD
 * Python
   #+BEGIN_SRC emacs-lisp
 
