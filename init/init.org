@@ -409,12 +409,9 @@
       (global-set-key (kbd "C-c g") 'google-this-mode-submap)
       (setq browse-url-browser-function 'browse-url-chromium))
 
-    (use-package guide-key
-      :config
-      (guide-key-mode 1)
-      (setq guide-key/guide-key-sequence '("C-x" "C-c" "C-h"))
-      (setq guide-key/recursive-key-sequence-flag t)
-      :diminish guide-key-mode)
+    (use-package which-key 
+      :init (which-key-mode)
+      :diminish  which-key-mode)
 
     (use-package hydra
       :init
@@ -425,18 +422,18 @@
 
       (defhydra hydra-magit (:color teal :hint nil)
         "
-                     PROJECTILE: %(projectile-project-root)
+                                PROJECTILE: %(projectile-project-root)
 
-                     Immuting            Mutating
-                -----------------------------------------
-                  _w_: blame line      _b_: checkout
-                  _a_: annotate file   _B_: branch mgr
-                  _d_: diff            _c_: commit
-                  _s_: status          _e_: rebase
-                  _l_: log
-                  _t_: time machine
+                                Immuting            Mutating
+                           -----------------------------------------
+                             _w_: blame line      _b_: checkout
+                             _a_: annotate file   _B_: branch mgr
+                             _d_: diff            _c_: commit
+                             _s_: status          _e_: rebase
+                             _l_: log
+                             _t_: time machine
 
-                "
+                           "
         ("w" git-messenger:popup-message)
         ("a" vc-annotate)
         ("b" magit-checkout)
@@ -452,13 +449,13 @@
 
       (defhydra hydra-highlight-symbol ()
         "
-                Highlight -----------> Dim
-                _h_: Highlight at Point _f_: focus-mode
-                _j_: Previous Symbol    _r_: focus-ro
-                _k_: Next Symbol
-                _d_: Clear All Symbols
-                _a_: Toggle AHS
-                "
+                           Highlight -----------> Dim
+                           _h_: Highlight at Point _f_: focus-mode
+                           _j_: Previous Symbol    _r_: focus-ro
+                           _k_: Next Symbol
+                           _d_: Clear All Symbols
+                           _a_: Toggle AHS
+                           "
         ("h" highlight-symbol-at-point)
         ("j" highlight-symbol-prev)
         ("k" highlight-symbol-next)
@@ -519,13 +516,13 @@
       (defhydra hydra-git-gutter (:body-pre (git-gutter-mode 1)
                                             :hint nil)
         "
-        Git gutter:
-          _j_: next hunk        _s_tage hunk     _q_uit
-          _k_: previous hunk    _r_evert hunk    _Q_uit and deactivate git-gutter
-          ^ ^                   _p_opup hunk
-          _h_: first hunk
-          _l_: last hunk        set start _R_evision
-        "
+                   Git gutter:
+                     _j_: next hunk        _s_tage hunk     _q_uit
+                     _k_: previous hunk    _r_evert hunk    _Q_uit and deactivate git-gutter
+                     ^ ^                   _p_opup hunk
+                     _h_: first hunk
+                     _l_: last hunk        set start _R_evision
+                   "
         ("j" git-gutter:next-hunk)
         ("k" git-gutter:previous-hunk)
         ("h" (progn (goto-char (point-min))
@@ -556,9 +553,9 @@
     (defun sudo-edit (&optional arg)
       "Edit currently visited file as root.
 
-            With a prefix ARG prompt for a file to visit.
-            Will also prompt for a file to visit if current
-            buffer is not visiting a file."
+                       With a prefix ARG prompt for a file to visit.
+                       Will also prompt for a file to visit if current
+                       buffer is not visiting a file."
       (interactive "P")
       (if (or arg (not buffer-file-name))
           (find-file (concat "/sudo:root@localhost:"
