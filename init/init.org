@@ -218,9 +218,10 @@
     (use-package company 
       :config
       (add-hook 'after-init-hook 'global-company-mode)
-
-      (global-company-mode)
+      (company-quickhelp-mode 1)
+      ;;(global-company-mode)
       :diminish company-mode)
+
   #+END_SRC
   
 * undo tree
@@ -264,6 +265,7 @@
       :config
       (helm-projectile-on))
   #+END_SRC
+
   
 * Magit
   #+BEGIN_SRC emacs-lisp
@@ -583,8 +585,25 @@
     (global-set-key [f5] 'save-all-and-compile)
 
   #+END_SRC 
+* Python
+  #+BEGIN_SRC emacs-lisp
 
+(use-package jedi)
+(defun my/python-mode-hook ()
+  (jedi:setup)
+  
+  (add-to-list 'company-backends 'company-jedi))
+(setq jedi:complete-on-dot t)
+(add-hook 'python-mode-hook 'my/python-mode-hook)
 
+;(use-package anaconda-mode)
+;(add-hook 'python-mode-hook 'anaconda-mode)
+;(use-package elpy)
+
+;(elpy-enable)   
+;(use-package python-mode)
+;(require 'python-mode)
+  #+END_SRC 
   
   
 * start server
