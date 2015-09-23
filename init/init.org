@@ -182,7 +182,12 @@
       :bind (("\C-ca"  . org-agenda)
              ("\C-cc" . org-capture)))
 
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((python . t)))
 
+(add-to-list 'org-structure-template-alist
+             '("p" "#+BEGIN_SRC python :session \n\n#+END_SRC"))
 
   #+END_SRC
 * ess
@@ -218,10 +223,11 @@
     (use-package company 
       :config
       (add-hook 'after-init-hook 'global-company-mode)
-      (company-quickhelp-mode 1)
+      ;(company-quickhelp-mode 1)
       ;;(global-company-mode)
       :diminish company-mode)
-
+  ;(use-package company-quickhelp)
+  
   #+END_SRC
   
 * undo tree
@@ -400,8 +406,6 @@
   #+BEGIN_SRC emacs-lisp
     (use-package cider)
   #+END_SRC
-1<<<<<<< HEAD
-=======
 * other
   #+BEGIN_SRC emacs-lisp
     (setq browse-url-browser-function 'browse-url-chromium)
@@ -413,21 +417,43 @@
       (global-set-key (kbd "C-c g") 'google-this-mode-submap)
       (setq browse-url-browser-function 'browse-url-chromium))
 
-<<<<<<< HEAD
+
     (use-package which-key 
       :init (which-key-mode)
       :diminish  which-key-mode)
-=======
-    (use-package guide-key
-      :config
-      (guide-key-mode 1)
-      (setq guide-key/guide-key-sequence '("C-x" "C-c" "C-h"))
-      (setq guide-key/recursive-key-sequence-flag t)
-      :diminish guide-key-mode)
->>>>>>> 6c8c9d5f4b9275dd95e96e669589abd638ecf383
 
     (use-package hydra
       :init
+
+      (defhydra hydra-git-gutter (:body-pre (git-gutter-mode 1)
+                                            :hint nil)
+        "
+        Git gutter:
+          _j_: next hunk        _s_tage hunk     _q_uit
+          _k_: previous hunk    _r_evert hunk    _Q_uit and deactivate git-gutter
+          ^ ^                   _p_opup hunk
+          _h_: first hunk
+          _l_: last hunk        set start _R_evision
+        "
+        ("j" git-gutter:next-hunk)
+        ("k" git-gutter:previous-hunk)
+        ("h" (progn (goto-char (point-min))
+                    (git-gutter:next-hunk 1)))
+        ("l" (progn (goto-char (point-min))
+                    (git-gutter:previous-hunk 1)))
+        ("s" git-gutter:stage-hunk)
+        ("r" git-gutter:revert-hunk)
+        ("p" git-gutter:popup-hunk)
+        ("R" git-gutter:set-start-revision)
+        ("q" nil :color blue)
+        ("Q" (progn (git-gutter-mode -1)
+                    ;; git-gutter-fringe doesn't seem to
+                    ;; clear the markup right away
+                    (sit-for 0.1)
+                    (git-gutter:clear))
+         :color blue))
+
+
       (defhydra hydra-zoom (global-map "<f6>")
         "zoom"
         ("+" text-scale-increase "in")
@@ -435,7 +461,7 @@
 
       (defhydra hydra-magit (:color teal :hint nil)
         "
-<<<<<<< HEAD
+
                                 PROJECTILE: %(projectile-project-root)
 
                                 Immuting            Mutating
@@ -448,20 +474,7 @@
                              _t_: time machine
 
                            "
-=======
-                     PROJECTILE: %(projectile-project-root)
 
-                     Immuting            Mutating
-                -----------------------------------------
-                  _w_: blame line      _b_: checkout
-                  _a_: annotate file   _B_: branch mgr
-                  _d_: diff            _c_: commit
-                  _s_: status          _e_: rebase
-                  _l_: log
-                  _t_: time machine
-
-                "
->>>>>>> 6c8c9d5f4b9275dd95e96e669589abd638ecf383
         ("w" git-messenger:popup-message)
         ("a" vc-annotate)
         ("b" magit-checkout)
@@ -477,15 +490,7 @@
 
       (defhydra hydra-highlight-symbol ()
         "
-<<<<<<< HEAD
-                           Highlight -----------> Dim
-                           _h_: Highlight at Point _f_: focus-mode
-                           _j_: Previous Symbol    _r_: focus-ro
-                           _k_: Next Symbol
-                           _d_: Clear All Symbols
-                           _a_: Toggle AHS
-                           "
-=======
+
                 Highlight -----------> Dim
                 _h_: Highlight at Point _f_: focus-mode
                 _j_: Previous Symbol    _r_: focus-ro
@@ -493,7 +498,7 @@
                 _d_: Clear All Symbols
                 _a_: Toggle AHS
                 "
->>>>>>> 6c8c9d5f4b9275dd95e96e669589abd638ecf383
+
         ("h" highlight-symbol-at-point)
         ("j" highlight-symbol-prev)
         ("k" highlight-symbol-next)
@@ -551,48 +556,9 @@
     (use-package git-gutter-fringe
       :config
       (global-git-gutter-mode)
-      (defhydra hydra-git-gutter (:body-pre (git-gutter-mode 1)
-                                            :hint nil)
-        "
-<<<<<<< HEAD
-                   Git gutter:
-                     _j_: next hunk        _s_tage hunk     _q_uit
-                     _k_: previous hunk    _r_evert hunk    _Q_uit and deactivate git-gutter
-                     ^ ^                   _p_opup hunk
-                     _h_: first hunk
-                     _l_: last hunk        set start _R_evision
-                   "
-=======
-        Git gutter:
-          _j_: next hunk        _s_tage hunk     _q_uit
-          _k_: previous hunk    _r_evert hunk    _Q_uit and deactivate git-gutter
-          ^ ^                   _p_opup hunk
-          _h_: first hunk
-          _l_: last hunk        set start _R_evision
-        "
->>>>>>> 6c8c9d5f4b9275dd95e96e669589abd638ecf383
-        ("j" git-gutter:next-hunk)
-        ("k" git-gutter:previous-hunk)
-        ("h" (progn (goto-char (point-min))
-                    (git-gutter:next-hunk 1)))
-        ("l" (progn (goto-char (point-min))
-                    (git-gutter:previous-hunk 1)))
-        ("s" git-gutter:stage-hunk)
-        ("r" git-gutter:revert-hunk)
-        ("p" git-gutter:popup-hunk)
-        ("R" git-gutter:set-start-revision)
-        ("q" nil :color blue)
-        ("Q" (progn (git-gutter-mode -1)
-                    ;; git-gutter-fringe doesn't seem to
-                    ;; clear the markup right away
-                    (sit-for 0.1)
-                    (git-gutter:clear))
-         :color blue))
 
       )
-    (use-package ranger)
-    ;;(use-package sunrise-commander) 
-    ;;  (require 'sunrise-commander)
+;    (use-package ranger)
     (use-package calfw
       :config
       (require 'calfw-org)
@@ -601,15 +567,9 @@
     (defun sudo-edit (&optional arg)
       "Edit currently visited file as root.
 
-<<<<<<< HEAD
-                       With a prefix ARG prompt for a file to visit.
-                       Will also prompt for a file to visit if current
-                       buffer is not visiting a file."
-=======
             With a prefix ARG prompt for a file to visit.
             Will also prompt for a file to visit if current
             buffer is not visiting a file."
->>>>>>> 6c8c9d5f4b9275dd95e96e669589abd638ecf383
       (interactive "P")
       (if (or arg (not buffer-file-name))
           (find-file (concat "/sudo:root@localhost:"
@@ -637,25 +597,48 @@
     (global-set-key [f5] 'save-all-and-compile)
 
   #+END_SRC 
-<<<<<<< HEAD
 * Python
   #+BEGIN_SRC emacs-lisp
 
-(use-package jedi)
-(defun my/python-mode-hook ()
-  (jedi:setup)
-  
-  (add-to-list 'company-backends 'company-jedi))
-(setq jedi:complete-on-dot t)
-(add-hook 'python-mode-hook 'my/python-mode-hook)
+        (use-package jedi)
+        (defun my/python-mode-hook ()
+          (jedi:setup)
 
-;(use-package anaconda-mode)
-;(add-hook 'python-mode-hook 'anaconda-mode)
-;(use-package elpy)
+        ;  (add-to-list 'company-backends 'company-jedi)
 
-;(elpy-enable)   
-;(use-package python-mode)
-;(require 'python-mode)
+        )
+        (setq jedi:complete-on-dot t)
+        (add-hook 'python-mode-hook 'my/python-mode-hook)
+        ; (setq python-shell-interpreter "ipython"
+        ;      python-shell-interpreter-args "-i"
+        ;)
+
+        ; (setq python-shell-virtualenv-root "/home/carsten/miniconda/envs/dato-env")
+        ;(setq python-environment-default-root-name "dato-env")
+        ;(setq python-environment-directory "/home/carsten/miniconda/envs")
+        ;(use-package anaconda-mode)
+        ;(add-hook 'python-mode-hook 'anaconda-mode)
+        ;(use-package elpy)
+
+        ;(elpy-enable)   
+;        (use-package python-mode)
+ ;       (require 'python-mode) 
+        (use-package pyvenv)
+    (pyvenv-activate "~/miniconda/envs/dato-env")
+
+(setq
+  python-shell-interpreter "ipython"
+  python-shell-interpreter-args "--pylab"
+  python-shell-prompt-regexp "In \\[[0-9]+\\]: "
+  python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: "
+  python-shell-completion-setup-code
+    "from IPython.core.completerlib import module_completion"
+  python-shell-completion-module-string-code
+    "';'.join(module_completion('''%s'''))\n"
+  python-shell-completion-string-code
+    "';'.join(get_ipython().Completer.all_completions('''%s'''))\n")
+
+
   #+END_SRC 
   
   
