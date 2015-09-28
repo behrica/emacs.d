@@ -339,31 +339,10 @@
       (helm-projectile-on))
   #+END_SRC
   
-* Magit
+* git
   #+BEGIN_SRC emacs-lisp
     (use-package magit)
-    ;; (defun magit-toggle-whitespace ()
-    ;;   (interactive)
-    ;;   (if (member "-w" magit-diff-arguments)
-    ;;       (magit-dont-ignore-whitespace)
-    ;;     (magit-ignore-whitespace)))
-
-    ;; (defun magit-ignore-whitespace ()
-    ;;   (interactive)
-    ;;   (add-to-list 'magit-diff-arguments "-w")
-    ;;   (magit-refresh))
-
-    ;; (defun magit-dont-ignore-whitespace ()
-    ;;   (interactive)
-    ;;   (setq magit-diff-options (remove "-w" magit-diff-arguments))
-    ;;   (magit-refresh))
-
-    ;; (use-package magit
-    ;;   :config
-    ;;   (bind-key "W"  'magit-toggle-whitespace magit-status-mode-map)
-    ;;   (setq magit-diff-refine-hunk t)
-    ;;   :bind ("C-x g" . magit-status))
-
+    (use-package git-timemachine)
   #+END_SRC
 
 * polymode
@@ -489,29 +468,29 @@
       :diminish  which-key-mode)
 
 
-      (bind-key "C-x g" 'hydra-magit/body)
+    (bind-key "C-x g" 'hydra-magit/body)
 
-      (defhydra hydra-highlight-symbol ()
-        "
+    (defhydra hydra-highlight-symbol ()
+      "
 
-                Highlight -----------> Dim
-                _h_: Highlight at Point _f_: focus-mode
-                _j_: Previous Symbol    _r_: focus-ro
-                _k_: Next Symbol
-                _d_: Clear All Symbols
-                _a_: Toggle AHS
-                "
+                    Highlight -----------> Dim
+                    _h_: Highlight at Point _f_: focus-mode
+                    _j_: Previous Symbol    _r_: focus-ro
+                    _k_: Next Symbol
+                    _d_: Clear All Symbols
+                    _a_: Toggle AHS
+                    "
 
-        ("h" highlight-symbol-at-point)
-        ("j" highlight-symbol-prev)
-        ("k" highlight-symbol-next)
-        ("d" (progn (highlight-symbol-remove-all)
-                    (evil-search-highlight-persist-remove-all)))
-        ("a" auto-highlight-symbol-mode)
-        ("f" focus-mode)
-        ("r" focus-read-only-mode))
+      ("h" highlight-symbol-at-point)
+      ("j" highlight-symbol-prev)
+      ("k" highlight-symbol-next)
+      ("d" (progn (highlight-symbol-remove-all)
+                  (evil-search-highlight-persist-remove-all)))
+      ("a" auto-highlight-symbol-mode)
+      ("f" focus-mode)
+      ("r" focus-read-only-mode))
 
-      (bind-key "C-c h" 'hydra-highlight-symbol/body))
+    (bind-key "C-c h" 'hydra-highlight-symbol/body))
 
 
 
@@ -561,7 +540,7 @@
       (global-git-gutter-mode)
 
       )
-;    (use-package ranger)
+                                            ;    (use-package ranger)
     (use-package calfw
       :config
       (require 'calfw-org)
@@ -570,9 +549,9 @@
     (defun sudo-edit (&optional arg)
       "Edit currently visited file as root.
 
-            With a prefix ARG prompt for a file to visit.
-            Will also prompt for a file to visit if current
-            buffer is not visiting a file."
+                With a prefix ARG prompt for a file to visit.
+                Will also prompt for a file to visit if current
+                buffer is not visiting a file."
       (interactive "P")
       (if (or arg (not buffer-file-name))
           (find-file (concat "/sudo:root@localhost:"
@@ -593,7 +572,10 @@
       (interactive)
       (save-some-buffers 1)
       (compile compile-command))
-
+    (defun my-clojure-mode-hook ()
+      (clj-refactor-mode 1)
+      (yas-minor-mode 1) ; for adding require/use/import
+      (cljr-add-keybindings-with-prefix "C-c C-m"))
 
     (add-hook 'clojure-mode-hook #'my-clojure-mode-hook)
 
