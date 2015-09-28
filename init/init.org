@@ -50,8 +50,8 @@
     (require 'use-package)
     (setq use-package-always-ensure t)
     (use-package diminish)
-
-
+    (use-package auto-package-update)
+    (auto-package-update-now)
   #+END_SRC
 * UI
   #+BEGIN_SRC emacs-lisp 
@@ -93,7 +93,74 @@
 
 
   #+END_SRC
-  
+* Hydra
+  #+BEGIN_SRC emacs-lisp
+
+    (use-package hydra
+      :init
+
+      (defhydra hydra-git-gutter (:body-pre (git-gutter-mode 1)
+                                            :hint nil)
+        "
+        Git gutter:
+          _j_: next hunk        _s_tage hunk     _q_uit
+          _k_: previous hunk    _r_evert hunk    _Q_uit and deactivate git-gutter
+          ^ ^                   _p_opup hunk
+          _h_: first hunk
+          _l_: last hunk        set start _R_evision
+        "
+        ("j" git-gutter:next-hunk)
+        ("k" git-gutter:previous-hunk)
+        ("h" (progn (goto-char (point-min))
+                    (git-gutter:next-hunk 1)))
+        ("l" (progn (goto-char (point-min))
+                    (git-gutter:previous-hunk 1)))
+        ("s" git-gutter:stage-hunk)
+        ("r" git-gutter:revert-hunk)
+        ("p" git-gutter:popup-hunk)
+        ("R" git-gutter:set-start-revision)
+        ("q" nil :color blue)
+        ("Q" (progn (git-gutter-mode -1)
+                    ;; git-gutter-fringe doesn't seem to
+                    ;; clear the markup right away
+                    (sit-for 0.1)
+                    (git-gutter:clear))
+         :color blue))
+
+
+      (defhydra hydra-zoom (global-map "<f6>")
+        "zoom"
+        ("+" text-scale-increase "in")
+        ("-" text-scale-decrease "out"))
+
+      (defhydra hydra-magit (:color teal :hint nil)
+        "
+
+                                PROJECTILE: %(projectile-project-root)
+
+                                Immuting            Mutating
+                           -----------------------------------------
+                             _w_: blame line      _b_: checkout
+                             _a_: annotate file   _B_: branch mgr
+                             _d_: diff            _c_: commit
+                             _s_: status          _e_: rebase
+                             _l_: log
+                             _t_: time machine
+
+                           "
+
+        ("w" git-messenger:popup-message)
+        ("a" vc-annotate)
+        ("b" magit-checkout)
+        ("B" magit-branch-manager)
+        ("c" vc-next-action)
+        ("d" magit-diff-working-tree)
+        ("e" magit-interactive-rebase)
+        ("s" magit-status)
+        ("l" magit-log)
+        ("t" git-timemachine))
+
+  #+END_SRC   
 * Edit
   #+BEGIN_SRC emacs-lisp
     (global-set-key (kbd "RET") 'newline-and-indent)
@@ -271,11 +338,10 @@
       :config
       (helm-projectile-on))
   #+END_SRC
-
   
 * Magit
   #+BEGIN_SRC emacs-lisp
-
+    (use-package magit)
     ;; (defun magit-toggle-whitespace ()
     ;;   (interactive)
     ;;   (if (member "-w" magit-diff-arguments)
@@ -422,69 +488,6 @@
       :init (which-key-mode)
       :diminish  which-key-mode)
 
-    (use-package hydra
-      :init
-
-      (defhydra hydra-git-gutter (:body-pre (git-gutter-mode 1)
-                                            :hint nil)
-        "
-        Git gutter:
-          _j_: next hunk        _s_tage hunk     _q_uit
-          _k_: previous hunk    _r_evert hunk    _Q_uit and deactivate git-gutter
-          ^ ^                   _p_opup hunk
-          _h_: first hunk
-          _l_: last hunk        set start _R_evision
-        "
-        ("j" git-gutter:next-hunk)
-        ("k" git-gutter:previous-hunk)
-        ("h" (progn (goto-char (point-min))
-                    (git-gutter:next-hunk 1)))
-        ("l" (progn (goto-char (point-min))
-                    (git-gutter:previous-hunk 1)))
-        ("s" git-gutter:stage-hunk)
-        ("r" git-gutter:revert-hunk)
-        ("p" git-gutter:popup-hunk)
-        ("R" git-gutter:set-start-revision)
-        ("q" nil :color blue)
-        ("Q" (progn (git-gutter-mode -1)
-                    ;; git-gutter-fringe doesn't seem to
-                    ;; clear the markup right away
-                    (sit-for 0.1)
-                    (git-gutter:clear))
-         :color blue))
-
-
-      (defhydra hydra-zoom (global-map "<f6>")
-        "zoom"
-        ("+" text-scale-increase "in")
-        ("-" text-scale-decrease "out"))
-
-      (defhydra hydra-magit (:color teal :hint nil)
-        "
-
-                                PROJECTILE: %(projectile-project-root)
-
-                                Immuting            Mutating
-                           -----------------------------------------
-                             _w_: blame line      _b_: checkout
-                             _a_: annotate file   _B_: branch mgr
-                             _d_: diff            _c_: commit
-                             _s_: status          _e_: rebase
-                             _l_: log
-                             _t_: time machine
-
-                           "
-
-        ("w" git-messenger:popup-message)
-        ("a" vc-annotate)
-        ("b" magit-checkout)
-        ("B" magit-branch-manager)
-        ("c" vc-next-action)
-        ("d" magit-diff-working-tree)
-        ("e" magit-interactive-rebase)
-        ("s" magit-status)
-        ("l" magit-log)
-        ("t" git-timemachine))
 
       (bind-key "C-x g" 'hydra-magit/body)
 
@@ -596,51 +599,43 @@
 
     (global-set-key [f5] 'save-all-and-compile)
 
+    (setq skeleton-pair t)
+
   #+END_SRC 
 * Python
   #+BEGIN_SRC emacs-lisp
+    (use-package company-quickhelp)
+    (use-package company-jedi)
+    (use-package jedi)
+    (defun my/python-mode-hook ()
+      (jedi-mode)
+      (company-quickhelp-mode)
+      (add-to-list 'company-backends 'company-jedi))
+    (setq jedi:complete-on-dot t)
+    (add-hook 'python-mode-hook 'my/python-mode-hook)
 
-        (use-package jedi)
-        (defun my/python-mode-hook ()
-          (jedi:setup)
-
-        ;  (add-to-list 'company-backends 'company-jedi)
-
-        )
-        (setq jedi:complete-on-dot t)
-        (add-hook 'python-mode-hook 'my/python-mode-hook)
-        ; (setq python-shell-interpreter "ipython"
-        ;      python-shell-interpreter-args "-i"
-        ;)
-
-        ; (setq python-shell-virtualenv-root "/home/carsten/miniconda/envs/dato-env")
-        ;(setq python-environment-default-root-name "dato-env")
-        ;(setq python-environment-directory "/home/carsten/miniconda/envs")
-        ;(use-package anaconda-mode)
-        ;(add-hook 'python-mode-hook 'anaconda-mode)
-        ;(use-package elpy)
-
-        ;(elpy-enable)   
-;        (use-package python-mode)
- ;       (require 'python-mode) 
-        (use-package pyvenv)
+    (use-package pyvenv)
     (pyvenv-activate "~/miniconda/envs/dato-env")
+    (setq
+     python-shell-interpreter "ipython"
+     org-babel-python-command "ipython")
 
-(setq
-  python-shell-interpreter "ipython"
-  python-shell-interpreter-args "--pylab"
-  python-shell-prompt-regexp "In \\[[0-9]+\\]: "
-  python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: "
-  python-shell-completion-setup-code
-    "from IPython.core.completerlib import module_completion"
-  python-shell-completion-module-string-code
-    "';'.join(module_completion('''%s'''))\n"
-  python-shell-completion-string-code
-    "';'.join(get_ipython().Completer.all_completions('''%s'''))\n")
-
-
+    (defun python-shell-completion-complete-or-indent ()
+      "Complete or indent depending on the context.
+    If content before pointer is all whitespace, indent.
+    If not try to complete."
+      (interactive)
+      (if (string-match "^[[:space:]]*$"
+                        (buffer-substring (comint-line-beginning-position)
+                                          (point-marker)))
+          (indent-for-tab-command)
+        (company-complete)))
   #+END_SRC 
-  
+
+* ein   
+  #+BEGIN_SRC emacs-lisp
+(use-package ein)
+  #+END_SRC
   
 * start server
   #+BEGIN_SRC emacs-lisp
