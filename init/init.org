@@ -50,8 +50,8 @@
     (require 'use-package)
     (setq use-package-always-ensure t)
     (use-package diminish)
-    (use-package auto-package-update)
-    (auto-package-update-now)
+    
+    
   #+END_SRC
 * UI
   #+BEGIN_SRC emacs-lisp 
@@ -166,11 +166,11 @@
     (global-set-key (kbd "RET") 'newline-and-indent)
     (defun copy-line (arg)
       "Copy lines (as many as prefix argument) in the kill ring.
-                                   Ease of use features:
-                                   - Move to start of next line.
-                                   - Appends the copy on sequential calls.
-                                   - Use newline as last char even on the last line of the buffer.
-                                   - If region is active, copy its lines."
+                                       Ease of use features:
+                                       - Move to start of next line.
+                                       - Appends the copy on sequential calls.
+                                       - Use newline as last char even on the last line of the buffer.
+                                       - If region is active, copy its lines."
       (interactive "p")
       (let ((beg (line-beginning-position))
             (end (line-end-position arg)))
@@ -194,7 +194,7 @@
           ;; when on last line, insert a newline first
           (when (or (= 1 (forward-line 1)) (eq (point) (point-max)))
             (insert "\n"))
-
+          
           ;; now insert as many time as requested
           (while (> n 0)
             (insert current-line)
@@ -209,12 +209,21 @@
       (move-text-default-bindings))
 
 
+
+
     (defun indent-buffer ()
       (interactive)
       (save-excursion
         (indent-region (point-min) (point-max) nil)))
 
-    (bind-key "<f12>" 'indent-buffer)  
+    (defun my/org-cleanup ()
+      (interactive)
+      (org-edit-special)
+      (indent-buffer)
+      (org-edit-src-exit))
+
+
+    (bind-key "<f12>" 'my/org-cleanup)  
 
     (electric-indent-mode)
 
@@ -231,7 +240,7 @@
       (setq org-agenda-files (quote ("~/Dropbox/sync/org")))
       (setq org-todo-keywords
             '((sequence "TODO" "STARTED" "WAITING" "|" "DONE" "CANCELLED" )))
-
+      
       (setq org-directory "~/Dropbox/sync/org")
       (setq org-default-notes-file (concat org-directory "/notes.org"))
       (setq org-capture-templates
@@ -239,9 +248,9 @@
                "* TODO %?\n")))
       (set-variable 'org-export-allow-bind-keywords t)
       (setq org-src-window-setup 'current-window)
-
+      
       (org-add-link-type "thunderlink" 'org-thunderlink-open)
-
+      (org-display-inline-images t t)
       (defun org-thunderlink-open (path)
         (let ( (command (concat  "thunderbird -thunderlink " "thunderlink:" path)))
           (message command)
@@ -249,12 +258,14 @@
       :bind (("\C-ca"  . org-agenda)
              ("\C-cc" . org-capture)))
 
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((python . t)))
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((python . t)))
 
-(add-to-list 'org-structure-template-alist
-             '("p" "#+BEGIN_SRC python :session \n\n#+END_SRC"))
+    (add-to-list 'org-structure-template-alist
+                 '("p" "#+BEGIN_SRC python :session \n\n#+END_SRC"))
+
+    (use-package ob-ipython)
 
   #+END_SRC
 * ess
@@ -616,21 +627,19 @@
 
 * ein   
   #+BEGIN_SRC emacs-lisp
-(use-package ein)
+    (use-package ein)
+    (setq ein:use-auto-complete-superpack t)
+    (defun my/ein-mode-hook ()
+      (company-mode 0)
+      (auto-complete-mode 1))
+
+
+    (add-hook 'ein:notebook-mode-hook 'my/ein-mode-hook)
+(require 'popup)
   #+END_SRC
-  
+
 * start server
   #+BEGIN_SRC emacs-lisp
     (server-start)
   #+END_SRC 
   
-  
-  
-  
-  
-  
-  
-  
-  
-
-
