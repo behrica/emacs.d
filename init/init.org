@@ -461,6 +461,20 @@
 * cider
   #+BEGIN_SRC emacs-lisp
     (use-package cider)
+
+    (defun my-clojure-mode-hook ()
+      (clj-refactor-mode 1)
+      (yas-minor-mode 1) ; for adding require/use/import
+      (cljr-add-keybindings-with-prefix "C-c C-m"))
+    (use-package cider-eval-sexp-fu)
+    (use-package clj-refactor)
+
+    (clj-refactor-mode 1)
+    (yas-minor-mode 1) ; for adding require/use/import
+    (cljr-add-keybindings-with-prefix "C-c C-m")
+
+    (add-hook 'clojure-mode-hook #'my-clojure-mode-hook)
+
   #+END_SRC
 * other
   #+BEGIN_SRC emacs-lisp
@@ -572,23 +586,10 @@
     (use-package pandoc-mode)
 
 
-    (use-package cider)
-    (use-package cider-eval-sexp-fu)
-    (use-package clj-refactor)
-
-    (clj-refactor-mode 1)
-    (yas-minor-mode 1) ; for adding require/use/import
-    (cljr-add-keybindings-with-prefix "C-c C-m")
     (defun save-all-and-compile ()
       (interactive)
       (save-some-buffers 1)
       (compile compile-command))
-    (defun my-clojure-mode-hook ()
-      (clj-refactor-mode 1)
-      (yas-minor-mode 1) ; for adding require/use/import
-      (cljr-add-keybindings-with-prefix "C-c C-m"))
-
-    (add-hook 'clojure-mode-hook #'my-clojure-mode-hook)
 
     (global-set-key [f5] 'save-all-and-compile)
 
