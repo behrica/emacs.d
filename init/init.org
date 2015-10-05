@@ -13,7 +13,7 @@
 
 
   #+END_SRC
-
+  
 * init
   
   #+BEGIN_SRC emacs-lisp
@@ -38,7 +38,8 @@
     (setq package-enable-at-startup nil)
     (mapc (lambda(p) (push p package-archives))
           '(
-            ("melpa" . "http://melpa.milkbox.net/packages/")))
+            ("melpa" . "http://melpa.milkbox.net/packages/") 
+            ("SC"   . "http://joseito.republika.pl/sunrise-commander/")))
 
     (package-initialize)
 
@@ -498,13 +499,13 @@
     (defhydra hydra-highlight-symbol ()
       "
 
-                    Highlight -----------> Dim
-                    _h_: Highlight at Point _f_: focus-mode
-                    _j_: Previous Symbol    _r_: focus-ro
-                    _k_: Next Symbol
-                    _d_: Clear All Symbols
-                    _a_: Toggle AHS
-                    "
+                                Highlight -----------> Dim
+                                _h_: Highlight at Point _f_: focus-mode
+                                _j_: Previous Symbol    _r_: focus-ro
+                                _k_: Next Symbol
+                                _d_: Clear All Symbols
+                                _a_: Toggle AHS
+                                "
 
       ("h" highlight-symbol-at-point)
       ("j" highlight-symbol-prev)
@@ -565,7 +566,7 @@
       (global-git-gutter-mode)
 
       )
-                                            ;    (use-package ranger)
+    ;;(use-package ranger)
     (use-package calfw
       :config
       (require 'calfw-org)
@@ -574,9 +575,9 @@
     (defun sudo-edit (&optional arg)
       "Edit currently visited file as root.
 
-                With a prefix ARG prompt for a file to visit.
-                Will also prompt for a file to visit if current
-                buffer is not visiting a file."
+                            With a prefix ARG prompt for a file to visit.
+                            Will also prompt for a file to visit if current
+                            buffer is not visiting a file."
       (interactive "P")
       (if (or arg (not buffer-file-name))
           (find-file (concat "/sudo:root@localhost:"
@@ -595,6 +596,19 @@
 
     (setq skeleton-pair t)
 
+    (defun password-store-show (entry)
+      "Remove existing password for ENTRY."
+      (interactive (list (password-store--completing-read)))
+      (with-output-to-temp-buffer "*PW entry*"
+        (princ (concat "entry:    " entry "\npassword: " (password-store--run-show entry)))))
+
+    (use-package password-store
+      :init
+      (bind-key "C-c t c" 'password-store-copy)
+      (bind-key "C-c t e" 'password-store-edit)
+      (bind-key "C-c t s" 'password-store-show))
+
+    (use-package sunrise-commander)
   #+END_SRC 
 * Python
   #+BEGIN_SRC emacs-lisp
@@ -639,8 +653,83 @@
 (require 'popup)
   #+END_SRC
 
+* wanderlust
+  #+BEGIN_SRC emacs-lisp
+    (use-package wanderlust)
+
+;; IMAP, gmail:
+(setq elmo-imap4-default-server "imap.gmail.com"
+      elmo-imap4-default-user "carsten.behring@gmail.com"
+      elmo-imap4-default-authenticate-type 'clear
+      elmo-imap4-default-port '993
+      elmo-imap4-default-stream-type 'ssl
+
+      ;;for non ascii-characters in folder-names
+      elmo-imap4-use-modified-utf7 t)
+
+;; SMTP
+(setq wl-smtp-connection-type 'starttls
+      wl-smtp-posting-port 587
+      wl-smtp-authenticate-type "plain"
+      wl-smtp-posting-user "Carsten Behring"
+      wl-smtp-posting-server "smtp.gmail.com"
+      wl-local-domain "gmail.com"
+      wl-message-id-domain "smtp.gmail.com")
+
+(setq wl-from "Carsten Behring <carsten.behring@gmail.com>"
+
+      ;;all system folders (draft, trash, spam, etc) are placed in the
+      ;;[Gmail]-folder, except inbox. "%" means it's an IMAP-folder
+      wl-default-folder "%inbox"
+      wl-draft-folder   "%[Gmail]/Drafts"
+      wl-trash-folder   "%[Gmail]/Trash"
+      wl-fcc            "%[Gmail]/Sent"
+
+      ;; mark sent messages as read (sent messages get sent back to you and
+      ;; placed in the folder specified by wl-fcc)
+      wl-fcc-force-as-read    t
+
+      ;;for when auto-compleating foldernames
+      wl-default-spec "%")
+  #+END_SRC 
+
+* Dired
+  #+BEGIN_SRC emacs-lisp
+
+
+    (defun xah-dired-sort ()
+      "Sort dired dir listing in different ways.
+    Prompt for a choice.
+    URL `http://ergoemacs.org/emacs/dired_sort.html'
+    Version 2015-07-30"
+      (interactive)
+      (let (ξsort-by ξarg)
+        (setq ξsort-by (ido-completing-read "Sort by:" '( "date" "size" "name")))
+        (cond
+         ((equal ξsort-by "name") (setq ξarg "-Al --si --time-style long-iso --group-directories-first"))
+         ((equal ξsort-by "date") (setq ξarg "-Al --si --time-style long-iso -t --group-directories-first"))
+         ((equal ξsort-by "size") (setq ξarg "-Al --si --time-style long-iso -S --group-directories-first"))
+
+         (t (error "logic error 09535" )))
+        (dired-sort-other ξarg )))
+
+
+    (use-package dired+ 
+      :config
+      (bind-key  "s"  'xah-dired-sort  dired-mode-map)
+
+      (setq dired-dwim-target t)
+      ;; allow dired to delete or copy dir.
+      (setq dired-recursive-copies (quote always)) ; “always” means no asking
+      (setq dired-recursive-deletes (quote top)) ; “top” means ask once
+      (diredp-toggle-find-file-reuse-dir 1))
+
+
+  #+END_SRC 
 * start server
   #+BEGIN_SRC emacs-lisp
     (server-start)
   #+END_SRC 
   
+  
+
