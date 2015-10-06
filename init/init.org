@@ -421,7 +421,13 @@
 
     (setq gnus-summary-line-format "%U%R%I%   %-50,50s   %-30,30n   %D
     ")
-
+(setq
+ send-mail-function 'smtpmail-send-it
+ user-mail-address "carsten.behring@efsa.europa.eu"
+ 
+ smtpmail-smtp-server "localhost"
+ smtpmail-smtp-service 1025 ; tried 587
+)
   #+END_SRC 
  
 * Keychord
