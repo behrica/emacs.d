@@ -543,17 +543,17 @@
       (keyfreq-autosave-mode 1))
 
 
-    (use-package org-caldav 
-      :config      
-      (setq org-caldav-url "http://localhost:1080/users"
-            org-caldav-calendar-id "carsten.behring@efsa.europa.eu/calendar"
-            org-caldav-uuid-extension ".EML")
-      (setq org-caldav-inbox "~/Dropbox/sync/org/efsa-cal.org")
-      (setq org-caldav-files '("~/Dropbox/sync/org/appointments.org"))
-      (setq org-caldav-debug-level 2))
+    ;; (use-package org-caldav 
+    ;;   :config      
+    ;;   (setq org-caldav-url "http://localhost:1080/users"
+    ;;         org-caldav-calendar-id "carsten.behring@efsa.europa.eu/calendar"
+    ;;         org-caldav-uuid-extension ".EML")
+    ;;   (setq org-caldav-inbox "~/Dropbox/sync/org/efsa-cal.org")
+    ;;   (setq org-caldav-files '())
+    ;;   (setq org-caldav-debug-level 2))
 
 
-    ;; (require 'excorporate)
+    ;(use-package excorporate)
     ;; (setq excorporate-configuration '("carsten.behring@efsa.europa.eu" . "https://mail.efsa.europa.eu/EWS/Exchange.asmx"))
     ;; (setq gnutls-log-level 2)
 
@@ -570,7 +570,9 @@
     (use-package calfw
       :config
       (require 'calfw-org)
-      (bind-key "C-c m" 'cfw:open-org-calendar))
+      (bind-key "C-c m" 'cfw:open-org-calendar)
+      (setq calendar-holidays '())
+      )
 
     (defun sudo-edit (&optional arg)
       "Edit currently visited file as root.
