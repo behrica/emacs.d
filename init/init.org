@@ -134,6 +134,7 @@
         ("+" text-scale-increase "in")
         ("-" text-scale-decrease "out"))
 
+
       (defhydra hydra-magit (:color teal :hint nil)
         "
 
@@ -159,7 +160,9 @@
         ("e" magit-interactive-rebase)
         ("s" magit-status)
         ("l" magit-log)
-        ("t" git-timemachine))
+        ("t" git-timemachine)))
+
+    (bind-key "C-x g" 'hydra-magit/body)
 
   #+END_SRC   
 * Edit
@@ -241,15 +244,18 @@
       (setq org-agenda-files (quote ("~/Dropbox/sync/org")))
       (setq org-todo-keywords
             '((sequence "TODO" "STARTED" "WAITING" "|" "DONE" "CANCELLED" )))
-      
+  
       (setq org-directory "~/Dropbox/sync/org")
       (setq org-default-notes-file (concat org-directory "/notes.org"))
       (setq org-capture-templates
             '(("t" "Simple todo" entry (file+headline (concat org-directory "/notes.org") "Tasks")
-               "* TODO %?\n")))
+               "* TODO %?\n")
+              ("b" "Bookmark" entry (file+headline (concat org-directory "/notes.org") "Bookmarks")
+               "* [[%^{Url}][%^{Title}]]\n\n" :immediate-finish TRUE)
+              ))
       (set-variable 'org-export-allow-bind-keywords t)
       (setq org-src-window-setup 'current-window)
-      
+  
       (org-add-link-type "thunderlink" 'org-thunderlink-open)
       (org-display-inline-images t t)
       (defun org-thunderlink-open (path)
@@ -342,13 +348,16 @@
       (helm-mode 1)
       (setq helm-autoresize-mode 1)
       :diminish helm-mode
-      :bind (("M-x". helm-M-x)
+      :bind (("M-x" . helm-M-x)
              ("C-x f" . helm-recentf)
-             ("C-x C-f" . helm-find-files)))
+             ("C-x C-f" . helm-find-files)
+             ("<menu>" . helm-M-x)
+             ))
 
     (use-package helm-projectile
       :config
       (helm-projectile-on))
+
   #+END_SRC
   
 * git
@@ -420,16 +429,88 @@
           '())
 
     (setq gnus-summary-line-format "%U%R%I%   %-50,50s   %-30,30n   %D
-    ")
-(setq
- send-mail-function 'smtpmail-send-it
- user-mail-address "carsten.behring@efsa.europa.eu"
- 
- smtpmail-smtp-server "localhost"
- smtpmail-smtp-service 1025 ; tried 587
-)
+             ")
+    (setq
+     send-mail-function 'smtpmail-send-it
+     user-mail-address "carsten.behring@efsa.europa.eu"
+
+     smtpmail-smtp-server "localhost"
+     smtpmail-smtp-service 1025)
+
+
+    (use-package gnus-desktop-notify)
+    (gnus-desktop-notify-mode)
+    (gnus-demon-add-scanmail)
+
+    (use-package bbdb)
+    (require 'bbdb-site)
+    (bbdb-initialize 'gnus 'message)
+    (setq bbdb-file "~/Dropbox/bbdb")
+    (bbdb-initialize 'gnus 'message)
+    (bbdb-mua-auto-update-init 'message 'gnus) ;; use 'gnus for incoming messages too
+    (setq bbdb-mua-auto-update-p 'query)
+    (setq gnus-thread-sort-functions
+          '(
+            (not gnus-thread-sort-by-date)
+            (not gnus-thread-sort-by-number)
+            ))
+    (add-hook 'message-mode-hook
+              '(lambda ()
+                 (flyspell-mode t)
+                 (local-set-key "<TAB>" 'bbdb-complete-name)))
+
   #+END_SRC 
- 
+* Eudc    
+#+BEGIN_SRC emacs-lisp
+  (setq eudc-default-return-attributes nil
+        eudc-strict-return-matches nil)
+
+  (setq ldap-default-base "ou=people") 
+  (setq ldap-ldapsearch-args (quote ("-tt" "-LLL" "-x")))
+
+  (setq eudc-inline-query-format '((name)
+                                   (firstname)
+                                   (firstname name)
+                                   (email)
+                                   ))
+
+  (setq ldap-password (password-store-get "efsa/behrica"))
+  (setq ldap-host-parameters-alist
+        (quote (("localhost:1389" base "ou=people"
+                 binddn "behrica"
+                 passwd "vic0812!"))))
+  (eudc-set-server "localhost:1389" 'ldap t)
+
+  (setq eudc-server-hotlist '(("localhost:1389" . ldap)))
+  (setq eudc-inline-expansion-servers 'hotlist)
+
+
+  (setq eudc-inline-expansion-format '("%s <%s>" cn mail))
+  (setq eudc-inline-query-format '(
+                                   (mail sn givenName)
+                                   (givenName)))
+
+  (defun enz-eudc-expand-inline()
+    (interactive)
+    (if (eq eudc-protocol 'ldap)
+        (progn (move-end-of-line 1)
+               (insert "*")
+               (unless (condition-case nil
+                           (eudc-expand-inline)
+                         (error nil))
+                 (backward-delete-char-untabify 1)
+                 ))
+      (eudc-expand-inline))
+    )
+  (eval-after-load "message"
+    '(define-key message-mode-map (kbd "TAB") 'enz-eudc-expand-inline))
+  (eval-after-load "sendmail"
+    '(define-key mail-mode-map (kbd "TAB") 'enz-eudc-expand-inline))
+  (eval-after-load "post"
+    '(define-key post-mode-map (kbd "TAB") 'enz-eudc-expand-inline))
+
+
+#+END_SRC
 * Keychord
   #+BEGIN_SRC emacs-lisp
 
@@ -500,7 +581,6 @@
       :diminish  which-key-mode)
 
 
-    (bind-key "C-x g" 'hydra-magit/body)
 
     (defhydra hydra-highlight-symbol ()
       "
@@ -522,7 +602,7 @@
       ("f" focus-mode)
       ("r" focus-read-only-mode))
 
-    (bind-key "C-c h" 'hydra-highlight-symbol/body))
+    (bind-key "C-c h" 'hydra-highlight-symbol/body)
 
 
 
@@ -559,7 +639,7 @@
     ;;   (setq org-caldav-debug-level 2))
 
 
-    ;(use-package excorporate)
+                                            ;(use-package excorporate)
     ;; (setq excorporate-configuration '("carsten.behring@efsa.europa.eu" . "https://mail.efsa.europa.eu/EWS/Exchange.asmx"))
     ;; (setq gnutls-log-level 2)
 
