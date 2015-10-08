@@ -4,7 +4,6 @@
     (when (string= system-name "surface-linux")
       (set-frame-font "DejaVu Sans Mono-20" t t))
 
-    ;;(set-frame-font "Droid Sans Mono-13" t t)
     (set-frame-font "Hack" t t)
     (menu-bar-mode 0)
     (tool-bar-mode 0)
@@ -48,11 +47,14 @@
           (package-refresh-contents)
           (package-install 'use-package)))
 
-    (require 'use-package)
-    (setq use-package-always-ensure t)
-    (use-package diminish)
-    
-    
+        
+        (setq use-package-verbose t
+             use-package-always-ensure t)
+(eval-when-compile
+  (require 'use-package))
+    (require' diminish)
+(require 'bind-key)       
+
   #+END_SRC
 * UI
   #+BEGIN_SRC emacs-lisp 
@@ -60,8 +62,8 @@
 
     (use-package ample-theme
       :init (progn (load-theme 'ample t t)
-                   (load-theme 'ample-flat t t)
-                   (load-theme 'ample-light t t)
+                   ;(load-theme 'ample-flat t t)
+                   ;(load-theme 'ample-light t t)
                    (enable-theme 'ample))
       :defer t
       :ensure t)
@@ -237,48 +239,54 @@
 * org-mode 
   #+BEGIN_SRC emacs-lisp
 
-    (use-package org
-      :config
-      (setq org-src-fontify-natively t)
-      (setq org-src-tab-acts-natively t)
-      (setq org-agenda-files (quote ("~/Dropbox/sync/org")))
-      (setq org-todo-keywords
-            '((sequence "TODO" "STARTED" "WAITING" "|" "DONE" "CANCELLED" )))
+        (use-package org
+          :config
+          (setq org-src-fontify-natively t)
+          (setq org-src-tab-acts-natively t)
+          (setq org-agenda-files (quote ("~/Dropbox/sync/org")))
+          (setq org-todo-keywords
+                '((sequence "TODO" "STARTED" "WAITING" "|" "DONE" "CANCELLED" )))
   
-      (setq org-directory "~/Dropbox/sync/org")
-      (setq org-default-notes-file (concat org-directory "/notes.org"))
-      (setq org-capture-templates
-            '(("t" "Simple todo" entry (file+headline (concat org-directory "/notes.org") "Tasks")
-               "* TODO %?\n")
-              ("b" "Bookmark" entry (file+headline (concat org-directory "/notes.org") "Bookmarks")
-               "* [[%^{Url}][%^{Title}]]\n\n" :immediate-finish TRUE)
-              ))
-      (set-variable 'org-export-allow-bind-keywords t)
-      (setq org-src-window-setup 'current-window)
+          (setq org-directory "~/Dropbox/sync/org")
+          (setq org-default-notes-file (concat org-directory "/notes.org"))
+          (setq org-capture-templates
+                '(("t" "Simple todo" entry (file+headline (concat org-directory "/notes.org") "Tasks")
+                   "* TODO %?\n")
+                  ("b" "Bookmark" entry (file+headline (concat org-directory "/notes.org") "Bookmarks")
+                   "* [[%^{Url}][%^{Title}]]\n\n" :immediate-finish TRUE)
+                  ))
+          (set-variable 'org-export-allow-bind-keywords t)
+          (setq org-src-window-setup 'current-window)
   
-      (org-add-link-type "thunderlink" 'org-thunderlink-open)
-      (org-display-inline-images t t)
-      (defun org-thunderlink-open (path)
-        (let ( (command (concat  "thunderbird -thunderlink " "thunderlink:" path)))
-          (message command)
-          (shell-command command)))
-      :bind (("\C-ca"  . org-agenda)
-             ("\C-cc" . org-capture)))
+          (org-add-link-type "thunderlink" 'org-thunderlink-open)
+          (org-display-inline-images t t)
+          (defun org-thunderlink-open (path)
+            (let ( (command (concat  "thunderbird -thunderlink " "thunderlink:" path)))
+              (message command)
+              (shell-command command)))
+	      (org-babel-do-load-languages
+                 'org-babel-load-languages
+                 '((python . t)))
 
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '((python . t)))
+          :bind (("\C-ca"  . org-agenda)
+                 ("\C-cc" . org-capture)))
+          
+    
 
-    (add-to-list 'org-structure-template-alist
-                 '("p" "#+BEGIN_SRC python :session \n\n#+END_SRC"))
+        (add-to-list 'org-structure-template-alist
+                     '("p" "#+BEGIN_SRC python :session \n\n#+END_SRC")
+   
 
-    (use-package ob-ipython)
+    )
+
+        (use-package ob-ipython :defer t)
 
   #+END_SRC
 * ess
   #+BEGIN_SRC emacs-lisp
-    (use-package ess)
-    (require 'ess-site)
+    (use-package ess
+    :defer t
+    :config
     (setq ess-R-font-lock-keywords
 
           (quote
@@ -293,14 +301,14 @@
             (ess-fl-keyword:delimiters . t)
             (ess-fl-keyword:= . t)
             (ess-R-fl-keyword:F&T . t)
-            (ess-R-fl-keyword:%op% . t))))
+            (ess-R-fl-keyword:%op% . t)))))
   #+END_SRC
  
 * projectile
   #+BEGIN_SRC emacs-lisp
     (use-package projectile
-      :config
-      (projectile-global-mode))
+      :init (projectile-global-mode))
+     
   #+END_SRC
 
 * company
@@ -344,6 +352,7 @@
 * helm
   #+BEGIN_SRC emacs-lisp
     (use-package helm
+      :defer t
       :config
       (helm-mode 1)
       (setq helm-autoresize-mode 1)
@@ -355,6 +364,7 @@
              ))
 
     (use-package helm-projectile
+      :defer t
       :config
       (helm-projectile-on))
 
@@ -362,7 +372,7 @@
   
 * git
   #+BEGIN_SRC emacs-lisp
-    (use-package magit)
+    (use-package magit :defer t)
     (use-package git-timemachine)
   #+END_SRC
 
@@ -438,9 +448,11 @@
      smtpmail-smtp-service 1025)
 
 
-    (use-package gnus-desktop-notify)
-    (gnus-desktop-notify-mode)
-    (gnus-demon-add-scanmail)
+    (use-package gnus-desktop-notify
+      :defer t
+      :config
+      (gnus-desktop-notify-mode)
+      (gnus-demon-add-scanmail))
 
     (use-package bbdb)
     (require 'bbdb-site)
@@ -460,6 +472,22 @@
                  (local-set-key "<TAB>" 'bbdb-complete-name)))
 
   #+END_SRC 
+* password-store
+#+BEGIN_SRC emacs-lisp
+  (defun password-store-show (entry)
+    "Remove existing password for ENTRY."
+    (interactive (list (password-store--completing-read)))
+    (with-output-to-temp-buffer "*PW entry*"
+      (princ (concat "entry:    " entry "\npassword: " (password-store--run-show entry)))))
+
+  (use-package password-store
+    :defer t
+    :config
+    (bind-key "C-c t c" 'password-store-copy)
+    (bind-key "C-c t e" 'password-store-edit)
+    (bind-key "C-c t s" 'password-store-show))
+
+#+END_SRC
 * Eudc    
 #+BEGIN_SRC emacs-lisp
   (setq eudc-default-return-attributes nil
@@ -548,20 +576,22 @@
   
 * cider
   #+BEGIN_SRC emacs-lisp
-    (use-package cider)
+    (use-package cider
+      :defer t)
 
     (defun my-clojure-mode-hook ()
       (clj-refactor-mode 1)
       (yas-minor-mode 1) ; for adding require/use/import
       (cljr-add-keybindings-with-prefix "C-c C-m"))
     (use-package cider-eval-sexp-fu)
-    (use-package clj-refactor)
+    (use-package clj-refactor
+      :defer t
+      :config
+      (clj-refactor-mode 1)
+      (yas-minor-mode 1) ; for adding require/use/import
+      (cljr-add-keybindings-with-prefix "C-c C-m")
+      (add-hook 'clojure-mode-hook #'my-clojure-mode-hook))
 
-    (clj-refactor-mode 1)
-    (yas-minor-mode 1) ; for adding require/use/import
-    (cljr-add-keybindings-with-prefix "C-c C-m")
-
-    (add-hook 'clojure-mode-hook #'my-clojure-mode-hook)
 
   #+END_SRC
 * other
@@ -572,7 +602,7 @@
     (use-package google-this
       :bind ("C-c g"  . google-this-mode-submap)
       :config
-      (global-set-key (kbd "C-c g") 'google-this-mode-submap)
+      ;;(global-set-key (kbd "C-c g") 'google-this-mode-submap)
       (setq browse-url-browser-function 'browse-url-chromium))
 
 
@@ -684,19 +714,9 @@
 
     (setq skeleton-pair t)
 
-    (defun password-store-show (entry)
-      "Remove existing password for ENTRY."
-      (interactive (list (password-store--completing-read)))
-      (with-output-to-temp-buffer "*PW entry*"
-        (princ (concat "entry:    " entry "\npassword: " (password-store--run-show entry)))))
+  
 
-    (use-package password-store
-      :init
-      (bind-key "C-c t c" 'password-store-copy)
-      (bind-key "C-c t e" 'password-store-edit)
-      (bind-key "C-c t s" 'password-store-show))
-
-    (use-package sunrise-commander)
+    (use-package sunrise-commander :defer t)
   #+END_SRC 
 * Python
   #+BEGIN_SRC emacs-lisp
@@ -803,6 +823,7 @@
 
 
     (use-package dired+ 
+      :defer t
       :config
       (bind-key  "s"  'xah-dired-sort  dired-mode-map)
 
@@ -818,6 +839,13 @@
   #+BEGIN_SRC emacs-lisp
     (server-start)
   #+END_SRC 
-  
+* print init time  
+#+BEGIN_SRC emacs-lisp 
+(setq after-init-time (current-time))
+(message "Config successfully loaded in %s" (emacs-init-time))
+
+#+END_SRC
+ 
+
   
 
