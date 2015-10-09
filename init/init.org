@@ -1,10 +1,7 @@
 * boot-UI
   #+BEGIN_SRC emacs-lisp
 
-    (when (string= system-name "surface-linux")
-      (set-frame-font "DejaVu Sans Mono-20" t t))
-
-    (set-frame-font "Hack" t t)
+  
     (menu-bar-mode 0)
     (tool-bar-mode 0)
     (scroll-bar-mode -1)
@@ -31,8 +28,9 @@
   
 * packages
   #+BEGIN_SRC emacs-lisp
-    (require 'package)
-    (require 'cl)
+ (require 'package)
+
+
 
     (setq package-enable-at-startup nil)
     (mapc (lambda(p) (push p package-archives))
@@ -40,36 +38,44 @@
             ("melpa" . "http://melpa.milkbox.net/packages/") 
             ("SC"   . "http://joseito.republika.pl/sunrise-commander/")))
 
-    (package-initialize)
+    (package-initialize) 
+ (eval-when-compile
+      (require 'use-package))
 
     (if (not (package-installed-p 'use-package))
         (progn
           (package-refresh-contents)
           (package-install 'use-package)))
 
-        
-        (setq use-package-verbose t
-             use-package-always-ensure t)
-(eval-when-compile
-  (require 'use-package))
-    (require' diminish)
-(require 'bind-key)       
 
-  #+END_SRC
+    (setq use-package-verbose t
+          use-package-always-ensure t
+          ;;use-package-debug t
+          use-package-minimum-reported-time 0.05)
+
+    (require' diminish)
+    (require 'bind-key)       
+
+  #+END_SRC 
 * UI
   #+BEGIN_SRC emacs-lisp 
 
 
     (use-package ample-theme
       :init (progn (load-theme 'ample t t)
-                   ;(load-theme 'ample-flat t t)
-                   ;(load-theme 'ample-light t t)
-                   (enable-theme 'ample))
-      :defer t
-      :ensure t)
+       (enable-theme 'ample))
+      :config
+        (when (string= system-name "surface-linux")
+           (set-frame-font "DejaVu Sans Mono-20" t t))
+        (set-frame-font "Hack" t t)
+      :defer 1)
+
+
+  
 
     ;;(use-package monokai-theme)
     (use-package powerline
+      :defer 1
       :config
       (powerline-center-theme)
 
@@ -85,6 +91,7 @@
 
 
     (use-package eval-sexp-fu
+      :defer 1
       :config
       (eval-sexp-fu-flash-mode))
 
@@ -100,7 +107,7 @@
   #+BEGIN_SRC emacs-lisp
 
     (use-package hydra
-      :init
+      :config
 
       (defhydra hydra-git-gutter (:body-pre (git-gutter-mode 1)
                                             :hint nil)
@@ -239,47 +246,44 @@
 * org-mode 
   #+BEGIN_SRC emacs-lisp
 
-        (use-package org
-          :config
-          (setq org-src-fontify-natively t)
-          (setq org-src-tab-acts-natively t)
-          (setq org-agenda-files (quote ("~/Dropbox/sync/org")))
-          (setq org-todo-keywords
-                '((sequence "TODO" "STARTED" "WAITING" "|" "DONE" "CANCELLED" )))
-  
-          (setq org-directory "~/Dropbox/sync/org")
-          (setq org-default-notes-file (concat org-directory "/notes.org"))
-          (setq org-capture-templates
-                '(("t" "Simple todo" entry (file+headline (concat org-directory "/notes.org") "Tasks")
-                   "* TODO %?\n")
-                  ("b" "Bookmark" entry (file+headline (concat org-directory "/notes.org") "Bookmarks")
-                   "* [[%^{Url}][%^{Title}]]\n\n" :immediate-finish TRUE)
-                  ))
-          (set-variable 'org-export-allow-bind-keywords t)
-          (setq org-src-window-setup 'current-window)
-  
-          (org-add-link-type "thunderlink" 'org-thunderlink-open)
-          (org-display-inline-images t t)
-          (defun org-thunderlink-open (path)
-            (let ( (command (concat  "thunderbird -thunderlink " "thunderlink:" path)))
-              (message command)
-              (shell-command command)))
-	      (org-babel-do-load-languages
-                 'org-babel-load-languages
-                 '((python . t)))
+    (use-package org
+      :config
+      (setq org-src-fontify-natively t)
+      (setq org-src-tab-acts-natively t)
+      (setq org-agenda-files (quote ("~/Dropbox/sync/org")))
+      (setq org-todo-keywords
+            '((sequence "TODO" "STARTED" "WAITING" "|" "DONE" "CANCELLED" )))
 
-          :bind (("\C-ca"  . org-agenda)
-                 ("\C-cc" . org-capture)))
-          
-    
+      (setq org-directory "~/Dropbox/sync/org")
+      (setq org-default-notes-file (concat org-directory "/notes.org"))
+      (setq org-capture-templates
+            '(("t" "Simple todo" entry (file+headline (concat org-directory "/notes.org") "Tasks")
+               "* TODO %?\n")
+              ("b" "Bookmark" entry (file+headline (concat org-directory "/notes.org") "Bookmarks")
+               "* [[%^{Url}][%^{Title}]]\n\n" :immediate-finish TRUE)
+              ))
+      (set-variable 'org-export-allow-bind-keywords t)
+      (setq org-src-window-setup 'current-window)
 
-        (add-to-list 'org-structure-template-alist
-                     '("p" "#+BEGIN_SRC python :session \n\n#+END_SRC")
-   
+      (org-add-link-type "thunderlink" 'org-thunderlink-open)
+      (org-display-inline-images t t)
+      (defun org-thunderlink-open (path)
+        (let ( (command (concat  "thunderbird -thunderlink " "thunderlink:" path)))
+          (message command)
+          (shell-command command)))
+      (org-babel-do-load-languages
+       'org-babel-load-languages
+       '((python . t)))
+      (add-to-list 'org-structure-template-alist
+                   '("p" "#+BEGIN_SRC python :session \n\n#+END_SRC"))
+      (use-package ob-ipython :defer t)
+      :bind (("\C-ca"  . org-agenda)
+             ("\C-cc" . org-capture)))
 
-    )
 
-        (use-package ob-ipython :defer t)
+
+
+
 
   #+END_SRC
 * ess
@@ -307,7 +311,8 @@
 * projectile
   #+BEGIN_SRC emacs-lisp
     (use-package projectile
-      :init (projectile-global-mode))
+      :defer 1 
+      :config (projectile-global-mode))
      
   #+END_SRC
 
@@ -379,12 +384,15 @@
 * polymode
   #+BEGIN_SRC emacs-lisp
     (use-package polymode
+      :defer 1
       :config
       (bind-key  "C-c C-r"  'ess-rmarkdown  polymode-mode-map))
-    (use-package markdown-mode)
-    (require 'poly-markdown)
-    (require 'poly-R)
-    (add-to-list 'auto-mode-alist '("\\.Rmd" . poly-markdown+r-mode))
+    (use-package markdown-mode 
+       :defer 1 
+       :config 
+       (require 'poly-markdown)
+       (require 'poly-R)
+       (add-to-list 'auto-mode-alist '("\\.Rmd" . poly-markdown+r-mode)))
 
     (defun save-buffer-if-visiting-file ()
       "Save the current buffer only if it is visiting a file"
@@ -490,53 +498,58 @@
 #+END_SRC
 * Eudc    
 #+BEGIN_SRC emacs-lisp
-  (setq eudc-default-return-attributes nil
-        eudc-strict-return-matches nil)
 
-  (setq ldap-default-base "ou=people") 
-  (setq ldap-ldapsearch-args (quote ("-tt" "-LLL" "-x")))
+  (use-package eudc   
+    :defer 1
+    :init  
+      (setq ldap-default-base "ou=people") 
+    :config
+    (setq eudc-default-return-attributes nil
+          eudc-strict-return-matches nil)
 
-  (setq eudc-inline-query-format '((name)
-                                   (firstname)
-                                   (firstname name)
-                                   (email)
-                                   ))
+    (setq ldap-default-base "ou=people") 
+    (setq ldap-ldapsearch-args (quote ("-tt" "-LLL" "-x")))
 
-  (setq ldap-password (password-store-get "efsa/behrica"))
-  (setq ldap-host-parameters-alist
-        (quote (("localhost:1389" base "ou=people"
-                 binddn "behrica"
-                 passwd "vic0812!"))))
-  (eudc-set-server "localhost:1389" 'ldap t)
+    (setq eudc-inline-query-format '((name)
+                                     (firstname)
+                                     (firstname name)
+                                     (email)
+                                     ))
 
-  (setq eudc-server-hotlist '(("localhost:1389" . ldap)))
-  (setq eudc-inline-expansion-servers 'hotlist)
+    (setq ldap-password (password-store-get "efsa/behrica"))
+    (setq ldap-host-parameters-alist
+          (quote (("localhost:1389" base "ou=people"
+                   binddn "behrica"
+                   passwd "vic0812!"))))
+    (eudc-set-server "localhost:1389" 'ldap t)
+
+    (setq eudc-server-hotlist '(("localhost:1389" . ldap)))
+    (setq eudc-inline-expansion-servers 'hotlist)
 
 
-  (setq eudc-inline-expansion-format '("%s <%s>" cn mail))
-  (setq eudc-inline-query-format '(
-                                   (mail sn givenName)
-                                   (givenName)))
+    (setq eudc-inline-expansion-format '("%s <%s>" cn mail))
+    (setq eudc-inline-query-format '(
+                                     (mail sn givenName)
+                                     (givenName)))
 
-  (defun enz-eudc-expand-inline()
-    (interactive)
-    (if (eq eudc-protocol 'ldap)
-        (progn (move-end-of-line 1)
-               (insert "*")
-               (unless (condition-case nil
-                           (eudc-expand-inline)
-                         (error nil))
-                 (backward-delete-char-untabify 1)
-                 ))
-      (eudc-expand-inline))
-    )
-  (eval-after-load "message"
-    '(define-key message-mode-map (kbd "TAB") 'enz-eudc-expand-inline))
-  (eval-after-load "sendmail"
-    '(define-key mail-mode-map (kbd "TAB") 'enz-eudc-expand-inline))
-  (eval-after-load "post"
-    '(define-key post-mode-map (kbd "TAB") 'enz-eudc-expand-inline))
-
+    (defun enz-eudc-expand-inline()
+      (interactive)
+      (if (eq eudc-protocol 'ldap)
+          (progn (move-end-of-line 1)
+                 (insert "*")
+                 (unless (condition-case nil
+                             (eudc-expand-inline)
+                           (error nil))
+                   (backward-delete-char-untabify 1)
+                   ))
+        (eudc-expand-inline))
+      )
+    (eval-after-load "message"
+      '(define-key message-mode-map (kbd "TAB") 'enz-eudc-expand-inline))
+    (eval-after-load "sendmail"
+      '(define-key mail-mode-map (kbd "TAB") 'enz-eudc-expand-inline))
+    (eval-after-load "post"
+      '(define-key post-mode-map (kbd "TAB") 'enz-eudc-expand-inline)))
 
 #+END_SRC
 * Keychord
@@ -607,7 +620,8 @@
 
 
     (use-package which-key 
-      :init (which-key-mode)
+      :defer 2
+      :config (which-key-mode)
       :diminish  which-key-mode)
 
 
@@ -684,11 +698,11 @@
       )
     ;;(use-package ranger)
     (use-package calfw
+      :defer 1
       :config
       (require 'calfw-org)
       (bind-key "C-c m" 'cfw:open-org-calendar)
-      (setq calendar-holidays '())
-      )
+      (setq calendar-holidays '()))
 
     (defun sudo-edit (&optional arg)
       "Edit currently visited file as root.
@@ -702,7 +716,10 @@
                              (ido-read-file-name "Find file(as root): ")))
         (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name))))
 
-    (use-package pandoc-mode)
+    (use-package pandoc-mode
+       :defer t
+       :config
+        (add-hook 'markdown-mode-hook 'pandoc-mode))
 
 
     (defun save-all-and-compile ()
@@ -720,21 +737,27 @@
   #+END_SRC 
 * Python
   #+BEGIN_SRC emacs-lisp
-    (use-package company-quickhelp)
-    (use-package company-jedi)
-    (use-package jedi)
-    (defun my/python-mode-hook ()
-      (jedi-mode)
-      (company-quickhelp-mode)
-      (add-to-list 'company-backends 'company-jedi))
-    (setq jedi:complete-on-dot t)
-    (add-hook 'python-mode-hook 'my/python-mode-hook)
+   
+    (use-package jedi
+      :config 
+      (use-package company-quickhelp)
+      (use-package company-jedi)
+      (defun my/python-mode-hook ()
+        (jedi-mode)
+        (company-quickhelp-mode)
+        (add-to-list 'company-backends 'company-jedi))
+      (setq jedi:complete-on-dot t)
+      (add-hook 'python-mode-hook 'my/python-mode-hook)
 
-    (use-package pyvenv)
-    (pyvenv-activate "~/miniconda/envs/dato-env")
-    (setq
-     python-shell-interpreter "ipython"
-     org-babel-python-command "ipython")
+    )
+     
+    (use-package pyvenv 
+     :defer 1
+     :config
+      (pyvenv-activate "~/miniconda/envs/dato-env")
+       (setq
+            python-shell-interpreter "ipython"
+            org-babel-python-command "ipython"))
 
     (defun python-shell-completion-complete-or-indent ()
       "Complete or indent depending on the context.
@@ -750,14 +773,14 @@
 
 * ein   
   #+BEGIN_SRC emacs-lisp
-    (use-package ein)
-    (setq ein:use-auto-complete-superpack t)
-    (defun my/ein-mode-hook ()
-      (company-mode 0)
-      (auto-complete-mode 1))
-
-
-    (add-hook 'ein:notebook-mode-hook 'my/ein-mode-hook)
+    (use-package ein
+          
+          :config
+            (setq ein:use-auto-complete-superpack t)
+            (defun my/ein-mode-hook ()
+               (company-mode 0)
+               (auto-complete-mode 1))
+            (add-hook 'ein:notebook-mode-hook 'my/ein-mode-hook))
 (require 'popup)
   #+END_SRC
 
