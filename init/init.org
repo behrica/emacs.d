@@ -500,7 +500,7 @@
 #+BEGIN_SRC emacs-lisp
 
   (use-package eudc   
-    :defer 1
+    :defer 10
     :init  
       (setq ldap-default-base "ou=people") 
     :config
@@ -520,7 +520,7 @@
     (setq ldap-host-parameters-alist
           (quote (("localhost:1389" base "ou=people"
                    binddn "behrica"
-                   passwd "vic0812!"))))
+                   passwd ldap-password))))
     (eudc-set-server "localhost:1389" 'ldap t)
 
     (setq eudc-server-hotlist '(("localhost:1389" . ldap)))
