@@ -247,6 +247,7 @@
   #+BEGIN_SRC emacs-lisp
 
     (use-package org
+      :defer t
       :config
       (setq org-src-fontify-natively t)
       (setq org-src-tab-acts-natively t)
@@ -437,23 +438,27 @@
 
 * Gnus 
   #+BEGIN_SRC emacs-lisp
-    (setq gnus-select-method 
-          '(nnmaildir "EFSA" 
-                      (directory "~/.mails/")))
+
+    (use-package gnus
+      :defer t
+      :config
+      (setq gnus-select-method 
+            '(nnmaildir "EFSA" 
+                        (directory "~/.mails/")))
 
 
-    (setq gnus-secondary-select-methods
+      (setq gnus-secondary-select-methods
 
-          '())
+            '())
 
-    (setq gnus-summary-line-format "%U%R%I%   %-50,50s   %-30,30n   %D
-             ")
-    (setq
-     send-mail-function 'smtpmail-send-it
-     user-mail-address "carsten.behring@efsa.europa.eu"
+      (setq gnus-summary-line-format "%U%R%I%   %-50,50s   %-30,30n   %D
+                 ")
+      (setq
+       send-mail-function 'smtpmail-send-it
+       user-mail-address "carsten.behring@efsa.europa.eu"
 
-     smtpmail-smtp-server "localhost"
-     smtpmail-smtp-service 1025)
+       smtpmail-smtp-server "localhost"
+       smtpmail-smtp-service 1025))
 
 
     (use-package gnus-desktop-notify
@@ -462,22 +467,24 @@
       (gnus-desktop-notify-mode)
       (gnus-demon-add-scanmail))
 
-    (use-package bbdb)
-    (require 'bbdb-site)
-    (bbdb-initialize 'gnus 'message)
-    (setq bbdb-file "~/Dropbox/bbdb")
-    (bbdb-initialize 'gnus 'message)
-    (bbdb-mua-auto-update-init 'message 'gnus) ;; use 'gnus for incoming messages too
-    (setq bbdb-mua-auto-update-p 'query)
-    (setq gnus-thread-sort-functions
-          '(
-            (not gnus-thread-sort-by-date)
-            (not gnus-thread-sort-by-number)
-            ))
-    (add-hook 'message-mode-hook
-              '(lambda ()
-                 (flyspell-mode t)
-                 (local-set-key "<TAB>" 'bbdb-complete-name)))
+    (use-package bbdb
+      :defer t
+      :config
+      (require 'bbdb-site)
+      (bbdb-initialize 'gnus 'message)
+      (setq bbdb-file "~/Dropbox/bbdb")
+      (bbdb-initialize 'gnus 'message)
+      (bbdb-mua-auto-update-init 'message 'gnus) ;; use 'gnus for incoming messages too
+      (setq bbdb-mua-auto-update-p 'query)
+      (setq gnus-thread-sort-functions
+            '(
+              (not gnus-thread-sort-by-date)
+              (not gnus-thread-sort-by-number)
+              ))
+      (add-hook 'message-mode-hook
+                '(lambda ()
+                   (flyspell-mode t)
+                   (local-set-key "<TAB>" 'bbdb-complete-name))))
 
   #+END_SRC 
 * password-store
@@ -615,7 +622,6 @@
     (use-package google-this
       :bind ("C-c g"  . google-this-mode-submap)
       :config
-      ;;(global-set-key (kbd "C-c g") 'google-this-mode-submap)
       (setq browse-url-browser-function 'browse-url-chromium))
 
 
@@ -696,7 +702,6 @@
       (global-git-gutter-mode)
 
       )
-    ;;(use-package ranger)
     (use-package calfw
       :defer 1
       :config
@@ -739,6 +744,7 @@
   #+BEGIN_SRC emacs-lisp
    
     (use-package jedi
+      :defer 1
       :config 
       (use-package company-quickhelp)
       (use-package company-jedi)
@@ -774,7 +780,7 @@
 * ein   
   #+BEGIN_SRC emacs-lisp
     (use-package ein
-          
+          :defer t
           :config
             (setq ein:use-auto-complete-superpack t)
             (defun my/ein-mode-hook ()
@@ -786,42 +792,43 @@
 
 * wanderlust
   #+BEGIN_SRC emacs-lisp
-    (use-package wanderlust)
+    (use-package wanderlust
+      :defer t
+      :config
+      ;; IMAP, gmail:
+      (setq elmo-imap4-default-server "imap.gmail.com"
+            elmo-imap4-default-user "carsten.behring@gmail.com"
+            elmo-imap4-default-authenticate-type 'clear
+            elmo-imap4-default-port '993
+            elmo-imap4-default-stream-type 'ssl
 
-;; IMAP, gmail:
-(setq elmo-imap4-default-server "imap.gmail.com"
-      elmo-imap4-default-user "carsten.behring@gmail.com"
-      elmo-imap4-default-authenticate-type 'clear
-      elmo-imap4-default-port '993
-      elmo-imap4-default-stream-type 'ssl
+            ;;for non ascii-characters in folder-names
+            elmo-imap4-use-modified-utf7 t)
 
-      ;;for non ascii-characters in folder-names
-      elmo-imap4-use-modified-utf7 t)
+      ;; SMTP
+      (setq wl-smtp-connection-type 'starttls
+            wl-smtp-posting-port 587
+            wl-smtp-authenticate-type "plain"
+            wl-smtp-posting-user "Carsten Behring"
+            wl-smtp-posting-server "smtp.gmail.com"
+            wl-local-domain "gmail.com"
+            wl-message-id-domain "smtp.gmail.com")
 
-;; SMTP
-(setq wl-smtp-connection-type 'starttls
-      wl-smtp-posting-port 587
-      wl-smtp-authenticate-type "plain"
-      wl-smtp-posting-user "Carsten Behring"
-      wl-smtp-posting-server "smtp.gmail.com"
-      wl-local-domain "gmail.com"
-      wl-message-id-domain "smtp.gmail.com")
+      (setq wl-from "Carsten Behring <carsten.behring@gmail.com>"
 
-(setq wl-from "Carsten Behring <carsten.behring@gmail.com>"
+            ;;all system folders (draft, trash, spam, etc) are placed in the
+            ;;[Gmail]-folder, except inbox. "%" means it's an IMAP-folder
+            wl-default-folder "%inbox"
+            wl-draft-folder   "%[Gmail]/Drafts"
+            wl-trash-folder   "%[Gmail]/Trash"
+            wl-fcc            "%[Gmail]/Sent"
 
-      ;;all system folders (draft, trash, spam, etc) are placed in the
-      ;;[Gmail]-folder, except inbox. "%" means it's an IMAP-folder
-      wl-default-folder "%inbox"
-      wl-draft-folder   "%[Gmail]/Drafts"
-      wl-trash-folder   "%[Gmail]/Trash"
-      wl-fcc            "%[Gmail]/Sent"
+            ;; mark sent messages as read (sent messages get sent back to you and
+            ;; placed in the folder specified by wl-fcc)
+            wl-fcc-force-as-read    t
 
-      ;; mark sent messages as read (sent messages get sent back to you and
-      ;; placed in the folder specified by wl-fcc)
-      wl-fcc-force-as-read    t
-
-      ;;for when auto-compleating foldernames
-      wl-default-spec "%")
+            ;;for when auto-compleating foldernames
+            wl-default-spec "%"))
   #+END_SRC 
 
 * Dired
