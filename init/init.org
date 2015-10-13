@@ -846,7 +846,7 @@
 
 
     (use-package dired+ 
-      :defer t
+      :defer 1
       :config
       (bind-key  "s"  'xah-dired-sort  dired-mode-map)
 
