@@ -91,9 +91,9 @@
 
 
     (use-package eval-sexp-fu
-      :defer 1
+      :disabled
       :config
-      (eval-sexp-fu-flash-mode))
+      (turn-on-eval-sexp-fu-flash-mode))
 
     (setq display-time-24hr-format t)
     (display-time-mode 1)
@@ -308,7 +308,7 @@
             (ess-R-fl-keyword:F&T . t)
             (ess-R-fl-keyword:%op% . t)))))
   #+END_SRC
- 
+  
 * projectile
   #+BEGIN_SRC emacs-lisp
     (use-package projectile
@@ -370,7 +370,7 @@
              ))
 
     (use-package helm-projectile
-      :defer t
+      :defer 1
       :config
       (helm-projectile-on))
 
@@ -739,6 +739,9 @@
   
 
     (use-package sunrise-commander :defer t)
+
+    (use-package shell-pop
+      :bind ("<f9>" . shell-pop))
   #+END_SRC 
 * Python
   #+BEGIN_SRC emacs-lisp
