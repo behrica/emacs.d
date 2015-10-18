@@ -319,14 +319,14 @@
 
 * company
   #+BEGIN_SRC emacs-lisp
-    (use-package company 
-      :config
-      (add-hook 'after-init-hook 'global-company-mode)
-      ;(company-quickhelp-mode 1)
-      ;;(global-company-mode)
-      :diminish company-mode)
-  ;(use-package company-quickhelp)
-  
+      (use-package company 
+        :config
+        (add-hook 'after-init-hook 'global-company-mode)
+        ;(company-quickhelp-mode 1)
+         
+        :diminish company-mode)
+    (use-package company-quickhelp)
+
   #+END_SRC
   
 * undo tree
@@ -462,57 +462,6 @@
 
   #+END_SRC
 
-* Gnus 
-  #+BEGIN_SRC emacs-lisp
-
-    (use-package gnus
-      :defer t
-      :config
-      (setq gnus-select-method 
-            '(nnmaildir "EFSA" 
-                        (directory "~/.mails/")))
-
-
-      (setq gnus-secondary-select-methods
-
-            '())
-
-      (setq gnus-summary-line-format "%U%R%I%   %-50,50s   %-30,30n   %D
-                 ")
-      (setq
-       send-mail-function 'smtpmail-send-it
-       user-mail-address "carsten.behring@efsa.europa.eu"
-
-       smtpmail-smtp-server "localhost"
-       smtpmail-smtp-service 1025))
-
-
-    (use-package gnus-desktop-notify
-      :defer t
-      :config
-      (gnus-desktop-notify-mode)
-      (gnus-demon-add-scanmail))
-
-    (use-package bbdb
-      :defer t
-      :config
-      (require 'bbdb-site)
-      (bbdb-initialize 'gnus 'message)
-      (setq bbdb-file "~/Dropbox/bbdb")
-      (bbdb-initialize 'gnus 'message)
-      (bbdb-mua-auto-update-init 'message 'gnus) ;; use 'gnus for incoming messages too
-      (setq bbdb-mua-auto-update-p 'query)
-      (setq gnus-thread-sort-functions
-            '(
-              (not gnus-thread-sort-by-date)
-              (not gnus-thread-sort-by-number)
-              ))
-      (add-hook 'message-mode-hook
-                '(lambda ()
-                   (flyspell-mode t)
-                   (local-set-key "<TAB>" 'bbdb-complete-name))))
-
-  #+END_SRC 
 * password-store
 #+BEGIN_SRC emacs-lisp
   (defun password-store-show (entry)
@@ -527,62 +476,6 @@
     (bind-key "C-c t c" 'password-store-copy)
     (bind-key "C-c t e" 'password-store-edit)
     (bind-key "C-c t s" 'password-store-show))
-
-#+END_SRC
-* Eudc    
-#+BEGIN_SRC emacs-lisp
-
-  (use-package eudc   
-    :defer 10
-    :init  
-      (setq ldap-default-base "ou=people") 
-    :config
-    (setq eudc-default-return-attributes nil
-          eudc-strict-return-matches nil)
-
-    (setq ldap-default-base "ou=people") 
-    (setq ldap-ldapsearch-args (quote ("-tt" "-LLL" "-x")))
-
-    (setq eudc-inline-query-format '((name)
-                                     (firstname)
-                                     (firstname name)
-                                     (email)
-                                     ))
-
-    (setq ldap-password (password-store-get "efsa/behrica"))
-    (setq ldap-host-parameters-alist
-          (quote (("localhost:1389" base "ou=people"
-                   binddn "behrica"
-                   passwd ldap-password))))
-    (eudc-set-server "localhost:1389" 'ldap t)
-
-    (setq eudc-server-hotlist '(("localhost:1389" . ldap)))
-    (setq eudc-inline-expansion-servers 'hotlist)
-
-
-    (setq eudc-inline-expansion-format '("%s <%s>" cn mail))
-    (setq eudc-inline-query-format '(
-                                     (mail sn givenName)
-                                     (givenName)))
-
-    (defun enz-eudc-expand-inline()
-      (interactive)
-      (if (eq eudc-protocol 'ldap)
-          (progn (move-end-of-line 1)
-                 (insert "*")
-                 (unless (condition-case nil
-                             (eudc-expand-inline)
-                           (error nil))
-                   (backward-delete-char-untabify 1)
-                   ))
-        (eudc-expand-inline))
-      )
-    (eval-after-load "message"
-      '(define-key message-mode-map (kbd "TAB") 'enz-eudc-expand-inline))
-    (eval-after-load "sendmail"
-      '(define-key mail-mode-map (kbd "TAB") 'enz-eudc-expand-inline))
-    (eval-after-load "post"
-      '(define-key post-mode-map (kbd "TAB") 'enz-eudc-expand-inline)))
 
 #+END_SRC
 * Keychord
@@ -703,22 +596,6 @@
           :config
           (keyfreq-mode 1)
           (keyfreq-autosave-mode 1))
-
-
-        ;; (use-package org-caldav 
-        ;;   :config      
-        ;;   (setq org-caldav-url "http://localhost:1080/users"
-        ;;         org-caldav-calendar-id "carsten.behring@efsa.europa.eu/calendar"
-        ;;         org-caldav-uuid-extension ".EML")
-        ;;   (setq org-caldav-inbox "~/Dropbox/sync/org/efsa-cal.org")
-        ;;   (setq org-caldav-files '())
-        ;;   (setq org-caldav-debug-level 2))
-
-
-                                                ;(use-package excorporate)
-        ;; (setq excorporate-configuration '("carsten.behring@efsa.europa.eu" . "https://mail.efsa.europa.eu/EWS/Exchange.asmx"))
-        ;; (setq gnutls-log-level 2)
-
 
         (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
         (fset 'yes-or-no-p 'y-or-n-p)
@@ -980,4 +857,6 @@
  
 
   
+
+
 
