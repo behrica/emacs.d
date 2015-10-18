@@ -71,7 +71,7 @@
       :defer 1)
 
 
-  
+      
 
     ;;(use-package monokai-theme)
     (use-package powerline
@@ -90,10 +90,10 @@
       )
 
 
-    (use-package eval-sexp-fu
-      :disabled
-      :config
-      (turn-on-eval-sexp-fu-flash-mode))
+     ;; (use-package eval-sexp-fu
+     ;;   :disabled
+     ;;   :config
+     ;;   (turn-on-eval-sexp-fu-flash-mode))
 
     (setq display-time-24hr-format t)
     (display-time-mode 1)
@@ -357,23 +357,49 @@
   
 * helm
   #+BEGIN_SRC emacs-lisp
-    (use-package helm
-      :defer t
-      :config
-      (helm-mode 1)
-      (setq helm-autoresize-mode 1)
-      :diminish helm-mode
-      :bind (("M-x" . helm-M-x)
-             ("C-x f" . helm-recentf)
-             ("C-x C-f" . helm-find-files)
-             ("<menu>" . helm-M-x)
-             ))
+      (use-package helm
+        :commands(helm-execute-persistent-action helm-select-action)
 
-    (use-package helm-projectile
-      :defer 1
-      :config
-      (helm-projectile-on))
+             
+        :init
+        (require 'helm-config)
+        (when (executable-find "curl")
+          (setq helm-net-prefer-curl t))
+        (helm-mode 1)
+        (setq helm-autoresize-mode 1)
+           
+        (bind-key "<tab>" 'helm-execute-persistent-action helm-map)
+        (bind-key "C-i" 'helm-execute-persistent-action helm-map)
+        (bind-key "C-z" 'helm-select-action helm-map)
+        (global-set-key (kbd "C-c h") 'helm-command-prefix)  
 
+        :diminish helm-mode
+        :bind ( 
+                 ("C-c h g" . helm-google-suggest)
+               ("M-x" . helm-M-x)
+               ("C-x f" . helm-recentf)
+               ("C-x C-f" . helm-find-files)
+               ("C-x b"   . helm-mini)
+               ("<menu>" . helm-M-x)
+               ("C-c h w" . helm-swoop)
+               )
+        )
+ 
+      (use-package  helm-projectile
+        :ensure t
+        :bind (("C-c p h" . helm-projectile))
+        :config
+        (setq projectile-switch-project-action 'helm-projectile)
+        (helm-projectile-on)
+        )
+      (use-package helm-recoll
+        :init
+        (helm-recoll-create-source "default" "~/.recoll")
+        )
+     (use-package helm-swoop
+     :config
+     (setq helm-swoop-split-direction 'split-window-horizontally)
+    )
   #+END_SRC
   
 * git
@@ -603,7 +629,7 @@
       (clj-refactor-mode 1)
       (yas-minor-mode 1) ; for adding require/use/import
       (cljr-add-keybindings-with-prefix "C-c C-m"))
-    (use-package cider-eval-sexp-fu)
+    ;(use-package cider-eval-sexp-fu)
     (use-package clj-refactor
       :defer t
       :config
@@ -616,132 +642,140 @@
   #+END_SRC
 * other
   #+BEGIN_SRC emacs-lisp
-    (setq browse-url-browser-function 'browse-url-chromium)
-    (use-package focus)
+        (setq browse-url-browser-function 'browse-url-chromium)
+        (use-package focus)
 
-    (use-package google-this
-      :bind ("C-c g"  . google-this-mode-submap)
-      :config
-      (setq browse-url-browser-function 'browse-url-chromium))
-
-
-    (use-package which-key 
-      :defer 2
-      :config (which-key-mode)
-      :diminish  which-key-mode)
+        (use-package google-this
+          :bind ("C-c g"  . google-this-mode-submap)
+          :config
+          (setq browse-url-browser-function 'browse-url-chromium))
 
 
-
-    (defhydra hydra-highlight-symbol ()
-      "
-
-                                Highlight -----------> Dim
-                                _h_: Highlight at Point _f_: focus-mode
-                                _j_: Previous Symbol    _r_: focus-ro
-                                _k_: Next Symbol
-                                _d_: Clear All Symbols
-                                _a_: Toggle AHS
-                                "
-
-      ("h" highlight-symbol-at-point)
-      ("j" highlight-symbol-prev)
-      ("k" highlight-symbol-next)
-      ("d" (progn (highlight-symbol-remove-all)
-                  (evil-search-highlight-persist-remove-all)))
-      ("a" auto-highlight-symbol-mode)
-      ("f" focus-mode)
-      ("r" focus-read-only-mode))
-
-    (bind-key "C-c h" 'hydra-highlight-symbol/body)
+        (use-package which-key 
+          :defer 2
+          :config (which-key-mode)
+          :diminish  which-key-mode)
 
 
 
-    (defun hide-eol ()
-      "Do not show ^M in files containing mixed UNIX and DOS line endings."
-      (interactive)
-      (setq buffer-display-table (make-display-table))
-      (aset buffer-display-table ?\^M []))
+        (defhydra hydra-highlight-symbol ()
+          "
 
-    (defun clear-shell ()
-      (interactive)
-      (let ((old-max comint-buffer-maximum-size))
-        (setq comint-buffer-maximum-size 0)
-        (comint-truncate-buffer)
-        (setq comint-buffer-maximum-size old-max)))
+                                    Highlight -----------> Dim
+                                    _h_: Highlight at Point _f_: focus-mode
+                                    _j_: Previous Symbol    _r_: focus-ro
+                                    _k_: Next Symbol
+                                    _d_: Clear All Symbols
+                                    _a_: Toggle AHS
+                                    "
 
-    (use-package rainbow-delimiters
-      :config
-      (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
+          ("h" highlight-symbol-at-point)
+          ("j" highlight-symbol-prev)
+          ("k" highlight-symbol-next)
+          ("d" (progn (highlight-symbol-remove-all)
+                      (evil-search-highlight-persist-remove-all)))
+          ("a" auto-highlight-symbol-mode)
+          ("f" focus-mode)
+          ("r" focus-read-only-mode))
 
-    (use-package keyfreq
-      :config
-      (keyfreq-mode 1)
-      (keyfreq-autosave-mode 1))
-
-
-    ;; (use-package org-caldav 
-    ;;   :config      
-    ;;   (setq org-caldav-url "http://localhost:1080/users"
-    ;;         org-caldav-calendar-id "carsten.behring@efsa.europa.eu/calendar"
-    ;;         org-caldav-uuid-extension ".EML")
-    ;;   (setq org-caldav-inbox "~/Dropbox/sync/org/efsa-cal.org")
-    ;;   (setq org-caldav-files '())
-    ;;   (setq org-caldav-debug-level 2))
+        (bind-key "C-c s" 'hydra-highlight-symbol/body)
 
 
-                                            ;(use-package excorporate)
-    ;; (setq excorporate-configuration '("carsten.behring@efsa.europa.eu" . "https://mail.efsa.europa.eu/EWS/Exchange.asmx"))
-    ;; (setq gnutls-log-level 2)
+
+        (defun hide-eol ()
+          "Do not show ^M in files containing mixed UNIX and DOS line endings."
+          (interactive)
+          (setq buffer-display-table (make-display-table))
+          (aset buffer-display-table ?\^M []))
+
+        (defun clear-shell ()
+          (interactive)
+          (let ((old-max comint-buffer-maximum-size))
+            (setq comint-buffer-maximum-size 0)
+            (comint-truncate-buffer)
+            (setq comint-buffer-maximum-size old-max)))
+
+        (use-package rainbow-delimiters
+          :config
+          (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
+
+        (use-package keyfreq
+          :config
+          (keyfreq-mode 1)
+          (keyfreq-autosave-mode 1))
 
 
-    (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
-    (fset 'yes-or-no-p 'y-or-n-p)
-
-    (use-package git-gutter-fringe
-      :config
-      (global-git-gutter-mode)
-
-      )
-    (use-package calfw
-      :defer 1
-      :config
-      (require 'calfw-org)
-      (bind-key "C-c m" 'cfw:open-org-calendar)
-      (setq calendar-holidays '()))
-
-    (defun sudo-edit (&optional arg)
-      "Edit currently visited file as root.
-
-                            With a prefix ARG prompt for a file to visit.
-                            Will also prompt for a file to visit if current
-                            buffer is not visiting a file."
-      (interactive "P")
-      (if (or arg (not buffer-file-name))
-          (find-file (concat "/sudo:root@localhost:"
-                             (ido-read-file-name "Find file(as root): ")))
-        (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name))))
-
-    (use-package pandoc-mode
-       :defer t
-       :config
-        (add-hook 'markdown-mode-hook 'pandoc-mode))
+        ;; (use-package org-caldav 
+        ;;   :config      
+        ;;   (setq org-caldav-url "http://localhost:1080/users"
+        ;;         org-caldav-calendar-id "carsten.behring@efsa.europa.eu/calendar"
+        ;;         org-caldav-uuid-extension ".EML")
+        ;;   (setq org-caldav-inbox "~/Dropbox/sync/org/efsa-cal.org")
+        ;;   (setq org-caldav-files '())
+        ;;   (setq org-caldav-debug-level 2))
 
 
-    (defun save-all-and-compile ()
-      (interactive)
-      (save-some-buffers 1)
-      (compile compile-command))
+                                                ;(use-package excorporate)
+        ;; (setq excorporate-configuration '("carsten.behring@efsa.europa.eu" . "https://mail.efsa.europa.eu/EWS/Exchange.asmx"))
+        ;; (setq gnutls-log-level 2)
 
-    (global-set-key [f5] 'save-all-and-compile)
 
-    (setq skeleton-pair t)
+        (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+        (fset 'yes-or-no-p 'y-or-n-p)
 
-  
+        (use-package git-gutter-fringe
+          :config
+          (global-git-gutter-mode)
 
-    (use-package sunrise-commander :defer t)
+          )
+        (use-package calfw
+          :defer 1
+          :config
+          (require 'calfw-org)
+          (bind-key "C-c m" 'cfw:open-org-calendar)
+          (setq calendar-holidays '()))
 
+        (defun sudo-edit (&optional arg)
+          "Edit currently visited file as root.
+
+                                With a prefix ARG prompt for a file to visit.
+                                Will also prompt for a file to visit if current
+                                buffer is not visiting a file."
+          (interactive "P")
+          (if (or arg (not buffer-file-name))
+              (find-file (concat "/sudo:root@localhost:"
+                                 (ido-read-file-name "Find file(as root): ")))
+            (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name))))
+
+        (use-package pandoc-mode
+           :defer t
+           :config
+            (add-hook 'markdown-mode-hook 'pandoc-mode))
+
+
+        (defun save-all-and-compile ()
+          (interactive)
+          (save-some-buffers 1)
+          (compile compile-command))
+
+        (global-set-key [f5] 'save-all-and-compile)
+
+        (setq skeleton-pair t)
+
+
+
+        (use-package sunrise-commander :defer t)
+
+       
     (use-package shell-pop
-      :bind ("<f9>" . shell-pop))
+          :bind ("<f9>" . shell-pop)
+          :config  (use-package shell  
+             :bind ("TAB" . company-complete)))
+
+
+    (setq linum-format "%4d")
+    (use-package auto-package-update)
+
   #+END_SRC 
 * Python
   #+BEGIN_SRC emacs-lisp
@@ -855,23 +889,88 @@
         (dired-sort-other ξarg )))
 
 
-    (use-package dired+ 
-      :defer 1
-      :config
-      (bind-key  "s"  'xah-dired-sort  dired-mode-map)
-
-      (setq dired-dwim-target t)
-      ;; allow dired to delete or copy dir.
-      (setq dired-recursive-copies (quote always)) ; “always” means no asking
-      (setq dired-recursive-deletes (quote top)) ; “top” means ask once
-      (diredp-toggle-find-file-reuse-dir 1))
+     (use-package dired+ 
+       :defer 1
+       :config
+       (bind-key  "s"  'xah-dired-sort  dired-mode-map)
+       (setq dired-dwim-target t)
+       (setq dired-recursive-copies (quote always)) ; “always” means no asking
+       (setq dired-recursive-deletes (quote top)) ; “top” means ask once
+       (diredp-toggle-find-file-reuse-dir 1))
 
 
   #+END_SRC 
+* smart parents
+#+BEGIN_SRC emacs-lisp
+  (use-package smartparens-config
+    :ensure smartparens
+    :config
+    (progn
+      (show-smartparens-global-mode t)))
+
+  (add-hook 'prog-mode-hook 'turn-on-smartparens-strict-mode)
+  (add-hook 'markdown-mode-hook 'turn-on-smartparens-strict-mode)
+
+  (bind-keys
+   :map smartparens-mode-map
+   ("C-M-a" . sp-beginning-of-sexp)
+   ("C-M-e" . sp-end-of-sexp)
+
+   ("C-<down>" . sp-down-sexp)
+   ("C-<up>"   . sp-up-sexp)
+   ("M-<down>" . sp-backward-down-sexp)
+   ("M-<up>"   . sp-backward-up-sexp)
+
+   ("C-M-f" . sp-forward-sexp)
+   ("C-M-b" . sp-backward-sexp)
+
+   ("C-M-n" . sp-next-sexp)
+   ("C-M-p" . sp-previous-sexp)
+
+   ("C-S-f" . sp-forward-symbol)
+   ("C-S-b" . sp-backward-symbol)
+
+   ("C-<right>" . sp-forward-slurp-sexp)
+   ("M-<right>" . sp-forward-barf-sexp)
+   ("C-<left>"  . sp-backward-slurp-sexp)
+   ("M-<left>"  . sp-backward-barf-sexp)
+
+   ("C-M-t" . sp-transpose-sexp)
+   ("C-M-k" . sp-kill-sexp)
+   ("C-k"   . sp-kill-hybrid-sexp)
+   ("M-k"   . sp-backward-kill-sexp)
+   ("C-M-w" . sp-copy-sexp)
+
+   ("C-M-d" . delete-sexp)
+
+   ("M-<backspace>" . backward-kill-word)
+   ("C-<backspace>" . sp-backward-kill-word)
+   ([remap sp-backward-kill-word] . backward-kill-word)
+
+   ("M-[" . sp-backward-unwrap-sexp)
+   ("M-]" . sp-unwrap-sexp)
+
+   ("C-x C-t" . sp-transpose-hybrid-sexp)
+
+   ("C-c ("  . wrap-with-parens)
+   ("C-c ["  . wrap-with-brackets)
+   ("C-c {"  . wrap-with-braces)
+   ("C-c '"  . wrap-with-single-quotes)
+   ("C-c \"" . wrap-with-double-quotes)
+   ("C-c _"  . wrap-with-underscores)
+   ("C-c `"  . wrap-with-back-quotes))
+
+#+END_SRC
+* ace
+#+BEGIN_SRC emacs-lisp
+   (use-package ace-jump-mode
+    :bind (("C-c j" . ace-jump-mode)))
+#+END_SRC
 * start server
   #+BEGIN_SRC emacs-lisp
     (server-start)
   #+END_SRC 
+
 * print init time  
 #+BEGIN_SRC emacs-lisp 
 (setq after-init-time (current-time))
