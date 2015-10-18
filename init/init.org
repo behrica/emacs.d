@@ -1,19 +1,14 @@
 * boot-UI
   #+BEGIN_SRC emacs-lisp
-
-  
     (menu-bar-mode 0)
     (tool-bar-mode 0)
     (scroll-bar-mode -1)
     (setq inhibit-splash-screen t)
 
-
   #+END_SRC
-  
 * init
   
   #+BEGIN_SRC emacs-lisp
-
 
     (setq custom-file "~/.emacs.d/custom.el")
     ;;(load custom-file 'noerror)
@@ -23,35 +18,36 @@
             ("http" . "127.0.0.1:3128")
             ("https" . "127.0.0.1:3128")))
 
-
   #+END_SRC
   
 * packages
   #+BEGIN_SRC emacs-lisp
- (require 'package)
+    (require 'package)
+
+    (add-to-list 'package-archives
+                 '("melpa" . "http://melpa.org/packages/") t)
+    (add-to-list 'package-archives
+                 '("SC" . "http://joseito.republika.pl/sunrise-commander/") t)
 
 
-
-    (setq package-enable-at-startup nil)
-    (mapc (lambda(p) (push p package-archives))
-          '(
-            ("melpa" . "http://melpa.milkbox.net/packages/") 
-            ("SC"   . "http://joseito.republika.pl/sunrise-commander/")))
 
     (package-initialize) 
- (eval-when-compile
-      (require 'use-package))
-
     (if (not (package-installed-p 'use-package))
         (progn
           (package-refresh-contents)
           (package-install 'use-package)))
+
+    (eval-when-compile
+      (require 'use-package))
 
 
     (setq use-package-verbose t
           use-package-always-ensure t
           ;;use-package-debug t
           use-package-minimum-reported-time 0.05)
+
+    (use-package use-package-chords
+      :config (key-chord-mode 1))
 
     (require' diminish)
     (require 'bind-key)       
@@ -62,44 +58,27 @@
 
 
     (use-package ample-theme
-      :init (progn (load-theme 'ample t t)
-       (enable-theme 'ample))
+       :init (progn (load-theme 'ample t t)
+                    (enable-theme 'ample))
       :config
-        (when (string= system-name "surface-linux")
-           (set-frame-font "DejaVu Sans Mono-20" t t))
-        (set-frame-font "Hack" t t)
-      :defer 1)
+      (when (string= system-name "surface-linux")
+        (set-frame-font "DejaVu Sans Mono-20" t t))
+      (set-frame-font "Hack" t t))
 
-
-      
-
-    ;;(use-package monokai-theme)
     (use-package powerline
-      :defer 1
+      :disabled t
       :config
-      (powerline-center-theme)
-
-      ;;      (set-face-attribute 'powerline-active1 nil
-      ;;                          :foreground "#00ff00"
-      ;;                          :background "#000000"
-      ;;                          :box nil)
-      ;; (set-face-attribute 'powerline-active2 nil
-      ;;                     :foreground "#0000ff"
-      ;;                     :box nil)
-
-      )
+      (powerline-default-theme))
 
 
-     ;; (use-package eval-sexp-fu
-     ;;   :disabled
-     ;;   :config
-     ;;   (turn-on-eval-sexp-fu-flash-mode))
+    (use-package eval-sexp-fu
+       :disabled t
+       :config
+       (turn-on-eval-sexp-fu-flash-mode))
 
     (setq display-time-24hr-format t)
     (display-time-mode 1)
 
-    (use-package expand-region
-      :bind ("C-c C-SPC" . er/expand-region))
 
 
   #+END_SRC
@@ -137,6 +116,7 @@
                     (git-gutter:clear))
          :color blue))
 
+      (bind-chord "gg" 'hydra-git-gutter/body)
 
       (defhydra hydra-zoom (global-map "<f6>")
         "zoom"
@@ -214,15 +194,12 @@
             (decf n)))))
 
 
-    (bind-key "\C-c\C-k" 'copy-line)
-    (bind-key "C-c C-l" 'duplicate-current-line)
+    (bind-key "C-c k" 'copy-line)
+    (bind-key "C-c l" 'duplicate-current-line)
 
     (use-package move-text
-      :config
-      (move-text-default-bindings))
-
-
-
+      :bind (("C-c <up>" . move-text-up)
+             ("C-c <down>" . move-text-down)))
 
     (defun indent-buffer ()
       (interactive)
@@ -239,6 +216,11 @@
     (bind-key "<f12>" 'my/org-cleanup)  
 
     (electric-indent-mode)
+
+
+
+    (use-package expand-region
+      :chords (("xx" . er/expand-region)))
 
 
   #+END_SRC
@@ -266,12 +248,7 @@
       (set-variable 'org-export-allow-bind-keywords t)
       (setq org-src-window-setup 'current-window)
 
-      (org-add-link-type "thunderlink" 'org-thunderlink-open)
       (org-display-inline-images t t)
-      (defun org-thunderlink-open (path)
-        (let ( (command (concat  "thunderbird -thunderlink " "thunderlink:" path)))
-          (message command)
-          (shell-command command)))
       (org-babel-do-load-languages
        'org-babel-load-languages
        '((python . t)))
@@ -280,10 +257,6 @@
       (use-package ob-ipython :defer t)
       :bind (("\C-ca"  . org-agenda)
              ("\C-cc" . org-capture)))
-
-
-
-
 
 
   #+END_SRC
@@ -381,45 +354,50 @@
                ("C-x C-f" . helm-find-files)
                ("C-x b"   . helm-mini)
                ("<menu>" . helm-M-x)
-               ("C-c h w" . helm-swoop)
-               )
-        )
+               ("C-c h w" . helm-swoop)))
  
       (use-package  helm-projectile
-        :ensure t
+        
         :bind (("C-c p h" . helm-projectile))
         :config
         (setq projectile-switch-project-action 'helm-projectile)
-        (helm-projectile-on)
-        )
+        (helm-projectile-on))
+
       (use-package helm-recoll
         :init
-        (helm-recoll-create-source "default" "~/.recoll")
-        )
+        (helm-recoll-create-source "default" "~/.recoll"))
+
      (use-package helm-swoop
      :config
-     (setq helm-swoop-split-direction 'split-window-horizontally)
-    )
+     (setq helm-swoop-split-direction 'split-window-horizontally))
   #+END_SRC
   
 * git
   #+BEGIN_SRC emacs-lisp
-    (use-package magit :defer t)
+    (use-package magit)
     (use-package git-timemachine)
-  #+END_SRC
 
+    (use-package git-gutter-fringe
+      :config
+      (global-git-gutter-mode)
+      :diminish git-gutter-mode)
+
+
+ #+END_SRC
+  
 * polymode
   #+BEGIN_SRC emacs-lisp
     (use-package polymode
       :defer 1
       :config
       (bind-key  "C-c C-r"  'ess-rmarkdown  polymode-mode-map))
+
     (use-package markdown-mode 
-       :defer 1 
-       :config 
-       (require 'poly-markdown)
-       (require 'poly-R)
-       (add-to-list 'auto-mode-alist '("\\.Rmd" . poly-markdown+r-mode)))
+      :defer 1 
+      :config 
+      (require 'poly-markdown)
+      (require 'poly-R)
+      (add-to-list 'auto-mode-alist '("\\.Rmd" . poly-markdown+r-mode)))
 
     (defun save-buffer-if-visiting-file ()
       "Save the current buffer only if it is visiting a file"
@@ -453,15 +431,11 @@
               (ess-show-buffer (buffer-name sbuffer) nil))))))
 
 
-                                            ;(define-key polymode-mode-map "\M-ns" 'ess-rmarkdown)
     (defun ess-auto-rmarkdown-enable ()
       (interactive)
       (run-with-idle-timer 1 t #'ess-rmarkdown))
-
-
-
   #+END_SRC
-
+  
 * password-store
 #+BEGIN_SRC emacs-lisp
   (defun password-store-show (entry)
@@ -484,34 +458,34 @@
     (use-package key-chord
       :config
       (key-chord-mode 1)
-      (key-chord-define-global "xx"     'er/expand-region)
-      (key-chord-define-global "uu"     'undo) 
+      (bind-chord "uu" 'undo) 
 
-      (key-chord-define-global "yy"
-                               (defhydra my/window-movement ()
-                                 ("<left>" windmove-left)
-                                 ("<right>" windmove-right)
-                                 ("<down>" windmove-down)
-                                 ("<up>" windmove-up)
-                                 ("o" delete-other-windows :color blue)
-                                 ("d" delete-window)
-                                 ("b" helm-buffers-list)
-                                 ("v" (progn (split-window-right) (windmove-right)))
-                                 ("x" (progn (split-window-below) (windmove-down)))
-                                 ("q" nil)))
-
-
-      (key-chord-define-global "jj"
-                               (defhydra join-lines ()
-                                 ("<up>" join-line)
-                                 ("<down>" (join-line 1))
-                                 ("t" join-line)
-                                 ("n" (join-line 1)))))
+      (bind-chord "yy"
+                  (defhydra my/window-movement ()
+                    ("<left>" windmove-left)
+                    ("<right>" windmove-right)
+                    ("<down>" windmove-down)
+                    ("<up>" windmove-up)
+                    ("o" delete-other-windows :color blue)
+                    ("d" delete-window)
+                    ("b" helm-buffers-list)
+                    ("v" (progn (split-window-right) (windmove-right)))
+                    ("x" (progn (split-window-below) (windmove-down)))
+                    ("q" nil)))
 
 
+      (bind-chord "jl"
+                  (defhydra join-lines ()
+                    ("<up>" join-line)
+                    ("<down>" (join-line 1))
+                    ("t" join-line)
+                    ("n" (join-line 1))
+                    ("q" nil :color blue))))
 
 
-  #+END_SRC 
+
+
+ #+END_SRC 
   
 * cider
   #+BEGIN_SRC emacs-lisp
@@ -535,119 +509,89 @@
   #+END_SRC
 * other
   #+BEGIN_SRC emacs-lisp
-        (setq browse-url-browser-function 'browse-url-chromium)
-        (use-package focus)
+    (setq browse-url-browser-function 'browse-url-chromium)
+    (use-package focus)
 
-        (use-package google-this
-          :bind ("C-c g"  . google-this-mode-submap)
-          :config
-          (setq browse-url-browser-function 'browse-url-chromium))
-
-
-        (use-package which-key 
-          :defer 2
-          :config (which-key-mode)
-          :diminish  which-key-mode)
+    (use-package google-this
+      :config
+      (global-set-key (kbd "C-c g") 'google-this-mode-submap)
+      (setq browse-url-browser-function 'browse-url-chromium))
 
 
-
-        (defhydra hydra-highlight-symbol ()
-          "
-
-                                    Highlight -----------> Dim
-                                    _h_: Highlight at Point _f_: focus-mode
-                                    _j_: Previous Symbol    _r_: focus-ro
-                                    _k_: Next Symbol
-                                    _d_: Clear All Symbols
-                                    _a_: Toggle AHS
-                                    "
-
-          ("h" highlight-symbol-at-point)
-          ("j" highlight-symbol-prev)
-          ("k" highlight-symbol-next)
-          ("d" (progn (highlight-symbol-remove-all)
-                      (evil-search-highlight-persist-remove-all)))
-          ("a" auto-highlight-symbol-mode)
-          ("f" focus-mode)
-          ("r" focus-read-only-mode))
-
-        (bind-key "C-c s" 'hydra-highlight-symbol/body)
+    (use-package which-key 
+      :defer 2
+      :config (which-key-mode)
+      :diminish  which-key-mode)
 
 
 
-        (defun hide-eol ()
-          "Do not show ^M in files containing mixed UNIX and DOS line endings."
-          (interactive)
-          (setq buffer-display-table (make-display-table))
-          (aset buffer-display-table ?\^M []))
+    (defun hide-eol ()
+      "Do not show ^M in files containing mixed UNIX and DOS line endings."
+      (interactive)
+      (setq buffer-display-table (make-display-table))
+      (aset buffer-display-table ?\^M []))
 
-        (defun clear-shell ()
-          (interactive)
-          (let ((old-max comint-buffer-maximum-size))
-            (setq comint-buffer-maximum-size 0)
-            (comint-truncate-buffer)
-            (setq comint-buffer-maximum-size old-max)))
+    (defun clear-shell ()
+      (interactive)
+      (let ((old-max comint-buffer-maximum-size))
+        (setq comint-buffer-maximum-size 0)
+        (comint-truncate-buffer)
+        (setq comint-buffer-maximum-size old-max)))
 
-        (use-package rainbow-delimiters
-          :config
-          (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
+    (use-package rainbow-delimiters
+      :config
+      (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
 
-        (use-package keyfreq
-          :config
-          (keyfreq-mode 1)
-          (keyfreq-autosave-mode 1))
+    (use-package keyfreq
+      :config
+      (keyfreq-mode 1)
+      (keyfreq-autosave-mode 1))
 
-        (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
-        (fset 'yes-or-no-p 'y-or-n-p)
+    (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+    (fset 'yes-or-no-p 'y-or-n-p)
 
-        (use-package git-gutter-fringe
-          :config
-          (global-git-gutter-mode)
+    (use-package calfw
+      :defer 1
+      :config
+      (require 'calfw-org)
+      (bind-key "C-c m" 'cfw:open-org-calendar)
+      (setq calendar-holidays '()))
 
-          )
-        (use-package calfw
-          :defer 1
-          :config
-          (require 'calfw-org)
-          (bind-key "C-c m" 'cfw:open-org-calendar)
-          (setq calendar-holidays '()))
-
-        (defun sudo-edit (&optional arg)
-          "Edit currently visited file as root.
+    (defun sudo-edit (&optional arg)
+      "Edit currently visited file as root.
 
                                 With a prefix ARG prompt for a file to visit.
                                 Will also prompt for a file to visit if current
                                 buffer is not visiting a file."
-          (interactive "P")
-          (if (or arg (not buffer-file-name))
-              (find-file (concat "/sudo:root@localhost:"
-                                 (ido-read-file-name "Find file(as root): ")))
-            (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name))))
+      (interactive "P")
+      (if (or arg (not buffer-file-name))
+          (find-file (concat "/sudo:root@localhost:"
+                             (ido-read-file-name "Find file(as root): ")))
+        (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name))))
 
-        (use-package pandoc-mode
-           :defer t
-           :config
-            (add-hook 'markdown-mode-hook 'pandoc-mode))
-
-
-        (defun save-all-and-compile ()
-          (interactive)
-          (save-some-buffers 1)
-          (compile compile-command))
-
-        (global-set-key [f5] 'save-all-and-compile)
-
-        (setq skeleton-pair t)
+    (use-package pandoc-mode
+      :defer t
+      :config
+      (add-hook 'markdown-mode-hook 'pandoc-mode))
 
 
+    (defun save-all-and-compile ()
+      (interactive)
+      (save-some-buffers 1)
+      (compile compile-command))
 
-        (use-package sunrise-commander :defer t)
+    (global-set-key [f5] 'save-all-and-compile)
 
-       
+    (setq skeleton-pair t)
+
+
+    (use-package sunrise-commander :defer t)
+
+
     (use-package shell-pop
-          :bind ("<f9>" . shell-pop)
-          :config  (use-package shell  
-             :bind ("TAB" . company-complete)))
+      :bind ("<f9>" . shell-pop)
+      :config  (use-package shell  
+                 :bind ("TAB" . company-complete)))
 
 
     (setq linum-format "%4d")
@@ -667,9 +611,7 @@
         (company-quickhelp-mode)
         (add-to-list 'company-backends 'company-jedi))
       (setq jedi:complete-on-dot t)
-      (add-hook 'python-mode-hook 'my/python-mode-hook)
-
-    )
+      (add-hook 'python-mode-hook 'my/python-mode-hook))
      
     (use-package pyvenv 
      :defer 1
@@ -779,69 +721,26 @@
   #+END_SRC 
 * smart parents
 #+BEGIN_SRC emacs-lisp
+
+  (setq sp-base-key-bindings 'sp)
+
   (use-package smartparens-config
     :ensure smartparens
-    :config
+    :init
     (progn
       (show-smartparens-global-mode t)))
 
   (add-hook 'prog-mode-hook 'turn-on-smartparens-strict-mode)
   (add-hook 'markdown-mode-hook 'turn-on-smartparens-strict-mode)
 
-  (bind-keys
-   :map smartparens-mode-map
-   ("C-M-a" . sp-beginning-of-sexp)
-   ("C-M-e" . sp-end-of-sexp)
-
-   ("C-<down>" . sp-down-sexp)
-   ("C-<up>"   . sp-up-sexp)
-   ("M-<down>" . sp-backward-down-sexp)
-   ("M-<up>"   . sp-backward-up-sexp)
-
-   ("C-M-f" . sp-forward-sexp)
-   ("C-M-b" . sp-backward-sexp)
-
-   ("C-M-n" . sp-next-sexp)
-   ("C-M-p" . sp-previous-sexp)
-
-   ("C-S-f" . sp-forward-symbol)
-   ("C-S-b" . sp-backward-symbol)
-
-   ("C-<right>" . sp-forward-slurp-sexp)
-   ("M-<right>" . sp-forward-barf-sexp)
-   ("C-<left>"  . sp-backward-slurp-sexp)
-   ("M-<left>"  . sp-backward-barf-sexp)
-
-   ("C-M-t" . sp-transpose-sexp)
-   ("C-M-k" . sp-kill-sexp)
-   ("C-k"   . sp-kill-hybrid-sexp)
-   ("M-k"   . sp-backward-kill-sexp)
-   ("C-M-w" . sp-copy-sexp)
-
-   ("C-M-d" . delete-sexp)
-
-   ("M-<backspace>" . backward-kill-word)
-   ("C-<backspace>" . sp-backward-kill-word)
-   ([remap sp-backward-kill-word] . backward-kill-word)
-
-   ("M-[" . sp-backward-unwrap-sexp)
-   ("M-]" . sp-unwrap-sexp)
-
-   ("C-x C-t" . sp-transpose-hybrid-sexp)
-
-   ("C-c ("  . wrap-with-parens)
-   ("C-c ["  . wrap-with-brackets)
-   ("C-c {"  . wrap-with-braces)
-   ("C-c '"  . wrap-with-single-quotes)
-   ("C-c \"" . wrap-with-double-quotes)
-   ("C-c _"  . wrap-with-underscores)
-   ("C-c `"  . wrap-with-back-quotes))
-
 #+END_SRC
 * ace
 #+BEGIN_SRC emacs-lisp
-   (use-package ace-jump-mode
-    :bind (("C-c j" . ace-jump-mode)))
+
+  (use-package ace-jump-mode
+    :chords (("jj" . ace-jump-char-mode)
+             ("jk" . ace-jump-word-mode)
+             ("jl" . ace-jump-line-mode)))
 #+END_SRC
 * start server
   #+BEGIN_SRC emacs-lisp
@@ -857,6 +756,15 @@
  
 
   
+
+
+
+
+ 
+
+
+
+
 
 
 
