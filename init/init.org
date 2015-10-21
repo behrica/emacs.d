@@ -263,23 +263,37 @@
 * ess
   #+BEGIN_SRC emacs-lisp
     (use-package ess
-    :defer t
-    :config
-    (setq ess-R-font-lock-keywords
+      :defer t
+      :config
+      (setq ess-R-font-lock-keywords
 
-          (quote
-           ((ess-R-fl-keyword:modifiers . t)
-            (ess-R-fl-keyword:fun-defs . t)
-            (ess-R-fl-keyword:keywords . t)
-            (ess-R-fl-keyword:assign-ops . t)
-            (ess-R-fl-keyword:constants . t)
-            (ess-fl-keyword:fun-calls . t)
-            (ess-fl-keyword:numbers . t)
-            (ess-fl-keyword:operators . t)
-            (ess-fl-keyword:delimiters . t)
-            (ess-fl-keyword:= . t)
-            (ess-R-fl-keyword:F&T . t)
-            (ess-R-fl-keyword:%op% . t)))))
+            (quote
+             ((ess-R-fl-keyword:modifiers . t)
+              (ess-R-fl-keyword:fun-defs . t)
+              (ess-R-fl-keyword:keywords . t)
+              (ess-R-fl-keyword:assign-ops . t)
+              (ess-R-fl-keyword:constants . t)
+              (ess-fl-keyword:fun-calls . t)
+              (ess-fl-keyword:numbers . t)
+              (ess-fl-keyword:operators . t)
+              (ess-fl-keyword:delimiters . t)
+              (ess-fl-keyword:= . t)
+              (ess-R-fl-keyword:F&T . t)
+              (ess-R-fl-keyword:%op% . t))))
+      
+      (defun my-ess-execute-screen-options (foo)
+        "cycle through windows whose major mode is inferior-ess-mode and fix width"
+        (interactive)
+        (setq my-windows-list (window-list))
+        (while my-windows-list
+          (when (with-selected-window (car my-windows-list) (string= "inferior-ess-mode" major-mode))
+            (with-selected-window (car my-windows-list) (ess-execute-screen-options t)))
+          (setq my-windows-list (cdr my-windows-list))))
+
+      (add-to-list 'window-size-change-functions 'my-ess-execute-screen-options))
+
+
+
   #+END_SRC
   
 * projectile
@@ -560,9 +574,9 @@
     (defun sudo-edit (&optional arg)
       "Edit currently visited file as root.
 
-                                With a prefix ARG prompt for a file to visit.
-                                Will also prompt for a file to visit if current
-                                buffer is not visiting a file."
+                                     With a prefix ARG prompt for a file to visit.
+                                     Will also prompt for a file to visit if current
+                                     buffer is not visiting a file."
       (interactive "P")
       (if (or arg (not buffer-file-name))
           (find-file (concat "/sudo:root@localhost:"
@@ -596,6 +610,17 @@
 
     (setq linum-format "%4d")
     (use-package auto-package-update)
+
+    (winner-mode) 
+
+    (use-package anzu
+      
+      :bind(("M-%" . anzu-query-replace)
+            ("M-C-%" . anzu-query-replace-regexp))
+      :config
+      (global-anzu-mode 1)
+      (set-face-attribute 'anzu-mode-line nil
+                          :foreground "orange" :weight 'bold))
 
   #+END_SRC 
 * Python
