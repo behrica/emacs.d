@@ -4,6 +4,7 @@
     (tool-bar-mode 0)
     (scroll-bar-mode -1)
     (setq inhibit-splash-screen t)
+    (toggle-frame-fullscreen)
 
   #+END_SRC
 * init
@@ -66,7 +67,6 @@
       (set-frame-font "Hack" t t))
 
     (use-package powerline
-      :disabled t
       :config
       (powerline-default-theme))
 
@@ -196,6 +196,7 @@
 
     (bind-key "C-c k" 'copy-line)
     (bind-key "C-c l" 'duplicate-current-line)
+    (bind-key "C-c j" 'join-line)
 
     (use-package move-text
       :bind (("C-c <up>" . move-text-up)
@@ -254,17 +255,27 @@
        '((python . t)))
       (add-to-list 'org-structure-template-alist
                    '("p" "#+BEGIN_SRC python :session \n\n#+END_SRC"))
+
+
+
+      (defun my/beamer-to-pdf()
+        
+        (interactive)
+        (org-beamer-export-to-pdf nil t nil nil nil))
+      (bind-key "C-c e" 'my/beamer-to-pdf org-mode-map)
+
       (use-package ob-ipython :defer t)
-      :bind (("\C-ca"  . org-agenda)
-             ("\C-cc" . org-capture)))
+      :bind (("C-c a"  . org-agenda)
+             ("C-c c" . org-capture)))
 
 
   #+END_SRC
 * ess
   #+BEGIN_SRC emacs-lisp
     (use-package ess
-      :defer t
-      :config
+      :defer 1
+      :config 
+      (require 'ess-site)
       (setq ess-R-font-lock-keywords
 
             (quote
@@ -373,7 +384,7 @@
       (use-package  helm-projectile
         
         :bind (("C-c p h" . helm-projectile))
-        :config
+        :init
         (setq projectile-switch-project-action 'helm-projectile)
         (helm-projectile-on))
 
@@ -401,6 +412,14 @@
   
 * polymode
   #+BEGIN_SRC emacs-lisp
+
+
+(defun polymode-insert-new-chunk ()
+  (interactive)
+  (insert "```{r}
+
+ ``` "))
+
     (use-package polymode
       :defer 1
       :config
@@ -485,16 +504,16 @@
                     ("b" helm-buffers-list)
                     ("v" (progn (split-window-right) (windmove-right)))
                     ("x" (progn (split-window-below) (windmove-down)))
-                    ("q" nil)))
+                    ("q" nil))))
 
 
-      (bind-chord "jl"
-                  (defhydra join-lines ()
-                    ("<up>" join-line)
-                    ("<down>" (join-line 1))
-                    ("t" join-line)
-                    ("n" (join-line 1))
-                    ("q" nil :color blue))))
+      ;; (bind-chord "jl"
+      ;;             (defhydra join-lines ()
+      ;;               ("<up>" join-line)
+      ;;               ("<down>" (join-line 1))
+      ;;               ("t" join-line)
+      ;;               ("n" (join-line 1))
+      ;;               ("q" nil :color blue))))
 
 
 
@@ -574,9 +593,9 @@
     (defun sudo-edit (&optional arg)
       "Edit currently visited file as root.
 
-                                     With a prefix ARG prompt for a file to visit.
-                                     Will also prompt for a file to visit if current
-                                     buffer is not visiting a file."
+                                                 With a prefix ARG prompt for a file to visit.
+                                                 Will also prompt for a file to visit if current
+                                                 buffer is not visiting a file."
       (interactive "P")
       (if (or arg (not buffer-file-name))
           (find-file (concat "/sudo:root@localhost:"
@@ -621,6 +640,17 @@
       (global-anzu-mode 1)
       (set-face-attribute 'anzu-mode-line nil
                           :foreground "orange" :weight 'bold))
+
+    (use-package beacon
+      :config
+      (beacon-mode 1)
+      (setq beacon-blink-duration .2))
+
+    (use-package aggressive-indent
+      :config
+      (global-aggressive-indent-mode 1))
+
+
 
   #+END_SRC 
 * Python
