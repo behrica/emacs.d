@@ -802,6 +802,29 @@
     (server-start)
   #+END_SRC 
 
+* exwm
+  #+BEGIN_SRC emacs-lisp
+    (use-package exwm
+      :config
+      (require 'exwm-config)
+      (exwm-config-default)
+      (exwm-input-set-simulation-keys nil)
+
+      (exwm-input-set-key (kbd "s-l")
+                          (lambda () (interactive) (start-process "" nil "slock")))
+      (setq global-mode-string  '("[:" (:eval (format "%s" exwm-workspace-current-index)) "] " display-time-string))
+
+      (when (string= system-name "LAP-2013-00026.efsa.eu.int")
+        (require 'exwm-randr)
+        (setq exwm-randr-workspace-output-plist '(0 "LVDS1" 1 "LVDS1" 2 "HDMI2" 3 "HDMI2"))
+        (add-hook 'exwm-randr-screen-change-hook
+                  (lambda ()
+                    (start-process-shell-command
+                     "xrandr" nil "xrandr --output HDMI2 --auto --output LVDS1 --auto --left-of HDMI2")))
+        (exwm-randr-enable)))
+     
+  #+END_SRC
+
 * print init time  
 #+BEGIN_SRC emacs-lisp 
 (setq after-init-time (current-time))
@@ -816,10 +839,5 @@
 
 
  
-
-
-
-
-
 
 
