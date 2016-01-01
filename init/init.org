@@ -15,8 +15,7 @@
     ;;(load custom-file 'noerror)
 
     (when (or  (string= system-name "gandalf")
-               (string= system-name "LAP-2013-00026"))
-      
+               (string= system-name "LAP-2013-00026"))      
       (setq url-proxy-services
             '(("no_proxy" . "^\\localhost")
               ("http" . "127.0.0.1:3128")
