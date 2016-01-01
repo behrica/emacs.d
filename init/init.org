@@ -14,10 +14,13 @@
     (setq custom-file "~/.emacs.d/custom.el")
     ;;(load custom-file 'noerror)
 
-    (setq url-proxy-services
-          '(("no_proxy" . "^\\localhost")
-            ("http" . "127.0.0.1:3128")
-            ("https" . "127.0.0.1:3128")))
+    (when (or  (string= system-name "gandalf")
+               (string= sytem-name "LAP-2013-00026"))
+      
+      (setq url-proxy-services
+            '(("no_proxy" . "^\\localhost")
+              ("http" . "127.0.0.1:3128")
+              ("https" . "127.0.0.1:3128"))))
 
   #+END_SRC
   
@@ -52,7 +55,7 @@
 
     (require' diminish)
     (require 'bind-key)       
-
+    (add-to-list 'load-path "/usr/share/emacs24/site-lisp/mu4e")
   #+END_SRC 
 * UI
   #+BEGIN_SRC emacs-lisp 
@@ -696,7 +699,7 @@
       (global-aggressive-indent-mode 1))
 
     (use-package discover-my-major)
-
+    (use-package yaml-mode)
   #+END_SRC 
 * Python
   #+BEGIN_SRC emacs-lisp
