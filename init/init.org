@@ -347,7 +347,56 @@
             (with-selected-window (car my-windows-list) (ess-execute-screen-options t)))
           (setq my-windows-list (cdr my-windows-list))))
 
-      (add-to-list 'window-size-change-functions 'my-ess-execute-screen-options))
+      (add-to-list 'window-size-change-functions 'my-ess-execute-screen-options)
+      (defvar pretty-alist
+        (cl-pairlis '() '()))
+      (add-to-list 'pretty-alist '("%>%" . "⇛"))
+      (add-to-list 'pretty-alist '("<-" . "⇐"))
+      (defun pretty-things ()
+        (mapc
+         (lambda (x)
+           (let ((word (car x))
+                 (char (cdr x)))
+             (font-lock-add-keywords
+              nil
+              `((,(concat "\\(^\\|[^a-zA-Z0-9]\\)\\(" word "\\)[a-zA-Z]")
+                 (0 (progn
+                      (decompose-region (match-beginning 2) (match-end 2))
+                      nil)))))
+             (font-lock-add-keywords
+              nil
+              `((,(concat "\\(^\\|[^a-zA-Z0-9]\\)\\(" word "\\)[^a-zA-Z]")
+                 (0 (progn
+                      (compose-region (match-beginning 2) (match-end 2)
+                                      ,char)
+                      nil)))))))
+         pretty-alist))
+      (add-hook 'ess-mode-hook 'pretty-things)
+      (add-hook 'R-mode-hook
+                (lambda ()
+                  (font-lock-add-keywords nil
+                                          '(("\\(%>%\\)" 1
+                                             font-lock-builtin-face t)))))
+
+      (define-key ess-mode-map [(super .)] "%>%")
+
+      ;; Magical shift+ENTER
+      ;; http://kieranhealy.org/blog/archives/2009/10/12/make-shift-enter-do-a-lot-in-ess/
+      (defun my-ess-eval ()
+        (interactive)
+        (if (and transient-mark-mode mark-active)
+            (call-interactively 'ess-eval-region)
+          (call-interactively 'ess-eval-line-and-step)))
+      (add-hook 'ess-mode-hook
+                '(lambda()
+                   (local-set-key [(shift return)] 'my-ess-eval)))
+      (add-hook 'inferior-ess-mode-hook
+                '(lambda()
+                   (local-set-key [up] 'comint-previous-input)
+                   (local-set-key [down] 'comint-next-input)))
+      (add-hook 'Rnw-mode-hook
+                '(lambda()
+                   (local-set-key [(shift return)] 'my-ess-eval))))
 
 
 
