@@ -587,7 +587,8 @@
     (use-package key-chord
       :config
       (key-chord-mode 1)
-      (bind-chord "uu" 'undo) 
+      (bind-chord "uu" 'undo)) 
+
 
 
       ;; (bind-chord "jl"
@@ -947,7 +948,7 @@
 * golden
 #+BEGIN_SRC emacs-lisp 
   (use-package golden-ratio
-:diminish golden-ratio-mode)
+    :diminish golden-ratio-mode)
   (defvar golden-ratio-selected-window
     (frame-selected-window)
     "Selected window.")
