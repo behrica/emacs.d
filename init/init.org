@@ -735,9 +735,9 @@
       (global-aggressive-indent-mode 1))
 
     (use-package discover-my-major)
-    (use-package yaml-mode)
+    ;;(use-package yaml-mode)
 
-    (windmove-default-keybindings)
+    (windmove-default-keybindings 'super)
   #+END_SRC 
 
 * Python
