@@ -229,6 +229,29 @@
 
   #+END_SRC
   
+* company
+  #+BEGIN_SRC emacs-lisp
+    (use-package company 
+      :config
+      (add-hook 'after-init-hook 'global-company-mode)
+                                            ;(company-quickhelp-mode 1)
+      :diminish company-mode)
+    (use-package company-quickhelp
+      :config
+      (company-quickhelp-mode)
+      (setq company-quickhelp-delay nil)
+      :diminish company-quickhelp-mode
+      
+      )
+
+
+    (use-package company-statistics
+      :config (company-statistics-mode)
+      :diminsh company-statistics-mode
+      )
+
+  #+END_SRC
+  
 * org-mode 
   #+BEGIN_SRC emacs-lisp
 
@@ -318,6 +341,7 @@
   #+END_SRC
 * ess
   #+BEGIN_SRC emacs-lisp
+
     (use-package ess
       :defer 1
       :config 
@@ -337,7 +361,10 @@
               (ess-fl-keyword:= . t)
               (ess-R-fl-keyword:F&T . t)
               (ess-R-fl-keyword:%op% . t))))
-      
+      (setq comint-move-point-for-output t)
+      (setq ess-help-own-frame nil
+            ess-help-reuse-window  t)
+
       (defun my-ess-execute-screen-options (foo)
         "cycle through windows whose major mode is inferior-ess-mode and fix width"
         (interactive)
@@ -379,6 +406,9 @@
                                              font-lock-builtin-face t)))))
 
       (define-key ess-mode-map [(super .)] "%>%")
+      (define-key ess-mode-map [tab] 'company-complete)
+      (define-key inferior-ess-mode-map [(super .)] "%>%")
+      (define-key inferior-ess-mode-map [tab] 'company-complete)
 
       ;; Magical shift+ENTER
       ;; http://kieranhealy.org/blog/archives/2009/10/12/make-shift-enter-do-a-lot-in-ess/
@@ -398,7 +428,11 @@
                 '(lambda()
                    (local-set-key [(shift return)] 'my-ess-eval))))
 
+        (setq tab-always-indent 'complete)
+        (setq ess-tab-complete-in-script t)
 
+        (add-to-list 'company-backends 'company-ess-backend)
+        (setq company-minimum-prefix-length 2)
 
   #+END_SRC
   
@@ -412,18 +446,6 @@
 
   #+END_SRC
 
-* company
-  #+BEGIN_SRC emacs-lisp
-      (use-package company 
-        :config
-        (add-hook 'after-init-hook 'global-company-mode)
-        ;(company-quickhelp-mode 1)
-         
-        :diminish company-mode)
-    (use-package company-quickhelp)
-
-  #+END_SRC
-  
 * undo tree
   #+BEGIN_SRC emacs-lisp
     (use-package undo-tree
@@ -944,7 +966,7 @@
         (exwm-randr-enable)))
 
   #+END_SRC
- 
+  
 * golden
 #+BEGIN_SRC emacs-lisp 
   (use-package golden-ratio
