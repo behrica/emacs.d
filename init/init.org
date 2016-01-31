@@ -976,7 +976,7 @@
   (add-hook 'buffer-list-update-hook #'golden-ratio-maybe)
   (add-hook 'focus-in-hook           #'golden-ratio)
   (add-hook 'focus-out-hook          #'golden-ratio)
-
+  (golden-ratio-mode 1)
 #+END_SRC
 
 * print init time  
