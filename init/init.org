@@ -405,9 +405,18 @@
                                           '(("\\(%>%\\)" 1
                                              font-lock-builtin-face t)))))
 
-      (define-key ess-mode-map [(super .)] "%>%")
+
+
+      (defun then_R_operator ()
+        "R - %>% operator or 'then' pipe operator"
+        (interactive)
+        (just-one-space 1)
+        (insert "%>%")
+        (reindent-then-newline-and-indent))
+      (define-key ess-mode-map (kbd "C-%") 'then_R_operator)
+      (define-key inferior-ess-mode-map (kbd "C-%") 'then_R_operator)
+
       (define-key ess-mode-map [tab] 'company-complete)
-      (define-key inferior-ess-mode-map [(super .)] "%>%")
       (define-key inferior-ess-mode-map [tab] 'company-complete)
 
       ;; Magical shift+ENTER
@@ -426,13 +435,13 @@
                    (local-set-key [down] 'comint-next-input)))
       (add-hook 'Rnw-mode-hook
                 '(lambda()
-                   (local-set-key [(shift return)] 'my-ess-eval))))
+                   (local-set-key [(shift return)] 'my-ess-eval)))
+      (setq tab-always-indent 'complete)
+      (setq ess-tab-complete-in-script t)
 
-        (setq tab-always-indent 'complete)
-        (setq ess-tab-complete-in-script t)
+      (add-to-list 'company-backends 'company-ess-backend)
+      (setq company-minimum-prefix-length 2))
 
-        (add-to-list 'company-backends 'company-ess-backend)
-        (setq company-minimum-prefix-length 2)
 
   #+END_SRC
   
