@@ -247,7 +247,7 @@
 
     (use-package company-statistics
       :config (company-statistics-mode)
-      :diminsh company-statistics-mode
+      :diminish company-statistics-mode
       )
 
   #+END_SRC
