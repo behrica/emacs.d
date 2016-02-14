@@ -769,6 +769,23 @@
     ;;(use-package yaml-mode)
 
     (windmove-default-keybindings 'super)
+
+
+    (use-package dash-functional)
+    (defmacro my/convert-shell-scripts-to-interactive-commands (directory)
+      "Make the shell scripts in DIRECTORY available as interactive commands."
+      (cons 'progn
+            (-map
+             (lambda (filename)
+               (let ((function-name (intern (concat "my/shell/" (file-name-nondirectory filename)))))
+                 `(defun ,function-name (&rest args)
+                    (interactive)
+                    (apply 'call-process ,filename nil nil nil args))))
+             (-filter (-not #'file-directory-p)
+                      (-filter #'file-executable-p (directory-files directory t))))))
+
+    (my/convert-shell-scripts-to-interactive-commands "~/bin")
+
   #+END_SRC 
 
 * Python
