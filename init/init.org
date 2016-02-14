@@ -945,7 +945,8 @@
       (interactive)
       (setq dropbox-status (car (split-string (shell-command-to-string "dropbox status") "\n"))))
     (run-with-timer 1 (* 1 10) 'update-dropbox-status)
-    (use-package exwm
+    (use-package exwm 
+      :disabled t
       :config
       (require 'exwm-config)
       (setq exwm-workspace-number 10)
