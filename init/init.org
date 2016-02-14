@@ -891,6 +891,71 @@
              ("jk" . ace-jump-word-mode)
              ("jl" . ace-jump-line-mode)))
 #+END_SRC
+* mu4e
+  #+BEGIN_SRC emacs-lisp
+    (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
+    (require 'mu4e)
+    (require 'mu4e-contrib)
+
+    (setq
+     mu4e-maildir       "~/Dropbox/maildir"   ;; top-level Maildir
+     mu4e-get-mail-command "offlineimap"
+     mu4e-update-interval 300
+     mu4e-use-fancy-chars t
+     message-send-mail-function 'smtpmail-send-it
+     smtpmail-default-smtp-server "localhost"
+     smtpmail-smtp-service 1025
+     smtpmail-smtp-server "localhost"
+     message-kill-buffer-on-exit t
+     mu4e-user-mail-address-list '("carsten.behring@efsa.europa.eu" "carsten.behring@gmail.com")
+     mu4e-view-show-images t
+     user-full-name  "Carsten Behring"
+     mu4e-html2text-command "w3m -dump -T text/html"
+     mu4e-headers-fields
+     '( (:human-date    .   12)
+        (:flags         .    6)
+        (:mailing-list  .   10)
+        (:maildir      .   30)
+        (:from          .   22)
+        (:subject       .   nil))
+
+
+     mu4e-contexts
+     `( ,(make-mu4e-context
+          :name "gmail"
+          :enter-func (lambda () (mu4e-message "Switch to the gmail context"))
+          ;; leave-func not defined
+          ;;:match-func 
+          :vars '( ( user-mail-address      . "carsten.behring@gmail.com")
+                   ( mu4e-bookmarks         . ( ("m:/gmail/INBOX flag:unread AND NOT flag:trashed" "Unread messages"      ?u)))
+                   ( mu4e-maildir-shortcuts .
+                                            ( ("/gmail/INBOX"               . ?i)
+                                              ("/gmail/[Gmail].Sent Mail"   . ?s)
+                                              ("/gmail/[Gmail].Trash"       . ?t)
+                                              ("/gmail/[Gmail].All Mail"    . ?a))
+                                            )
+                   ))
+        ,(make-mu4e-context
+          :name "efsa"
+          :enter-func (lambda () (mu4e-message "Switch to the efsa context"))
+          ;; leave-fun not defined
+          ;;:match-func 
+          :vars '(( user-mail-address      . "carsten.behring@efsa.europa.eu")
+                  ( mu4e-bookmarks            .
+                                              ( ("m:/efsa/INBOX AND flag:unread AND NOT flag:trashed" "Unread messages"      ?u)))
+                  (mu4e-maildir-shortcuts . (("/efsa/INBOX" . ?i)))
+                  (mu4e-sent-folder .  "/efsa/Sent")       ;; folder for sent mess ages
+                  (mu4e-drafts-folder . "/efsa/Drafts")     ;; unfinished messages
+                  (mu4e-trash-folder . "/efsa/Trash")      ;; trashed messages
+                  (mu4e-refile-folder . "/efsa/archive")))) 
+
+
+
+     )
+
+
+  #+END_SRC 
+
 * start server
   #+BEGIN_SRC emacs-lisp
     (server-start)
