@@ -439,7 +439,7 @@
       (setq tab-always-indent 'complete)
       (setq ess-tab-complete-in-script t)
 
-      (add-to-list 'company-backends 'company-ess-backend)
+      ;;(add-to-list 'company-backends 'company-ess-backend)
       (setq company-minimum-prefix-length 2))
 
 
@@ -523,6 +523,9 @@
      (use-package helm-swoop
      :config
      (setq helm-swoop-split-direction 'split-window-horizontally))
+     (use-package helm-google
+       :bind ("C-c C--" . helm-google)
+    )
   #+END_SRC
   
 * git
