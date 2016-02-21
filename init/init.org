@@ -941,6 +941,7 @@
           ;; leave-fun not defined
           ;;:match-func 
           :vars '(( user-mail-address      . "carsten.behring@efsa.europa.eu")
+                  (user-full-name . "BEHRING Carsten")
                   ( mu4e-bookmarks            .
                                               ( ("m:/efsa/INBOX AND flag:unread AND NOT flag:trashed" "Unread messages"      ?u)))
                   (mu4e-maildir-shortcuts . (("/efsa/INBOX" . ?i)))
@@ -949,9 +950,15 @@
                   (mu4e-trash-folder . "/efsa/Trash")      ;; trashed messages
                   (mu4e-refile-folder . "/efsa/archive")))) 
 
+     
 
 
      )
+     (add-to-list 'mu4e-view-actions
+
+                  '("ViewInBrowser" . mu4e-action-view-in-browser) t)
+
+
 
 
   #+END_SRC 
