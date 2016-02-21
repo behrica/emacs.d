@@ -657,13 +657,15 @@
   #+END_SRC
 * other
   #+BEGIN_SRC emacs-lisp
-    (setq browse-url-browser-function 'browse-url-chromium)
+    (setq browse-url-generic-program (executable-find "conkeror"))
+    (setq browse-url-browser-function 'browse-url-generic)
+
     (use-package focus)
 
     (use-package google-this
       :config
-      (global-set-key (kbd "C-c g") 'google-this-mode-submap)
-      (setq browse-url-browser-function 'browse-url-chromium))
+      (global-set-key (kbd "C-c g") 'google-this-mode-submap))
+
 
 
     (use-package which-key 
@@ -708,9 +710,9 @@
     (defun sudo-edit (&optional arg)
       "Edit currently visited file as root.
 
-                                                     With a prefix ARG prompt for a file to visit.
-                                                     Will also prompt for a file to visit if current
-                                                     buffer is not visiting a file."
+                                                         With a prefix ARG prompt for a file to visit.
+                                                         Will also prompt for a file to visit if current
+                                                         buffer is not visiting a file."
       (interactive "P")
       (if (or arg (not buffer-file-name))
           (find-file (concat "/sudo:root@localhost:"
