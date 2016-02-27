@@ -342,7 +342,6 @@
   #+BEGIN_SRC emacs-lisp
 
     (use-package ess
-      :defer 1
       :config 
       (require 'ess-site)
       (setq ess-R-font-lock-keywords
@@ -523,8 +522,8 @@
      :config
      (setq helm-swoop-split-direction 'split-window-horizontally))
      (use-package helm-google
-       :bind ("C-c C--" . helm-google)
-    )
+       :bind ("C-c C--" . helm-google))
+     (use-package helm-ag)
   #+END_SRC
   
 * git
@@ -937,13 +936,13 @@
           ;; leave-func not defined
           ;;:match-func 
           :vars '(( user-mail-address      . "carsten.behring@gmail.com")
-                   ( mu4e-bookmarks         . ( ("m:/gmail/INBOX flag:unread AND NOT flag:trashed" "Unread messages"      ?u)))
-                   ( mu4e-maildir-shortcuts .
-                                            ( ("/gmail/INBOX"               . ?i)
-                                              ("/gmail/[Gmail].Sent Mail"   . ?s)
-                                              ("/gmail/[Gmail].Trash"       . ?t)
-                                              ("/gmail/[Gmail].All Mail"    . ?a))
-                                            )
+                  ( mu4e-bookmarks         . ( ("m:/gmail/INBOX flag:unread AND NOT flag:trashed" "Unread messages"      ?u)))
+                  ( mu4e-maildir-shortcuts .
+                                           ( ("/gmail/INBOX"               . ?i)
+                                             ("/gmail/[Gmail].Sent Mail"   . ?s)
+                                             ("/gmail/[Gmail].Trash"       . ?t)
+                                             ("/gmail/[Gmail].All Mail"    . ?a))
+                                           )
                   (mu4e-drafts-folder .  "/gmail/[Gmail].Drafts")
                   (mu4e-sent-folder   .  "/gmail/[Gmail].Sent Mail")
                   (mu4e-trash-folder  .  "/gmail/[Gmail].Trash")
@@ -971,13 +970,13 @@
                   (mu4e-trash-folder . "/efsa/Trash")      ;; trashed messages
                   (mu4e-refile-folder . "/efsa/archive")))) 
 
-     
+
 
 
      )
-     (add-to-list 'mu4e-view-actions
+    (add-to-list 'mu4e-view-actions
 
-                  '("ViewInBrowser" . mu4e-action-view-in-browser) t)
+                 '("ViewInBrowser" . mu4e-action-view-in-browser) t)
 
 
 
