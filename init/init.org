@@ -900,9 +900,14 @@
     (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
     (require 'mu4e)
     (require 'mu4e-contrib)
+    (when (string= system-name "LAP-2013-00026.efsa.eu.int")      
+      (setq mu4e-maildir "/media/sda3/Dropbox/maildir"))
+    (when (string= system-name "gandalf")      
+      (setq mu4e-maildir "~/Dropbox/maildir"))
+
+
 
     (setq
-     mu4e-maildir       "~/Dropbox/maildir"   ;; top-level Maildir
      mu4e-get-mail-command "offlineimap"
      mu4e-update-interval 300
      mu4e-use-fancy-chars t
@@ -927,10 +932,11 @@
      mu4e-contexts
      `( ,(make-mu4e-context
           :name "gmail"
+          
           :enter-func (lambda () (mu4e-message "Switch to the gmail context"))
           ;; leave-func not defined
           ;;:match-func 
-          :vars '( ( user-mail-address      . "carsten.behring@gmail.com")
+          :vars '(( user-mail-address      . "carsten.behring@gmail.com")
                    ( mu4e-bookmarks         . ( ("m:/gmail/INBOX flag:unread AND NOT flag:trashed" "Unread messages"      ?u)))
                    ( mu4e-maildir-shortcuts .
                                             ( ("/gmail/INBOX"               . ?i)
@@ -938,7 +944,18 @@
                                               ("/gmail/[Gmail].Trash"       . ?t)
                                               ("/gmail/[Gmail].All Mail"    . ?a))
                                             )
-                   ))
+                  (mu4e-drafts-folder .  "/gmail/[Gmail].Drafts")
+                  (mu4e-sent-folder   .  "/gmail/[Gmail].Sent Mail")
+                  (mu4e-trash-folder  .  "/gmail/[Gmail].Trash")
+                  (mu4e-sent-messages-behavior . delete)
+                  (message-send-mail-function . smtpmail-send-it)  
+                  (smtpmail-stream-type . starttls)
+                  (smtpmail-default-smtp-server . "smtp.gmail.com")
+                  (smtpmail-smtp-server . "smtp.gmail.com")
+                  (smtpmail-smtp-service . 587)
+                  (message-kill-buffer-on-exit . t)
+                  ) 
+          )
         ,(make-mu4e-context
           :name "efsa"
           :enter-func (lambda () (mu4e-message "Switch to the efsa context"))
