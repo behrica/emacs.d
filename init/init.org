@@ -270,6 +270,8 @@
                "* TODO %?\n")
               ("b" "Bookmark" entry (file+headline (concat org-directory "/notes.org") "Bookmarks")
                "* [[%^{Url}][%^{Title}]]\n\n" :immediate-finish TRUE)
+              ("e" "email todo" entry (file+headline "/notes.org" "Tasks")
+               "* TODO %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n%a\n")
               ))
       (set-variable 'org-export-allow-bind-keywords t)
       (setq org-src-window-setup 'current-window)
@@ -291,7 +293,7 @@
 
       (use-package ob-ipython :defer t)
 
-      
+
       (defun org-dblock-write:rangereport (params)
         "Display day-by-day time reports."
         (let* ((ts (plist-get params :tstart))
@@ -331,7 +333,10 @@
             (concat str "-> "))))
 
       (advice-add 'org-clocktable-indent-string :override #'my-org-clocktable-indent-string)
-
+      (setq org-file-apps
+            '(("pdf" . "evince %s")
+              ("\\.mm\\'" . default)
+              ("\\.x?html?\\'" . default)))
 
       :bind (("C-c a"  . org-agenda)
              ("C-c c" . org-capture)))
@@ -899,6 +904,9 @@
     (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
     (require 'mu4e)
     (require 'mu4e-contrib)
+    (require 'org-mu4e)
+
+
     (when (string= system-name "LAP-2013-00026.efsa.eu.int")      
       (setq mu4e-maildir "/media/sda3/Dropbox/maildir"))
     (when (string= system-name "gandalf")      
@@ -910,15 +918,13 @@
      mu4e-get-mail-command "offlineimap"
      mu4e-update-interval 300
      mu4e-use-fancy-chars t
-     message-send-mail-function 'smtpmail-send-it
-     smtpmail-default-smtp-server "localhost"
-     smtpmail-smtp-service 1025
-     smtpmail-smtp-server "localhost"
      message-kill-buffer-on-exit t
      mu4e-user-mail-address-list '("carsten.behring@efsa.europa.eu" "carsten.behring@gmail.com")
      mu4e-view-show-images t
      user-full-name  "Carsten Behring"
      mu4e-html2text-command "w3m -dump -T text/html"
+     org-mu4e-link-query-in-headers-mode nil
+
      mu4e-headers-fields
      '( (:human-date    .   12)
         (:flags         .    6)
@@ -968,7 +974,14 @@
                   (mu4e-sent-folder .  "/efsa/Sent")       ;; folder for sent mess ages
                   (mu4e-drafts-folder . "/efsa/Drafts")     ;; unfinished messages
                   (mu4e-trash-folder . "/efsa/Trash")      ;; trashed messages
-                  (mu4e-refile-folder . "/efsa/archive")))) 
+                  (mu4e-refile-folder . "/efsa/archive")
+     (message-send-mail-function . smtpmail-send-it)
+     (smtpmail-default-smtp-server . "localhost")
+     (smtpmail-smtp-service . 1025)
+     (smtpmail-smtp-server . "localhost")
+
+
+))) 
 
 
 
@@ -977,7 +990,6 @@
     (add-to-list 'mu4e-view-actions
 
                  '("ViewInBrowser" . mu4e-action-view-in-browser) t)
-
 
 
 
