@@ -349,6 +349,7 @@
     (use-package ess
       :config 
       (require 'ess-site)
+(require 'ess-custom)
       (setq ess-R-font-lock-keywords
 
             (quote
@@ -420,7 +421,7 @@
       (define-key inferior-ess-mode-map (kbd "C-%") 'then_R_operator)
 
       (define-key ess-mode-map [tab] 'company-complete)
-      (define-key inferior-ess-mode-map [tab] 'company-complete)
+      (define-key inferior-ess-mode-map (kbd "TAB") 'company-complete)
 
       ;; Magical shift+ENTER
       ;; http://kieranhealy.org/blog/archives/2009/10/12/make-shift-enter-do-a-lot-in-ess/
@@ -552,12 +553,18 @@
       (interactive)
       (insert "```{r}
 
-     ``` "))
+         ``` "))
 
     (use-package polymode
       :defer 1
       :config
-      (bind-key  "C-c C-r"  'ess-rmarkdown  polymode-mode-map))
+      (bind-key  "C-c C-r"  'ess-rmarkdown  polymode-mode-map)
+      (add-hook 'polymode-minor-mode-hook (lambda () (
+                                                      
+                                                      (golden-ratio-mode -1)
+                                                      )))
+
+      )
 
     (use-package markdown-mode 
       :defer 1 
@@ -771,7 +778,9 @@
 
     (use-package aggressive-indent
       :config
-      (global-aggressive-indent-mode 1))
+      (global-aggressive-indent-mode 1)
+ (add-to-list 'aggressive-indent-excluded-modes 'polymode)
+)
 
     (use-package discover-my-major)
     ;;(use-package yaml-mode)
@@ -916,7 +925,7 @@
 
     (setq
      mu4e-get-mail-command "offlineimap"
-     mu4e-update-interval 300
+     mu4e-update-interval 600
      mu4e-use-fancy-chars t
      message-kill-buffer-on-exit t
      mu4e-user-mail-address-list '("carsten.behring@efsa.europa.eu" "carsten.behring@gmail.com")
@@ -1060,35 +1069,41 @@
 * golden
 #+BEGIN_SRC emacs-lisp 
   (use-package golden-ratio
-    :diminish golden-ratio-mode)
-  (defvar golden-ratio-selected-window
-    (frame-selected-window)
-    "Selected window.")
+    :diminish golden-ratio-mode
+    :config
+    (add-to-list 'golden-ratio-exclude-modes 'polymode)
+    )
 
-  (defun golden-ratio-set-selected-window
-      (&optional window)
-    "Set selected window to WINDOW."
-    (setq-default
-     golden-ratio-selected-window (or window (frame-selected-window))))
 
-  (defun golden-ratio-selected-window-p
-      (&optional window)
-    "Return t if WINDOW is selected window."
-    (eq (or window (selected-window))
-        (default-value 'golden-ratio-selected-window)))
+    (defvar golden-ratio-selected-window
+      (frame-selected-window)
+      "Selected window.")
 
-  (defun golden-ratio-maybe
-      (&optional arg)
-    "Run `golden-ratio' if `golden-ratio-selected-window-p' returns nil."
-    (interactive "p")
-    (unless (golden-ratio-selected-window-p)
-      (golden-ratio-set-selected-window)
-      (golden-ratio arg)))
+    (defun golden-ratio-set-selected-window
+        (&optional window)
+      "Set selected window to WINDOW."
+      (setq-default
+       golden-ratio-selected-window (or window (frame-selected-window))))
 
-  (add-hook 'buffer-list-update-hook #'golden-ratio-maybe)
-  (add-hook 'focus-in-hook           #'golden-ratio)
-  (add-hook 'focus-out-hook          #'golden-ratio)
-  (golden-ratio-mode 1)
+    (defun golden-ratio-selected-window-p
+        (&optional window)
+      "Return t if WINDOW is selected window."
+      (eq (or window (selected-window))
+          (default-value 'golden-ratio-selected-window)))
+
+    (defun golden-ratio-maybe
+        (&optional arg)
+      "Run `golden-ratio' if `golden-ratio-selected-window-p' returns nil."
+      (interactive "p")
+      (unless (golden-ratio-selected-window-p)
+        (golden-ratio-set-selected-window)
+        (golden-ratio arg)))
+
+    (add-hook 'buffer-list-update-hook #'golden-ratio-maybe)
+    (add-hook 'focus-in-hook           #'golden-ratio)
+    (add-hook 'focus-out-hook          #'golden-ratio)
+    (golden-ratio-mode 1)
+
 #+END_SRC
 
 * print init time  
