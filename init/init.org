@@ -721,11 +721,6 @@
       (setq calendar-holidays '()))
 
     (defun sudo-edit (&optional arg)
-      "Edit currently visited file as root.
-
-                                                         With a prefix ARG prompt for a file to visit.
-                                                         Will also prompt for a file to visit if current
-                                                         buffer is not visiting a file."
       (interactive "P")
       (if (or arg (not buffer-file-name))
           (find-file (concat "/sudo:root@localhost:"
@@ -771,16 +766,12 @@
       (set-face-attribute 'anzu-mode-line nil
                           :foreground "orange" :weight 'bold))
 
-    ;; (use-package beacon
-    ;;  :config
-                                            ;   (beacon-mode 1)
-                                            ;   (setq beacon-blink-duration .2))
 
     (use-package aggressive-indent
       :config
       (global-aggressive-indent-mode 1)
- (add-to-list 'aggressive-indent-excluded-modes 'polymode)
-)
+      (add-to-list 'aggressive-indent-excluded-modes 'poly-markdown+r-mode)
+      )
 
     (use-package discover-my-major)
     ;;(use-package yaml-mode)
@@ -803,8 +794,7 @@
 
     (my/convert-shell-scripts-to-interactive-commands "~/bin")
 
-  #+END_SRC 
-
+  #+END_SRC
 * Python
   #+BEGIN_SRC emacs-lisp
    
@@ -1071,8 +1061,7 @@
   (use-package golden-ratio
     :diminish golden-ratio-mode
     :config
-    (add-to-list 'golden-ratio-exclude-modes 'polymode)
-    )
+    (add-to-list 'golden-ratio-exclude-modes 'poly-markdown+r-mode))
 
 
     (defvar golden-ratio-selected-window
