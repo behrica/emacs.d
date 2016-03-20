@@ -270,7 +270,7 @@
                "* TODO %?\n")
               ("b" "Bookmark" entry (file+headline (concat org-directory "/notes.org") "Bookmarks")
                "* [[%^{Url}][%^{Title}]]\n\n" :immediate-finish TRUE)
-              ("e" "email todo" entry (file+headline "/notes.org" "Tasks")
+              ("e" "email todo" entry (file+headline (concat org-directory "/notes.org")  "Tasks")
                "* TODO %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n%a\n")
               ))
       (set-variable 'org-export-allow-bind-keywords t)
