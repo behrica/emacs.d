@@ -55,6 +55,10 @@
     (require 'bind-key)       
     (add-to-list 'load-path "/usr/share/emacs24/site-lisp/mu4e")
   #+END_SRC 
+* comint
+#+BEGIN_SRC emacs-lisp
+(add-hook 'comint-output-filter-functions #'comint-truncate-buffer)
+#+END_SRC
 * UI
   #+BEGIN_SRC emacs-lisp 
 
@@ -349,7 +353,7 @@
     (use-package ess
       :config 
       (require 'ess-site)
-(require 'ess-custom)
+      (require 'ess-custom)
       (setq ess-R-font-lock-keywords
 
             (quote
