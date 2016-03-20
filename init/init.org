@@ -566,9 +566,7 @@
       (add-hook 'polymode-minor-mode-hook (lambda () (
                                                       
                                                       (golden-ratio-mode -1)
-                                                      )))
-
-      )
+                                                      ))))
 
     (use-package markdown-mode 
       :defer 1 
@@ -617,7 +615,7 @@
 * password-store
 #+BEGIN_SRC emacs-lisp
   (defun password-store-show (entry)
-    "Remove existing password for ENTRY."
+    "show existing password for ENTRY."
     (interactive (list (password-store--completing-read)))
     (with-output-to-temp-buffer "*PW entry*"
       (princ (concat "entry:    " entry "\npassword: " (password-store--run-show entry)))))
@@ -851,32 +849,55 @@
   #+BEGIN_SRC emacs-lisp
 
 
-    (defun xah-dired-sort ()
-      "Sort dired dir listing in different ways.
-    Prompt for a choice.
-    URL `http://ergoemacs.org/emacs/dired_sort.html'
-    Version 2015-07-30"
-      (interactive)
-      (let (ξsort-by ξarg)
-        (setq ξsort-by (ido-completing-read "Sort by:" '( "date" "size" "name")))
-        (cond
-         ((equal ξsort-by "name") (setq ξarg "-Al --si --time-style long-iso --group-directories-first"))
-         ((equal ξsort-by "date") (setq ξarg "-Al --si --time-style long-iso -t --group-directories-first"))
-         ((equal ξsort-by "size") (setq ξarg "-Al --si --time-style long-iso -S --group-directories-first"))
+        (defun xah-dired-sort ()
+          "Sort dired dir listing in different ways.
+            Prompt for a choice.
+            URL `http://ergoemacs.org/emacs/dired_sort.html'
+            Version 2015-07-30"
+          (interactive)
+          (let (ξsort-by ξarg)
+            (setq ξsort-by (ido-completing-read "Sort by:" '( "date" "size" "name")))
+            (cond
+             ((equal ξsort-by "name") (setq ξarg "-Al --si --time-style long-iso --group-directories-first"))
+             ((equal ξsort-by "date") (setq ξarg "-Al --si --time-style long-iso -t --group-directories-first"))
+             ((equal ξsort-by "size") (setq ξarg "-Al --si --time-style long-iso -S --group-directories-first"))
 
-         (t (error "logic error 09535" )))
-        (dired-sort-other ξarg )))
+             (t (error "logic error 09535" )))
+            (dired-sort-other ξarg )))
 
 
-     (use-package dired+ 
-       :defer 1
-       :config
-       (bind-key  "s"  'xah-dired-sort  dired-mode-map)
-       (setq dired-dwim-target t)
-       (setq dired-recursive-copies (quote always)) ; “always” means no asking
-       (setq dired-recursive-deletes (quote top)) ; “top” means ask once
-       (diredp-toggle-find-file-reuse-dir 1))
+        (use-package dired+ 
+          
+          :config
+          (bind-key  "c"  'xah-dired-sort  dired-mode-map)
+          (setq dired-dwim-target t)
+          (setq dired-recursive-copies (quote always)) ; “always” means no asking
+          (setq dired-recursive-deletes (quote top)) ; “top” means ask once
+          (diredp-toggle-find-file-reuse-dir 1)
 
+          (set-face-background diredp-dir-priv nil)
+          (set-face-background diredp-exec-priv nil)
+          (set-face-background diredp-no-priv nil)
+          (set-face-background diredp-rare-priv nil)
+          (set-face-background diredp-read-priv nil)
+          (set-face-background diredp-write-priv nil)
+          )
+
+    ;;; Toggle showing dot-files using "."
+    ;; (define-minor-mode dired-hide-dotfiles-mode
+    ;;   ""
+    ;;   :lighter " Hide"
+    ;;   :init-value nil
+    ;;   (if (not (eq major-mode 'dired-mode))
+    ;;       (progn 
+    ;;         (error "Doesn't seem to be a Dired buffer")
+    ;;         (setq dired-hide-dotfiles-mode nil))
+    ;;     (if dired-hide-dotfiles-mode
+    ;;         (setq dired-actual-switches "-lh --group-directories-first")
+    ;;       (setq dired-actual-switches "-lAh --group-directories-first"))
+    ;;     (revert-buffer)))
+    ;; (define-key dired-mode-map "." 'dired-hide-dotfiles-mode)
+    ;; (add-hook 'dired-mode-hook (lambda () (dired-hide-dotfiles-mode 0)))
 
   #+END_SRC 
 * smart parents
