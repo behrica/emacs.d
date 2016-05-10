@@ -954,6 +954,7 @@
      user-full-name  "Carsten Behring"
      mu4e-html2text-command "w3m -dump -T text/html"
      org-mu4e-link-query-in-headers-mode nil
+     mu4e-attachment-dir "~/Downloads"
 
      mu4e-headers-fields
      '( (:human-date    .   12)
@@ -1005,13 +1006,13 @@
                   (mu4e-drafts-folder . "/efsa/Drafts")     ;; unfinished messages
                   (mu4e-trash-folder . "/efsa/Trash")      ;; trashed messages
                   (mu4e-refile-folder . "/efsa/archive")
-     (message-send-mail-function . smtpmail-send-it)
-     (smtpmail-default-smtp-server . "localhost")
-     (smtpmail-smtp-service . 1025)
-     (smtpmail-smtp-server . "localhost")
+                  (message-send-mail-function . smtpmail-send-it)
+                  (smtpmail-default-smtp-server . "localhost")
+                  (smtpmail-smtp-service . 1025)
+                  (smtpmail-smtp-server . "localhost")
 
 
-))) 
+                  ))) 
 
 
 
