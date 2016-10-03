@@ -1090,7 +1090,7 @@
                   (smtpmail-default-smtp-server . "localhost")
                   (smtpmail-smtp-service . 1025)
                   (smtpmail-smtp-server . "192.168.1.12")
-
+                  (smtpmail-stream-type . nil)
 
                   ))) 
 
