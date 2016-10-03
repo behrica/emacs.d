@@ -19,7 +19,8 @@
             '(("no_proxy" . "^\\localhost")
               ("http" . "127.0.0.1:3128")
               ("https" . "127.0.0.1:3128"))))
-
+    (add-to-list 'load-path "~/Dropbox/sources/org-mode-release_8.3.4/lisp")
+    (require 'org)
   #+END_SRC
   
 * packages
@@ -80,7 +81,7 @@
 
 
     (use-package eval-sexp-fu
-       :disabled t
+       :disabled t			
        :config
        (turn-on-eval-sexp-fu-flash-mode))
 
@@ -129,7 +130,7 @@
 
       (defhydra hydra-zoom (global-map "<f6>")
         "zoom"
-        ("+" text-scale-increase "in")
+        (text-scale-increase "in")
         ("-" text-scale-decrease "out"))
 
 
@@ -260,11 +261,13 @@
   
 * org-mode 
   #+BEGIN_SRC emacs-lisp
-
     (use-package org
       :defer t
       :config
-(require 'ox-odt)
+      (require 'ox-odt)
+      (require 'ob-clojure)
+      (setq org-babel-clojure-backend 'cider)
+      (require 'cider)
       (setq org-src-fontify-natively t)
       (setq org-src-tab-acts-natively t)
       (setq org-agenda-files (quote ("~/Dropbox/sync/org")))
@@ -349,6 +352,76 @@
       :bind (("C-c a"  . org-agenda)
              ("C-c c" . org-capture)))
 
+    ;; (use-package org2jekyll
+
+
+    ;;   :config
+    ;;   (custom-set-variables '(org2jekyll-blog-author       "ardumont")
+    ;;                         '(org2jekyll-source-directory  (expand-file-name "~/Dropbox/sync/org/blog"))
+    ;;                         '(org2jekyll-jekyll-directory  (expand-file-name "~/public_html"))
+    ;;                         '(org2jekyll-jekyll-drafts-dir "")
+    ;;                         '(org2jekyll-jekyll-posts-dir  "_posts/")
+    ;;                         '(org-publish-project-alist
+    ;;                           `(("default"
+    ;;                              :base-directory ,(org2jekyll-input-directory)
+    ;;                              :base-extension "org"
+    ;;                              ;; :publishing-directory "/ssh:user@host:~/html/notebook/"
+    ;;                              :publishing-directory ,(org2jekyll-output-directory)
+    ;;                              :publishing-function org-html-publish-to-html
+    ;;                              :headline-levels 4
+    ;;                              :section-numbers nil
+    ;;                              :with-toc nil
+    ;;                              :html-head "<link rel=\"stylesheet\" href=\"./css/style.css\" type=\"text/css\"/>"
+    ;;                              :html-preamble t
+    ;;                              :recursive t
+    ;;                              :make-index t
+    ;;                              :html-extension "html"
+    ;;                              :body-only t)
+
+    ;;                             ("post"
+    ;;                              :base-directory ,(org2jekyll-input-directory)
+    ;;                              :base-extension "org"
+    ;;                              :publishing-directory ,(org2jekyll-output-directory org2jekyll-jekyll-posts-dir)
+    ;;                              :publishing-function org-html-publish-to-html
+    ;;                              :headline-levels 4
+    ;;                              :section-numbers nil
+    ;;                              :with-toc nil
+    ;;                              :html-head "<link rel=\"stylesheet\" href=\"./css/style.css\" type=\"text/css\"/>"
+    ;;                              :html-preamble t
+    ;;                              :recursive t
+    ;;                              :make-index t
+    ;;                              :html-extension "html"
+    ;;                              :body-only t)
+
+    ;;                             ("images"
+    ;;                              :base-directory ,(org2jekyll-input-directory "img")
+    ;;                              :base-extension "jpg\\|gif\\|png"
+    ;;                              :publishing-directory ,(org2jekyll-output-directory "img")
+    ;;                              :publishing-function org-publish-attachment
+    ;;                              :recursive t)
+
+    ;;                             ("js"
+    ;;                              :base-directory ,(org2jekyll-input-directory "js")
+    ;;                              :base-extension "js"
+    ;;                              :publishing-directory ,(org2jekyll-output-directory "js")
+    ;;                              :publishing-function org-publish-attachment
+    ;;                              :recursive t)
+
+    ;;                             ("css"
+    ;;                              :base-directory ,(org2jekyll-input-directory "css")
+    ;;                              :base-extension "css\\|el"
+    ;;                              :publishing-directory ,(org2jekyll-output-directory "css")
+    ;;                              :publishing-function org-publish-attachment
+    ;;                              :recursive t)
+
+    ;;                             ("web" :components ("images" "js" "css"))))))
+
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((R . t)))
+
+    (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)   
+    (add-hook 'org-mode-hook 'org-display-inline-images)   
 
   #+END_SRC
 * ess
@@ -459,8 +532,7 @@
   
 * projectile
   #+BEGIN_SRC emacs-lisp
-    (use-package projectile
-      :defer 1 
+    (use-package projectile 
       :config
       (projectile-global-mode)
       (setq projectile-file-exists-local-cache-expire (* 5 60)))
@@ -495,49 +567,50 @@
   
 * helm
   #+BEGIN_SRC emacs-lisp
-      (use-package helm
-        :commands(helm-execute-persistent-action helm-select-action)
+    (use-package helm
 
-             
-        :init
-        (require 'helm-config)
-        (when (executable-find "curl")
-          (setq helm-net-prefer-curl t))
-        (helm-mode 1)
-        (setq helm-autoresize-mode 1)
-           
-        (bind-key "<tab>" 'helm-execute-persistent-action helm-map)
-        (bind-key "C-i" 'helm-execute-persistent-action helm-map)
-        (bind-key "C-z" 'helm-select-action helm-map)
-        (global-set-key (kbd "C-c h") 'helm-command-prefix)  
+      :commands(helm-execute-persistent-action helm-select-action)
 
-        :diminish helm-mode
-        :bind ( 
-                 ("C-c h g" . helm-google-suggest)
-               ("M-x" . helm-M-x)
-               ("C-x f" . helm-recentf)
-               ("C-x C-f" . helm-find-files)
-               ("C-x b"   . helm-mini)
-               ("<menu>" . helm-M-x)
-               ("C-c h w" . helm-swoop)))
- 
-      (use-package  helm-projectile
-        
-        :bind (("C-c p h" . helm-projectile))
-        :init
-        (setq projectile-switch-project-action 'helm-projectile)
-        (helm-projectile-on))
 
-      (use-package helm-recoll
-        :init
-        (helm-recoll-create-source "default" "~/.recoll"))
+      :init
+      (require 'helm-config)
+      (when (executable-find "curl")
+        (setq helm-net-prefer-curl t))
+      (helm-mode 1)
+      (setq helm-autoresize-mode 1)
 
-     (use-package helm-swoop
-     :config
-     (setq helm-swoop-split-direction 'split-window-horizontally))
-     (use-package helm-google
-       :bind ("C-c C--" . helm-google))
-     (use-package helm-ag)
+      (bind-key "<tab>" 'helm-execute-persistent-action helm-map)
+      (bind-key "C-i" 'helm-execute-persistent-action helm-map)
+      (bind-key "C-z" 'helm-select-action helm-map)
+      (global-set-key (kbd "C-c h") 'helm-command-prefix)  
+
+      :diminish helm-mode
+      :bind ( 
+             ("C-c h g" . helm-google-suggest)
+             ("M-x" . helm-M-x)
+             ("C-x f" . helm-recentf)
+             ("C-x C-f" . helm-find-files)
+             ("C-x b"   . helm-mini)
+             ("<menu>" . helm-M-x)
+             ("C-c h w" . helm-swoop)))
+
+    (use-package  helm-projectile
+
+      :bind (("C-c p h" . helm-projectile))
+      :init
+      (setq projectile-switch-project-action 'helm-projectile)
+      (helm-projectile-on))
+
+    (use-package helm-recoll
+      :init
+      (helm-recoll-create-source "default" "~/.recoll"))
+
+    (use-package helm-swoop
+      :config
+      (setq helm-swoop-split-direction 'split-window-horizontally))
+    (use-package helm-google
+      :bind ("C-c C--" . helm-google))
+    (use-package helm-ag)
   #+END_SRC
   
 * git
@@ -776,6 +849,10 @@
       :config
       (global-aggressive-indent-mode 1)
       (add-to-list 'aggressive-indent-excluded-modes 'poly-markdown+r-mode)
+      (add-to-list 'aggressive-indent-excluded-modes 'polymode)
+      (add-to-list 'aggressive-indent-excluded-modes 'Polymode)
+
+
       )
 
     (use-package discover-my-major)
@@ -937,9 +1014,12 @@
     (require 'org-mu4e)
 
 
-    (when (string= system-name "LAP-2013-00026.efsa.eu.int")      
+    (when  (string= system-name "LAP-2013-00026.efsa.eu.int")
       (setq mu4e-maildir "/media/sda3/Dropbox/maildir"))
-    (when (string= system-name "gandalf")      
+
+    (when (or (string= system-name "gandalf")
+              (string= system-name "carsten-XPS-13-9350")
+              )      
       (setq mu4e-maildir "~/Dropbox/maildir"))
 
 
@@ -1009,7 +1089,7 @@
                   (message-send-mail-function . smtpmail-send-it)
                   (smtpmail-default-smtp-server . "localhost")
                   (smtpmail-smtp-service . 1025)
-                  (smtpmail-smtp-server . "localhost")
+                  (smtpmail-smtp-server . "192.168.1.12")
 
 
                   ))) 
@@ -1094,6 +1174,8 @@
     :diminish golden-ratio-mode
     :config
     (add-to-list 'golden-ratio-exclude-modes 'poly-markdown+r-mode))
+    (add-to-list 'golden-ratio-exclude-modes 'polymode)
+    (add-to-list 'golden-ratio-exclude-modes 'Polymode)
 
 
     (defvar golden-ratio-selected-window
