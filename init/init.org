@@ -876,6 +876,9 @@
 
     (my/convert-shell-scripts-to-interactive-commands "~/bin")
 
+    (use-package pdf-tools
+      :config
+      (pdf-tools-install))
   #+END_SRC
 * Python
   #+BEGIN_SRC emacs-lisp
