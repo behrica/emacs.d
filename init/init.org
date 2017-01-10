@@ -761,7 +761,7 @@
 
 
   #+END_SRC
-* COMMENT other
+* other
   #+BEGIN_SRC emacs-lisp
     (setq browse-url-generic-program (executable-find "conkeror"))
     (setq browse-url-browser-function 'browse-url-generic)
@@ -931,6 +931,7 @@
      
     (use-package pyvenv 
      :defer 1
+     :disabled t
      :config
       (pyvenv-activate "~/miniconda/envs/dataScience")
        (setq
