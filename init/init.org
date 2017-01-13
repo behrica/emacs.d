@@ -1215,9 +1215,12 @@
 * open org files 
 #+BEGIN_SRC emacs-lisp 
   (org-agenda-list)
+  (split-window-horizontally)
   (setq org-confirm-babel-evaluate t)
-  (delete-other-windows)
+  
+  (dired "~/Dropbox")
 #+END_SRC
+
 
   
 
