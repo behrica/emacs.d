@@ -76,8 +76,6 @@
        :init (progn (load-theme 'ample t t)
                     (enable-theme 'ample))
       :config
-      (when (string= system-name "surface-linux")
-        (set-frame-font "DejaVu Sans Mono-20" t t))
       (set-frame-font "Hack" t t))
 
     (use-package powerline
@@ -86,7 +84,7 @@
 
 
     (use-package eval-sexp-fu
-       :disabled t			
+       ;;:disabled t			
        :config
        (turn-on-eval-sexp-fu-flash-mode))
 
@@ -135,7 +133,7 @@
 
       (defhydra hydra-zoom (global-map "<f6>")
         "zoom"
-        (text-scale-increase "in")
+        ("+" text-scale-increase "in")
         ("-" text-scale-decrease "out"))
 
 
