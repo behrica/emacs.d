@@ -4,9 +4,71 @@
     (tool-bar-mode 0)
     (scroll-bar-mode -1)
     (setq inhibit-splash-screen t)
-    (toggle-frame-fullscreen)
+    ;(toggle-frame-fullscreen)
 
   #+END_SRC
+
+  #+RESULTS:
+  : t
+
+* exwm
+  #+BEGIN_SRC emacs-lisp
+        ;;(defvar dropbox-status nil)
+
+        ;;(defun update-dropbox-status ()
+        ;;(interactive)
+        ;;(setq dropbox-status (car (split-string (shell-command-to-string "dropbox status") "\n"))))
+        ;;(run-with-timer 1 (* 1 10) 'update-dropbox-status)
+
+        ;(when (string= system-name "gandalf")) 
+        (use-package exwm 
+          ;:disabled f
+          :config
+          (require 'exwm-config)
+          (setq exwm-workspace-number 10)
+          (exwm-config-default)
+
+          (exwm-input-set-simulation-keys nil)
+
+          (exwm-input-set-key (kbd "s-l")
+                              (lambda () (interactive) (start-process "" nil "slock"))) 
+          (exwm-input-set-key (kbd "s-c")
+                              (lambda () (interactive) (start-process "" nil "chromium")))
+          (exwm-input-set-key (kbd "s-t")
+                              (lambda () (interactive) (start-process "" nil "terminator"))) 
+          (exwm-input-set-key (kbd "s-m")
+                              (lambda () (interactive) (start-process "" nil "chromium-browser" "http://www.efsa.europa.eu/webmail"))) 
+
+          (setq global-mode-string  '("db:" dropbox-status
+                                      " "
+                                      "[ws:" (:eval (format "%s" exwm-workspace-current-index)) "] " display-time-string))
+          (exwm-input-set-key (kbd "s-f") #'exwm-layout-set-fullscreen)      
+          (setq exwm-workspace-show-all-buffers t)
+          (setq exwm-layout-show-all-buffers t)
+
+          )
+
+(when (string= system-name "carsten-XPS-13-9350")
+
+            (require 'exwm-randr)
+            (exwm-randr-enable))
+
+    (defun cb-xrand-desk-2 ()
+          "Hello World and you can call it via M-x hello."
+          (interactive)
+          ;(setq exwm-randr-workspace-output-plist '(0 "eDP-1" 1 "eDP-1" 2 "eDP-1" 3 "eDP-1" 4 "eDP-1" 5 "DP-1" 6 "DP-1" 7 "DP-1" 8 "DP-1" 9 "DP-1"))
+          (setq exwm-randr-workspace-output-plist '(0 "eDP-1" 1 "eDP-1" 2 "DP-1" 3 "DP-1"))
+
+          (start-process-shell-command
+           "xrandr" nil "xrandr  --fb 3840x1800 --output eDP-1 --mode 3200x1800 --scale 0.6x0.6 --pos 0x0 --output DP-1 --mode 1920x1080 --scale 1x1 --pos 1920x0"
+
+           )
+          (exwm-randr-enable)
+
+          )
+
+  #+END_SRC
+  
 * init
   
   #+BEGIN_SRC emacs-lisp
@@ -71,10 +133,13 @@
 * UI
   #+BEGIN_SRC emacs-lisp 
 
+    (use-package solarized-theme)   
 
+    (use-package alect-themes)   
     (use-package ample-theme
        :init (progn (load-theme 'ample t t)
-                    (enable-theme 'ample))
+                    (load-theme 'solarized-dark t t)
+                    (enable-theme 'solarized-dark))
       :config
       (set-frame-font "Hack" t t))
 
@@ -84,7 +149,7 @@
 
 
     (use-package eval-sexp-fu
-       ;;:disabled t			
+       :disabled t                      
        :config
        (turn-on-eval-sexp-fu-flash-mode))
 
@@ -557,17 +622,17 @@
 
 * highlight-tail
   #+BEGIN_SRC emacs-lisp
-    (use-package highlight-tail
-      :config
-      (setq highlight-tail-colors '(("black" . 0)
-                                    ("#bc2525" . 25)
-                                    ("black" . 100)))
-      (setq highlight-tail-steps 10
-            highlight-tail-timer 0.05)
+    ;; (use-package highlight-tail
+    ;;   :config
+    ;;   (setq highlight-tail-colors '(("black" . 0)
+    ;;                                 ("#bc2525" . 25)
+    ;;                                 ("black" . 100)))
+    ;;   (setq highlight-tail-steps 10
+    ;;         highlight-tail-timer 0.05)
 
-      (highlight-tail-mode)
-      (highlight-tail-reload)
-      :diminish highlight-tail-mode)
+    ;;   (highlight-tail-mode)
+    ;;   (highlight-tail-reload)
+    ;;   :diminish highlight-tail-mode)
 
   #+END_SRC
 
@@ -616,8 +681,8 @@
     (use-package helm-swoop
       :config
       (setq helm-swoop-split-direction 'split-window-horizontally)
-      :bind
-      ("C-c h o" . helm-multi-swoop-org))
+      :bind ("<f8>" . helm-multi-swoop-org))
+
     (use-package helm-google
       :bind ("C-c C--" . helm-google))
     (use-package helm-ag)
@@ -648,14 +713,48 @@
     (use-package polymode
       :defer 1
       :config
-    (defun insert-r-chunk ()
-      (interactive)
-      (insert "```{r}
+      (defun insert-r-chunk ()
+        (interactive)
+        (insert "```{r}
 
-         ``` "))
+    ``` "))
 
       (bind-key  "C-c C-r"  'ess-rmarkdown  polymode-mode-map)
-      (bind-key  "C-c C-i"  'insert-r-chunk  polymode-mode-map))
+      (bind-key  "C-c C-i"  'insert-r-chunk  polymode-mode-map)
+
+
+
+      (eval-when-compile
+        (require 'polymode-core)  
+        (defvar pm/chunkmode))
+      (declare-function pm-map-over-spans "polymode-core")
+      (declare-function pm-narrow-to-span "polymode-core")
+
+      (defun rmd-send-chunk ()
+        "Send current R chunk to ess process."
+        (interactive)
+        (and (eq (oref pm/chunkmode :mode) 'r-mode) ;;'
+             (pm-with-narrowed-to-span nil
+               (goto-char (point-min))
+               (forward-line)
+               (ess-eval-region (point) (point-max) nil nil 'R)))) ;;'
+
+      (defun rmd-send-buffer (arg)
+        "Send all R code blocks in buffer to ess process. With prefix
+    send regions above point."
+        (interactive "P")
+        (save-restriction
+          (widen)
+          (save-excursion
+            (pm-map-over-spans
+             'rmd-send-chunk (point-min) ;;'
+             ;; adjust this point to send prior regions
+             (if arg (point) (point-max))))))
+
+      (bind-key "C-c r c" 'rmd-send-chunk)
+
+
+      )
 
     (use-package markdown-mode 
       :defer 1 
@@ -741,14 +840,29 @@
   
 * cider
   #+BEGIN_SRC emacs-lisp
+
+    (defun cider-eval-and-step ()
+      (interactive)
+      (cider-eval-defun-at-point)
+      (sp-next-sexp)
+      )
+
+
+
     (use-package cider
-      :defer t)
+      :defer t
+      :config
+      (setq cider-pprint-fn 'fipp)
+      (define-key clojure-mode-map (kbd "<C-return>") #'cider-eval-and-step)   
+      )
+
+
 
     (defun my-clojure-mode-hook ()
       (clj-refactor-mode 1)
       (yas-minor-mode 1) ; for adding require/use/import
       (cljr-add-keybindings-with-prefix "C-c C-m"))
-    ;(use-package cider-eval-sexp-fu)
+                                            ;(use-package cider-eval-sexp-fu)
     (use-package clj-refactor
       :defer t
       :config
@@ -757,12 +871,22 @@
       (cljr-add-keybindings-with-prefix "C-c C-m")
       (add-hook 'clojure-mode-hook #'my-clojure-mode-hook))
 
+    (use-package cider-eval-sexp-fu)
+
+    (use-package sayid
+      :config 
+      (eval-after-load 'clojure-mode
+        '(sayid-setup-package)))
 
   #+END_SRC
+
+  #+RESULTS:
+  : t
+
 * other
   #+BEGIN_SRC emacs-lisp
-    (setq browse-url-generic-program (executable-find "conkeror"))
-    (setq browse-url-browser-function 'browse-url-generic)
+    (setq browse-url-generic-program (executable-find "firefox"))
+    (setq browse-url-browser-function 'browse-url-firefox)
 
     (use-package focus)
 
@@ -807,7 +931,7 @@
     (use-package calfw
       :defer 1
       :config
-      (require 'calfw-org)
+      ;;(require 'calfw-org)
       (bind-key "C-c m" 'cfw:open-org-calendar)
       (setq calendar-holidays '()))
 
@@ -844,6 +968,17 @@
 
 
     (setq linum-format "%4d")
+    (require 'linum)
+    (defun linum-update-window-scale-fix (win)
+      "fix linum for scaled text"
+      (set-window-margins win
+                          (ceiling (* (if (boundp 'text-scale-mode-step)
+                                          (expt text-scale-mode-step
+                                                text-scale-mode-amount) 1)
+                                      (if (car (window-margins))
+                                          (car (window-margins)) 1)
+                                      ))))
+    (advice-add #'linum-update-window :after #'linum-update-window-scale-fix)
 
     (winner-mode) 
 
@@ -911,30 +1046,57 @@
       (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
       )
     (use-package dockerfile-mode)
+
+
+    (use-package skewer-mode)
+    (skewer-setup)
+    (use-package ac-js2)
+    (add-hook 'js2-mode-hook 'ac-js2-mode)
+
+    (defun open-with (arg)
+      "Open visited file in default external program.
+
+    With a prefix ARG always prompt for command to use."
+      (interactive "P")
+      (when buffer-file-name
+        (shell-command (concat
+                        (cond
+                         ((and (not arg) (eq system-type 'darwin)) "open")
+                         ((and (not arg) (member system-type '(gnu gnu/linux gnu/kfreebsd))) "xdg-open")
+                         (t (read-shell-command "Open current file with: ")))
+                        " "
+                        (shell-quote-argument buffer-file-name)))))
+
+
+    (use-package deft
+      :commands (deft)
+      :config (setq deft-directory "~/Dropbox/sync/org"
+                    deft-extensions '("md" "org")
+                    deft-recursive t))
   #+END_SRC
 * Python
   #+BEGIN_SRC emacs-lisp
-   
-    (use-package jedi
-      :defer 1
-      :config 
-      
-      (use-package company-jedi)
-      (defun my/python-mode-hook ()
-        (jedi-mode)
-        
-        (add-to-list 'company-backends 'company-jedi))
-      (setq jedi:complete-on-dot t)
-      (add-hook 'python-mode-hook 'my/python-mode-hook))
-     
-    (use-package pyvenv 
-     :defer 1
-     :disabled t
-     :config
-      (pyvenv-activate "~/miniconda/envs/dataScience")
-       (setq
-            python-shell-interpreter "ipython"
-            org-babel-python-command "ipython"))
+
+    ;; (use-package jedi
+    ;;   :defer 1
+    ;;   :config 
+
+    ;;   (use-package company-jedi)
+    ;;   (defun my/python-mode-hook ()
+    ;;     (jedi-mode)
+
+    ;;     (add-to-list 'company-backends 'company-jedi))
+    ;;   (setq jedi:complete-on-dot t)
+    ;;   (add-hook 'python-mode-hook 'my/python-mode-hook))
+
+    ;; (use-package pyvenv 
+    ;;   :defer 1
+    ;;   :disabled t
+    ;;   :config
+    ;;   (pyvenv-activate "~/miniconda/envs/dataScience")
+    ;;   (setq
+    ;;    python-shell-interpreter "ipython"
+    ;;    org-babel-python-command "ipython"))
 
     (defun python-shell-completion-complete-or-indent ()
       "Complete or indent depending on the context.
@@ -950,15 +1112,16 @@
 
 * ein   
   #+BEGIN_SRC emacs-lisp
-    (use-package ein
-          :defer t
-          :config
-            (setq ein:use-auto-complete-superpack t)
-            (defun my/ein-mode-hook ()
-               (company-mode 0)
-               (auto-complete-mode 1))
-            (add-hook 'ein:notebook-mode-hook 'my/ein-mode-hook))
-(require 'popup)
+;;     (use-package ein
+;;           :defer t
+;;           :disabled t
+;;           :config
+;;             (setq ein:use-auto-complete-superpack t)
+;;             (defun my/ein-mode-hook ()
+;;                (company-mode 0)
+;;                (auto-complete-mode 1))
+;;             (add-hook 'ein:notebook-mode-hook 'my/ein-mode-hook))
+;; (require 'popup)
   #+END_SRC
 
 * Dired
@@ -1018,6 +1181,7 @@
       :config
       (setq dired-filter-inherit-filter-stack t)
       )
+    (use-package dired-quick-sort :ensure t :config (dired-quick-sort-setup)) 
   #+END_SRC 
 * smart parents
 #+BEGIN_SRC emacs-lisp
@@ -1028,11 +1192,12 @@
     :ensure smartparens
     :init
     (progn
+      ;(smartparens-config)
       (show-smartparens-global-mode t)))
 
   (add-hook 'prog-mode-hook 'turn-on-smartparens-strict-mode)
   (add-hook 'markdown-mode-hook 'turn-on-smartparens-strict-mode)
-
+  (require 'smartparens-config)
 #+END_SRC
 * ace
 #+BEGIN_SRC emacs-lisp
@@ -1147,76 +1312,11 @@
     (server-start)
   #+END_SRC 
 
-* exwm
-  #+BEGIN_SRC emacs-lisp
-    ;;(defvar dropbox-status nil)
-
-    ;;(defun update-dropbox-status ()
-      ;;(interactive)
-      ;;(setq dropbox-status (car (split-string (shell-command-to-string "dropbox status") "\n"))))
-    ;;(run-with-timer 1 (* 1 10) 'update-dropbox-status)
-    (use-package exwm 
-      :disabled t
-      :config
-      (require 'exwm-config)
-      (setq exwm-workspace-number 10)
-      (exwm-config-default)
-      (exwm-input-set-simulation-keys nil)
-
-      (exwm-input-set-key (kbd "s-l")
-                          (lambda () (interactive) (start-process "" nil "slock"))) 
-      (exwm-input-set-key (kbd "s-c")
-                          (lambda () (interactive) (start-process "" nil "chromium-browser"))) 
-      (exwm-input-set-key (kbd "s-t")
-                          (lambda () (interactive) (start-process "" nil "gnome-terminal"))) 
-      (exwm-input-set-key (kbd "s-m")
-                          (lambda () (interactive) (start-process "" nil "chromium-browser" "http://www.efsa.europa.eu/webmail"))) 
-
-      (setq global-mode-string  '("db:" dropbox-status
-                                  " "
-                                  "[ws:" (:eval (format "%s" exwm-workspace-current-index)) "] " display-time-string))
-      (exwm-input-set-key (kbd "s-f") #'exwm-layout-set-fullscreen)      
-      (setq exwm-workspace-show-all-buffers t)
-      (setq exwm-layout-show-all-buffers t)
-
-      (when (string= system-name "LAP-2013-00026.efsa.eu.int")
-
-        (require 'exwm-randr)
-        (defun xrandr-output-list-vga1 ()
-          (interactive)
-          (setq exwm-randr-workspace-output-plist '(0 "LVDS1" 1 "LVDS1" 2 "LVDS1" 3 "LVDS1" 4 "LVDS1" 5 "VGA1" 6 "VGA1" 7 "VGA1" 8 "VGA1"  9 "VGA1" ))
-          (exwm-randr--refresh))
-
-        (defun xrandr-output-list-hdmi2 ()
-          (interactive)
-          (setq exwm-randr-workspace-output-plist '(0 "LVDS1" 1 "LVDS1" 2 "LVDS1" 3 "LVDS1" 4 "LVDS1" 5 "HDMI2" 6 "HDMI2" 7 "HDMI2" 8 "HDMI2"  9 "HDMI2" ))
-          
-          (exwm-randr--refresh))
-
-        
-
-        (setq exwm-randr-workspace-output-plist '(0 "LVDS1" 1 "LVDS1" 2 "LVDS1" 3 "LVDS1" 4 "LVDS1" 5 "HDMI2" 6 "HDMI2" 7 "HDMI2" 8 "HDMI2"  9 "HDMI2" ))
-        (add-hook 'exwm-randr-screen-change-hook
-                  (lambda ()
-                    (start-process-shell-command
-                     "xrandr" nil "xrandr --output HDMI2 --auto --output LVDS1 --auto --left-of HDMI2")))
-        (exwm-randr-enable)))
-
-  #+END_SRC
-  
 * print init time  
 #+BEGIN_SRC emacs-lisp 
 (setq after-init-time (current-time))
 (message "Config successfully loaded in %s" (emacs-init-time))
 
-#+END_SRC
-* open org files 
-#+BEGIN_SRC emacs-lisp 
-  (org-agenda-list)
-  (split-window-horizontally)
-  (setq org-confirm-babel-evaluate t)
-  
-  (dired "~/Dropbox")
 #+END_SRC
 
 
@@ -1226,5 +1326,8 @@
 
 
  
+
+
+
 
 
