@@ -1023,9 +1023,9 @@
     (when (file-directory-p "~/bin")
       (my/convert-shell-scripts-to-interactive-commands "~/bin"))
 
-    (use-package pdf-tools
-      :config
-      (pdf-tools-install))
+;;    (use-package pdf-tools
+;;      :config
+;;      (pdf-tools-install))
 
     (add-to-list 'auto-mode-alist '("\\.cljs\\.hl\\'" . clojurescript-mode))
     (add-hook 'clojure-mode-hook
