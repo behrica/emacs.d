@@ -129,8 +129,8 @@
     (use-package use-package-chords
       :config (key-chord-mode 1))
 
-    (require 'diminish)
-    (require 'bind-key)       
+    (use-package diminish)
+    (use-package bind-key)       
     (add-to-list 'load-path "/usr/share/emacs24/site-lisp/mu4e")
 
     (use-package auto-package-update)
