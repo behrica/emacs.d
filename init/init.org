@@ -10,75 +10,6 @@
 
   #+RESULTS:
   : t
-* use package
- #+BEGIN_SRC emacs-lisp
-(require 'package)
-(setq package-enable-at-startup nil)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-(package-initialize)
-
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
- #+END_SRC
-* exwm
-  #+BEGIN_SRC emacs-lisp
-        ;;(defvar dropbox-status nil)
-
-        ;;(defun update-dropbox-status ()
-        ;;(interactive)
-        ;;(setq dropbox-status (car (split-string (shell-command-to-string "dropbox status") "\n"))))
-        ;;(run-with-timer 1 (* 1 10) 'update-dropbox-status)
-
-        ;(when (string= system-name "gandalf")) 
-        (use-package exwm 
-          ;:disabled f
-          :config
-          (require 'exwm-config)
-          (setq exwm-workspace-number 10)
-          (exwm-config-default)
-
-          (exwm-input-set-simulation-keys nil)
-
-          (exwm-input-set-key (kbd "s-l")
-                              (lambda () (interactive) (start-process "" nil "slock"))) 
-          (exwm-input-set-key (kbd "s-c")
-                              (lambda () (interactive) (start-process "" nil "chromium")))
-          (exwm-input-set-key (kbd "s-t")
-                              (lambda () (interactive) (start-process "" nil "terminator"))) 
-          (exwm-input-set-key (kbd "s-m")
-                              (lambda () (interactive) (start-process "" nil "chromium-browser" "http://www.efsa.europa.eu/webmail"))) 
-
-          (setq global-mode-string  '("db:" dropbox-status
-                                      " "
-                                      "[ws:" (:eval (format "%s" exwm-workspace-current-index)) "] " display-time-string))
-          (exwm-input-set-key (kbd "s-f") #'exwm-layout-set-fullscreen)      
-          (setq exwm-workspace-show-all-buffers t)
-          (setq exwm-layout-show-all-buffers t)
-
-          )
-
-(when (string= system-name "carsten-XPS-13-9350")
-
-            (require 'exwm-randr)
-            (exwm-randr-enable))
-
-    (defun cb-xrand-desk-2 ()
-          "Hello World and you can call it via M-x hello."
-          (interactive)
-          ;(setq exwm-randr-workspace-output-plist '(0 "eDP-1" 1 "eDP-1" 2 "eDP-1" 3 "eDP-1" 4 "eDP-1" 5 "DP-1" 6 "DP-1" 7 "DP-1" 8 "DP-1" 9 "DP-1"))
-          (setq exwm-randr-workspace-output-plist '(0 "eDP-1" 1 "eDP-1" 2 "DP-1" 3 "DP-1"))
-
-          (start-process-shell-command
-           "xrandr" nil "xrandr  --fb 3840x1800 --output eDP-1 --mode 3200x1800 --scale 0.6x0.6 --pos 0x0 --output DP-1 --mode 1920x1080 --scale 1x1 --pos 1920x0"
-
-           )
-          (exwm-randr-enable)
-
-          )
-
-  #+END_SRC
-  
 * init
   
   #+BEGIN_SRC emacs-lisp
@@ -136,6 +67,64 @@
     (use-package auto-package-update)
     (auto-package-update-maybe)
   #+END_SRC 
+* exwm
+  #+BEGIN_SRC emacs-lisp
+        ;;(defvar dropbox-status nil)
+
+        ;;(defun update-dropbox-status ()
+        ;;(interactive)
+        ;;(setq dropbox-status (car (split-string (shell-command-to-string "dropbox status") "\n"))))
+        ;;(run-with-timer 1 (* 1 10) 'update-dropbox-status)
+
+        ;(when (string= system-name "gandalf")) 
+        (use-package exwm 
+          ;:disabled f
+          :config
+          (require 'exwm-config)
+          (setq exwm-workspace-number 10)
+          (exwm-config-default)
+
+          (exwm-input-set-simulation-keys nil)
+
+          (exwm-input-set-key (kbd "s-l")
+                              (lambda () (interactive) (start-process "" nil "slock"))) 
+          (exwm-input-set-key (kbd "s-c")
+                              (lambda () (interactive) (start-process "" nil "chromium")))
+          (exwm-input-set-key (kbd "s-t")
+                              (lambda () (interactive) (start-process "" nil "terminator"))) 
+          (exwm-input-set-key (kbd "s-m")
+                              (lambda () (interactive) (start-process "" nil "chromium-browser" "http://www.efsa.europa.eu/webmail"))) 
+
+          (setq global-mode-string  '("db:" dropbox-status
+                                      " "
+                                      "[ws:" (:eval (format "%s" exwm-workspace-current-index)) "] " display-time-string))
+          (exwm-input-set-key (kbd "s-f") #'exwm-layout-set-fullscreen)      
+          (setq exwm-workspace-show-all-buffers t)
+          (setq exwm-layout-show-all-buffers t)
+
+          )
+
+(when (string= system-name "carsten-XPS-13-9350")
+
+            (require 'exwm-randr)
+            (exwm-randr-enable))
+
+    (defun cb-xrand-desk-2 ()
+          "Hello World and you can call it via M-x hello."
+          (interactive)
+          ;(setq exwm-randr-workspace-output-plist '(0 "eDP-1" 1 "eDP-1" 2 "eDP-1" 3 "eDP-1" 4 "eDP-1" 5 "DP-1" 6 "DP-1" 7 "DP-1" 8 "DP-1" 9 "DP-1"))
+          (setq exwm-randr-workspace-output-plist '(0 "eDP-1" 1 "eDP-1" 2 "DP-1" 3 "DP-1"))
+
+          (start-process-shell-command
+           "xrandr" nil "xrandr  --fb 3840x1800 --output eDP-1 --mode 3200x1800 --scale 0.6x0.6 --pos 0x0 --output DP-1 --mode 1920x1080 --scale 1x1 --pos 1920x0"
+
+           )
+          (exwm-randr-enable)
+
+          )
+
+  #+END_SRC
+
 * comint
 #+BEGIN_SRC emacs-lisp
 (add-hook 'comint-output-filter-functions #'comint-truncate-buffer)
