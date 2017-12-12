@@ -10,7 +10,17 @@
 
   #+RESULTS:
   : t
+* use package
+ #+BEGIN_SRC emacs-lisp
+(require 'package)
+(setq package-enable-at-startup nil)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+(package-initialize)
 
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+ #+END_SRC
 * exwm
   #+BEGIN_SRC emacs-lisp
         ;;(defvar dropbox-status nil)
@@ -1108,6 +1118,28 @@
                                           (point-marker)))
           (indent-for-tab-command)
         (company-complete)))
+(defun block-line-end ()
+    (setq indentation (current-indentation))
+    (forward-line)
+    (while (> (current-indentation) indentation)
+      (forward-line))
+    (forward-line -1)
+    (line-end-position))  
+(defun my-python-shell-send-region (&optional beg end)
+    (interactive)
+    (let ((beg (cond (beg beg)
+                ((region-active-p) (region-beginning))
+                (t (line-beginning-position))))
+          (end (cond (end end)
+                ((region-active-p) 
+                 (copy-marker (region-end)))
+                (t (block-line-end)))))
+      (python-shell-send-region beg end))
+    (forward-line))
+
+(eval-after-load "python"
+  '(define-key python-mode-map (kbd "C-<return>") 'my-python-shell-send-region))
+
   #+END_SRC 
 
 * ein   
