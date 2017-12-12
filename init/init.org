@@ -318,6 +318,51 @@
 
   #+END_SRC
   
+* cider
+  #+BEGIN_SRC emacs-lisp
+
+    (defun cider-eval-and-step ()
+      (interactive)
+      (cider-eval-defun-at-point)
+      (sp-next-sexp)
+      )
+
+
+
+    (use-package cider
+      :defer t
+      :config
+      (setq cider-pprint-fn 'fipp)
+      (define-key clojure-mode-map (kbd "<C-return>") #'cider-eval-and-step)   
+      )
+
+
+
+    (defun my-clojure-mode-hook ()
+      (clj-refactor-mode 1)
+      (yas-minor-mode 1) ; for adding require/use/import
+      (cljr-add-keybindings-with-prefix "C-c C-m"))
+                                            ;(use-package cider-eval-sexp-fu)
+    (use-package clj-refactor
+      :defer t
+      :config
+      (clj-refactor-mode 1)
+      (yas-minor-mode 1) ; for adding require/use/import
+      (cljr-add-keybindings-with-prefix "C-c C-m")
+      (add-hook 'clojure-mode-hook #'my-clojure-mode-hook))
+
+    (use-package cider-eval-sexp-fu)
+
+    (use-package sayid
+      :config 
+      (eval-after-load 'clojure-mode
+        '(sayid-setup-package)))
+
+  #+END_SRC
+
+  #+RESULTS:
+  : t
+
 * org-mode 
   #+BEGIN_SRC emacs-lisp
     (use-package org
@@ -837,51 +882,6 @@
 
  #+END_SRC 
   
-* cider
-  #+BEGIN_SRC emacs-lisp
-
-    (defun cider-eval-and-step ()
-      (interactive)
-      (cider-eval-defun-at-point)
-      (sp-next-sexp)
-      )
-
-
-
-    (use-package cider
-      :defer t
-      :config
-      (setq cider-pprint-fn 'fipp)
-      (define-key clojure-mode-map (kbd "<C-return>") #'cider-eval-and-step)   
-      )
-
-
-
-    (defun my-clojure-mode-hook ()
-      (clj-refactor-mode 1)
-      (yas-minor-mode 1) ; for adding require/use/import
-      (cljr-add-keybindings-with-prefix "C-c C-m"))
-                                            ;(use-package cider-eval-sexp-fu)
-    (use-package clj-refactor
-      :defer t
-      :config
-      (clj-refactor-mode 1)
-      (yas-minor-mode 1) ; for adding require/use/import
-      (cljr-add-keybindings-with-prefix "C-c C-m")
-      (add-hook 'clojure-mode-hook #'my-clojure-mode-hook))
-
-    (use-package cider-eval-sexp-fu)
-
-    (use-package sayid
-      :config 
-      (eval-after-load 'clojure-mode
-        '(sayid-setup-package)))
-
-  #+END_SRC
-
-  #+RESULTS:
-  : t
-
 * other
   #+BEGIN_SRC emacs-lisp
     (setq browse-url-generic-program (executable-find "firefox"))
@@ -1020,8 +1020,8 @@
                     (apply 'call-process ,filename nil nil nil args))))
              (-filter (-not #'file-directory-p)
                       (-filter #'file-executable-p (directory-files directory t))))))
-
-    (my/convert-shell-scripts-to-interactive-commands "~/bin")
+    (when (file-directory-p "~/bin")
+      (my/convert-shell-scripts-to-interactive-commands "~/bin"))
 
     (use-package pdf-tools
       :config
