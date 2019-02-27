@@ -1,12 +1,14 @@
+
 * boot-UI
   #+BEGIN_SRC emacs-lisp
-    (menu-bar-mode 0)
-    (tool-bar-mode 0)
-    (scroll-bar-mode -1)
-    (setq inhibit-splash-screen t)
-    ;(toggle-frame-fullscreen)
+  (menu-bar-mode 0)
+  (tool-bar-mode 0)
+  (scroll-bar-mode -1)
+  (setq inhibit-splash-screen t)
+  ;(toggle-frame-fullscreen)
 
   #+END_SRC
+
 
   #+RESULTS:
   : t
@@ -23,7 +25,7 @@
             '(("no_proxy" . "^\\localhost")
               ("http" . "127.0.0.1:3128")
               ("https" . "127.0.0.1:3128"))))
-    (add-to-list 'load-path "~/Dropbox/sources/org-mode-release_8.3.4/lisp")
+    ;;(add-to-list 'load-path "/usr/share/emacs/26.1/lisp/org/")
     (require 'org)
     (setq org-confirm-babel-evaluate 'nil) 
 
@@ -33,40 +35,47 @@
   
 * packages
   #+BEGIN_SRC emacs-lisp
-    (require 'package)
+	    (require 'package)
+(add-to-list 'package-archives
+             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 
-    (add-to-list 'package-archives
-                 '("melpa" . "http://melpa.org/packages/") t)
-    (add-to-list 'package-archives
-                 '("SC" . "http://joseito.republika.pl/sunrise-commander/") t)
-
-
-
-    (package-initialize) 
-    (if (not (package-installed-p 'use-package))
-        (progn
-          (package-refresh-contents)
-          (package-install 'use-package)))
-
-    (eval-when-compile
-      (require 'use-package))
+	    (add-to-list 'package-archives
+			 '("melpa" . "http://melpa.org/packages/") 
+		 
+			 t)
+	;    (add-to-list 'package-archives
+	;                 '("SC" . "http://joseito.republika.pl/sunrise-commander/") t)
 
 
-    (setq use-package-verbose t
-          use-package-always-ensure t
-          ;;use-package-debug t
-          use-package-minimum-reported-time 0.05)
+    (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
+	    (package-initialize) 
+	    (if (not (package-installed-p 'use-package))
+		(progn
+		  (package-refresh-contents)
+		  (package-install 'use-package)))
 
-    (use-package use-package-chords
-      :config (key-chord-mode 1))
+	    (eval-when-compile
+	      (require 'use-package))
 
-    (use-package diminish)
-    (use-package bind-key)       
-    (add-to-list 'load-path "/usr/share/emacs24/site-lisp/mu4e")
 
-    (use-package auto-package-update)
-    (auto-package-update-maybe)
+	    (setq use-package-verbose t
+		  use-package-always-ensure t
+		  ;;use-package-debug t
+		  use-package-minimum-reported-time 0.05)
+
+	    (use-package use-package-chords
+	      :config (key-chord-mode 1))
+
+	    (use-package diminish)
+	    (use-package bind-key)       
+	    (add-to-list 'load-path "/usr/share/emacs24/site-lisp/mu4e")
+
+	    (use-package auto-package-update)
+	    (auto-package-update-maybe)
   #+END_SRC 
+
+  #+RESULTS:
+
 * exwm
   #+BEGIN_SRC emacs-lisp
         ;;(defvar dropbox-status nil)
@@ -78,7 +87,7 @@
 
         ;(when (string= system-name "gandalf")) 
         (use-package exwm 
-          ;:disabled f
+          :disabled t
           :config
           (require 'exwm-config)
           (setq exwm-workspace-number 10)
@@ -132,33 +141,131 @@
 * UI
   #+BEGIN_SRC emacs-lisp 
 
-    (use-package solarized-theme)   
+    (use-package solarized-theme)
+    (load-theme 'solarized-light t t)
+    (load-theme 'solarized-dark t t)
 
-    (use-package alect-themes)   
-    (use-package ample-theme
-       :init (progn (load-theme 'ample t t)
-                    (load-theme 'solarized-dark t t)
-                    (enable-theme 'solarized-dark))
-      :config
-      (set-frame-font "Hack" t t))
+    (use-package alect-themes)
 
-    (use-package powerline
-      :config
-      (powerline-default-theme))
+    (load-theme 'alect-light t t)
+    (load-theme 'alect-dark t t)
+
+    (use-package ample-theme)
+    (load-theme 'ample t t)
+    (load-theme 'ample-light t t)
 
 
-    (use-package eval-sexp-fu
-       :disabled t                      
-       :config
-       (turn-on-eval-sexp-fu-flash-mode))
-
-    (setq display-time-24hr-format t)
-    (setq display-time-day-and-date t)
-    (display-time-mode 1)
+  ;; (use-package cycle-themes
+  ;;   :init 
 
 
 
+  ;;   (setq cycle-themes-theme-list
+  ;; 	'(solarized-light solarized-dark leuven alect-light alect-dark ample ample-light tango-dark tango material))
+  ;;   :config (cycle-themes-mode))
+
+  (use-package powerline
+    :config
+    (powerline-default-theme))
+
+
+  (use-package eval-sexp-fu
+    ;;       :disabled t                      
+    :config
+    (turn-on-eval-sexp-fu-flash-mode))
+
+  (setq display-time-24hr-format t)
+  (setq display-time-day-and-date t)
+  (display-time-mode 1)
+
+
+
+  (use-package material-theme
+    :ensure t
+    :config
+    (load-theme 'material t t)
+
+    (with-eval-after-load 'font-lock
+      (set-face-attribute 'font-lock-constant-face nil :foreground "#C792EA")
+      (set-face-attribute 'font-lock-keyword-face nil :foreground "#2BA3FF" :slant 'italic)
+      (set-face-attribute 'font-lock-preprocessor-face nil :inherit 'bold :foreground "#2BA3FF" :slant 'italic :weight 'normal)
+      (set-face-attribute 'font-lock-string-face nil :foreground "#C3E88D")
+      (set-face-attribute 'font-lock-type-face nil :foreground "#FFCB6B")
+      (set-face-attribute 'font-lock-variable-name-face nil :foreground "#FF5370"))
+
+    (with-eval-after-load 'em-prompt
+      (set-face-attribute 'eshell-prompt nil :foreground "#eeffff"))
+
+    (with-eval-after-load 'faces
+      ;; From https://gist.github.com/huytd/6b785bdaeb595401d69adc7797e5c22c#file-customized-org-mode-theme-el
+      (set-face-attribute 'default nil :stipple nil :background "#212121" :foreground "#eeffff" :inverse-video nil
+			  ;; :family "Menlo" ;; or Meslo if unavailable: https://github.com/andreberg/Meslo-Font
+			  :family "hack" ;; https://madmalik.github.io/mononoki/ or sudo apt-get install fonts-mononoki
+			  :box nil :strike-through nil :overline nil :underline nil :slant 'normal :weight 'normal
+			  :width 'normal :foundry "nil")
+
+      ;; Hardcode region theme color.
+      (set-face-attribute 'region nil :background "#3f464c" :foreground "#eeeeec" :underline nil)
+      (set-face-attribute 'mode-line nil :background "#191919" :box nil)
+
+      ;; Styling moody https://github.com/tarsius/moody
+      (let ((line (face-attribute 'mode-line :underline)))
+	(set-face-attribute 'mode-line nil :overline   line)
+	(set-face-attribute 'mode-line-inactive nil :overline   line)
+	(set-face-attribute 'mode-line-inactive nil :underline  line)
+	(set-face-attribute 'mode-line nil :box nil)
+	(set-face-attribute 'mode-line-inactive nil :box nil)
+	(set-face-attribute 'mode-line-inactive nil :background "#212121" :foreground "#5B6268")))
+
+    (with-eval-after-load 'org-faces
+      (set-face-attribute 'org-table nil :background nil)
+      (set-face-attribute 'org-code nil :background nil)
+      (set-face-attribute 'org-level-1 nil :background nil :box nil)
+      (set-face-attribute 'org-level-2 nil :background nil :box nil)
+      (set-face-attribute 'org-level-3 nil :background nil :box nil)
+      (set-face-attribute 'org-level-4 nil :background nil :box nil)
+      (set-face-attribute 'org-level-5 nil :background nil :box nil)
+      (set-face-attribute 'org-level-6 nil :background nil :box nil)
+      (set-face-attribute 'org-level-7 nil :background nil :box nil)
+      (set-face-attribute 'org-level-8 nil :background nil :box nil)
+      (set-face-attribute 'org-block-begin-line nil :background nil :box nil)
+      (set-face-attribute 'org-block-end-line nil :background nil :box nil)
+      (set-face-attribute 'org-block nil :background nil :box nil))
+
+    (with-eval-after-load 'mu4e-vars
+      (set-face-attribute 'mu4e-unread-face nil :inherit 'default :weight 'bold :foreground "#2BA3FF" :underline nil))
+
+    ;; No color for fringe, blends with the rest of the window.
+    (with-eval-after-load 'fringe
+      (set-face-attribute 'fringe nil
+			  :foreground (face-foreground 'default)
+			  :background (face-background 'default))))
+
+
+  (use-package moody
+    :ensure t
+    :config
+    (setq x-underline-at-descent-line t)
+
+    (setq-default mode-line-format
+		  '(" "
+		    mode-line-front-space
+		    mode-line-client
+		    mode-line-frame-identification
+		    mode-line-buffer-identification " " mode-line-position
+		    (vc-mode vc-mode)
+		    (multiple-cursors-mode mc/mode-line)
+		    " " mode-line-modes
+		    mode-line-end-spaces)))
+
+(pixel-scroll-mode)
+(setq pixel-dead-time 0) ; Never go back to the old scrolling behaviour.
+(setq pixel-resolution-fine-flag t) 
   #+END_SRC
+
+  #+RESULTS:
+  : t
+
 * Hydra
   #+BEGIN_SRC emacs-lisp
 
@@ -305,21 +412,45 @@
   
 * company
   #+BEGIN_SRC emacs-lisp
-    (use-package company 
-      :config
-      (add-hook 'after-init-hook 'global-company-mode)
-      
-      :diminish company-mode)
+  (use-package company 
+    :config
+  (global-set-key (kbd "M-TAB") #'company-complete) 
+    (add-hook 'after-init-hook 'global-company-mode)
 
-    (use-package company-statistics
-      :config (company-statistics-mode)
-      :diminish company-statistics-mode
-      )
+    :diminish company-mode)
 
+  (use-package company-statistics
+    :config (company-statistics-mode)
+    :diminish company-statistics-mode
+    )
+
+
+  (use-package company-quickhelp)
+
+
+  (define-key company-active-map (kbd "M-h") 'company-show-doc-buffer)
   #+END_SRC
   
 * cider
   #+BEGIN_SRC emacs-lisp
+
+
+
+  (use-package cider
+    :defer f
+    :config
+    (setq org-edit-src-content-indentation 0
+	  org-src-tab-acts-natively t
+	  org-src-fontify-natively t
+	  org-confirm-babel-evaluate nil
+	  org-support-shift-select 'always)
+    (setq cider-pprint-fn 'fipp)
+    (setq cider-show-eval-spinner t)
+    (setq cider-repl-use-pretty-printing nil)
+    (setq org-babel-clojure-sync-nrepl-timeout 3600)
+					  ;(setq cider-repl-print-length 10)
+					  ;(setq cider-repl-print-level 5)
+
 
     (defun cider-eval-and-step ()
       (interactive)
@@ -328,318 +459,374 @@
       )
 
 
+    (defun cider-pr-shorten-string (max)
+      (interactive "nShorten strings to ?:  ")
+      (insert (format "
+			(defn shorten-string [s]
+			   (if (> (count s) %d)
+			     (str (.substring s 0 %d) \" ...[\" (count s)    \"]\")
+			     s))
+			(defmethod print-method java.lang.String [v ^java.io.Writer w]  (.write w (shorten-string  v)))"
+		      max max)  )
 
-    (use-package cider
-      :defer t
-      :config
-      (setq cider-pprint-fn 'fipp)
-      (define-key clojure-mode-map (kbd "<C-return>") #'cider-eval-and-step)   
+      (cider-repl-return))
+
+    (defun cider-pr-normal-string ()
+      (interactive)
+      (insert "
+			(defmethod print-method java.lang.String [v ^java.io.Writer w]  (.write w v))
+			")
+      (cider-repl-return))
+
+    ;;(cider-pr-shorten-string 100)
+    (defun cider-pr-shorten-string-default ()
+      (cider-pr-shorten-string 100)
+      )
+
+    ;;      (add-hook 'cider-repl-mode-hook #'cider-pr-shorten-string-default)
+
+    (defun my/truncate-string (string)
+      (if (< 10 (length string))
+	  (concat (substring string 0 10) " ...["  (number-to-string (length string)) "]"  )
+	string))
+
+
+    (defun my/cider-connect ()
+      (interactive)
+      (let ((host (read-string "Host: "))
+	    (port (read-string "Port: "))
+	    (p-dir (read-directory-name "Project dir: "))
+	    )
+	(cider-connect `(:host ,host 
+			       :port ,port 
+			       :project-dir ,p-dir)  )
+	)
+      (cider-enable-on-existing-clojure-buffers)
       )
 
 
+    ;;(defun cider-select-endpoint ()
+    ;;  (cons (read-string "Host: " ) (read-string "Port:") )
 
-    (defun my-clojure-mode-hook ()
-      (clj-refactor-mode 1)
-      (yas-minor-mode 1) ; for adding require/use/import
-      (cljr-add-keybindings-with-prefix "C-c C-m"))
-                                            ;(use-package cider-eval-sexp-fu)
-    (use-package clj-refactor
-      :defer t
-      :config
-      (clj-refactor-mode 1)
-      (yas-minor-mode 1) ; for adding require/use/import
-      (cljr-add-keybindings-with-prefix "C-c C-m")
-      (add-hook 'clojure-mode-hook #'my-clojure-mode-hook))
+    ;;  )
 
-    (use-package cider-eval-sexp-fu)
 
-    (use-package sayid
-      :config 
-      (eval-after-load 'clojure-mode
-        '(sayid-setup-package)))
+    ;; (defun cider-repl-emit-result (buffer string show-prefix &optional bol)
+    ;;   "Emit into BUFFER the result STRING and mark it as an evaluation result.
+    ;; If SHOW-PREFIX is non-nil insert `cider-repl-result-prefix' at the beginning
+    ;; of the line.  If BOL is non-nil insert at the beginning of the line."
+    ;;   (with-current-buffer buffer
+    ;; 	(save-excursion
+    ;; 	  (cider-save-marker cider-repl-output-start
+    ;; 	    (cider-save-marker cider-repl-output-end
+    ;; 	      (goto-char cider-repl-input-start-mark)
+    ;; 	      (when (and bol (not (bolp)))
+    ;; 		(insert-before-markers "\n"))
+    ;; 	      (when show-prefix
+    ;; 		(insert-before-markers (propertize cider-repl-result-prefix 'font-lock-face 'font-lock-comment-face)))
+    ;; 	      (if cider-repl-use-clojure-font-lock
+    ;; 		  (insert-before-markers (cider-font-lock-as-clojure (my/truncate-string string)))
+    ;; 		(cider-propertize-region
+    ;; 		    '(font-lock-face cider-repl-result-face rear-nonsticky (font-lock-face))
+    ;; 		  (insert-before-markers (my/truncate-string string)))))))
+    ;; 	(cider-repl--show-maximum-output)))
+
+
+
+    ;; (defun cider-repl--emit-output-at-pos (buffer string output-face position &optional bol)
+    ;;   "Using BUFFER, insert STRING (applying to it OUTPUT-FACE) at POSITION.
+    ;; If BOL is non-nil insert at the beginning of line.  Run
+    ;; `cider-repl-preoutput-hook' on STRING."
+    ;;   (with-current-buffer buffer
+    ;; 	(save-excursion
+    ;; 	  (cider-save-marker cider-repl-output-start
+    ;; 	    (cider-save-marker cider-repl-output-end
+    ;; 	      (goto-char position)
+    ;; 	      ;; TODO: Review the need for bol
+    ;; 	      (when (and bol (not (bolp))) (insert-before-markers "\n"))
+    ;; 	      (setq string (propertize (my/truncate-string string)
+    ;; 				       'font-lock-face output-face
+    ;; 				       'rear-nonsticky '(font-lock-face)))
+    ;; 	      (setq string (cider-run-chained-hook 'cider-repl-preoutput-hook string))
+    ;; 	      (insert-before-markers  string)
+    ;; 	      (cider-repl--flush-ansi-color-context)
+    ;; 	      (when (and (= (point) cider-repl-prompt-start-mark)
+    ;; 			 (not (bolp)))
+    ;; 		(insert-before-markers "\n")
+    ;; 		(set-marker cider-repl-output-end (1- (point)))))))
+    ;; 	(cider-repl--show-maximum-output)))
+    (define-key clojure-mode-map (kbd "<C-return>") #'cider-eval-and-step)
+    (define-key cider-mode-map (kbd "M-TAB") #'company-complete)
+    (define-key cider-mode-map (kbd "C-c i l") #'cider-inspect-last-sexp)
+    (define-key cider-mode-map (kbd "C-c i i") #'cider-inspect)
+
+    )
+
+  (defun my-clojure-mode-hook ()
+    (clj-refactor-mode 1)
+    (yas-minor-mode 1) ; for adding require/use/import
+    (cljr-add-keybindings-with-prefix "C-c C-m"))
+
+  (use-package clj-refactor
+    :defer f
+    :config
+    (clj-refactor-mode 1)
+    (yas-minor-mode 1) ; for adding require/use/import
+    (cljr-add-keybindings-with-prefix "C-c C-m")
+    (add-hook 'clojure-mode-hook #'my-clojure-mode-hook))
+
+  (use-package cider-eval-sexp-fu
+    :defer f
+    )
+
+
+
+  ;; (use-package sayid
+  ;;   :config 
+  ;;   (eval-after-load 'clojure-mode
+  ;;     '(sayid-setup-package)))
 
   #+END_SRC
 
   #+RESULTS:
-  : t
-
+  
 * org-mode 
   #+BEGIN_SRC emacs-lisp
-    (use-package org
-      :defer t
-      :config
-      (require 'ox-odt)
-      (require 'ob-clojure)
-      (setq org-babel-clojure-backend 'cider)
-      (require 'cider)
-      (setq org-src-fontify-natively t)
-      (setq org-src-tab-acts-natively t)
-      (setq org-agenda-files (quote ("~/Dropbox/sync/org")))
-      (setq org-todo-keywords
-            '((sequence "TODO" "STARTED" "WAITING" "|" "DONE" "CANCELLED" )))
+      (use-package org
+	:defer t
+	:config
+	(require 'ox-odt)
+	(require 'ob-clojure)
+	(setq org-babel-clojure-backend 'cider)
+	(require 'cider)
+	(setq org-src-fontify-natively t)
+	(setq org-src-tab-acts-natively t)
+	(setq org-agenda-files (quote ("~/Dropbox/sync/org")))
+	(setq org-todo-keywords
+	      '((sequence "TODO" "STARTED" "WAITING" "|" "DONE" "CANCELLED" )))
 
-      (setq org-directory "~/Dropbox/sync/org")
-      (setq org-default-notes-file (concat org-directory "/notes.org"))
-      (setq org-capture-templates
-            '(("t" "Simple todo" entry (file+headline (concat org-directory "/notes.org") "Tasks")
-               "* TODO %?\n")
-              ("b" "Bookmark" entry (file+headline (concat org-directory "/notes.org") "Bookmarks")
-               "* [[%^{Url}][%^{Title}]]\n\n" :immediate-finish TRUE)
-              ("e" "email todo" entry (file+headline (concat org-directory "/notes.org")  "Tasks")
-               "* TODO %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n%a\n")
-              ))
-      (set-variable 'org-export-allow-bind-keywords t)
-      (setq org-src-window-setup 'current-window)
+	(setq org-directory "~/Dropbox/sync/org")
+	(setq org-default-notes-file (concat org-directory "/notes.org"))
+	(setq org-capture-templates
+	      '(("t" "Simple todo" entry (file+headline (concat org-directory "/notes.org") "Tasks")
+		 "* TODO %?\n")
+		("b" "Bookmark" entry (file+headline (concat org-directory "/notes.org") "Bookmarks")
+		 "* [[%^{Url}][%^{Title}]]\n\n" :immediate-finish TRUE)
+		("e" "email todo" entry (file+headline (concat org-directory "/notes.org")  "Tasks")
+		 "* TODO %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n%a\n")
+		))
+	(set-variable 'org-export-allow-bind-keywords t)
+	(setq org-src-window-setup 'current-window)
 
-      (org-display-inline-images t t)
+	(org-display-inline-images t t)
+	(org-babel-do-load-languages
+	 'org-babel-load-languages
+	 '((ipython . t)))
+
+	(use-package ox-reveal)
+	(defun my/babel-execute-and-next ()
+	  (interactive)
+	  (org-babel-execute-src-block)
+	  (org-babel-next-src-block)
+	  )
+	(bind-key "C-c b" 'my/babel-execute-and-next org-mode-map)
+
+	(defun my/beamer-to-pdf()
+
+	  (interactive)
+	  (org-beamer-export-to-pdf nil t nil nil nil))
+	(bind-key "C-c e" 'my/beamer-to-pdf org-mode-map)
+
+
+
+	(defun org-dblock-write:rangereport (params)
+	  "Display day-by-day time reports."
+	  (let* ((ts (plist-get params :tstart))
+		 (te (plist-get params :tend))
+		 (start (time-to-seconds
+			 (apply 'encode-time (org-parse-time-string ts))))
+		 (end (time-to-seconds
+		       (apply 'encode-time (org-parse-time-string te))))
+		 day-numbers)
+	    (setq params (plist-put params :tstart nil))
+	    (setq params (plist-put params :end nil))
+	    (while (<= start end)
+	      (save-excursion
+		(insert "\n\n"
+			(format-time-string (car org-time-stamp-formats)
+					    (seconds-to-time start))
+			"----------------\n")
+		(org-dblock-write:clocktable
+		 (plist-put
+		  (plist-put
+		   params
+		   :tstart
+		   (format-time-string (car org-time-stamp-formats)
+				       (seconds-to-time start)))
+		  :tend
+		  (format-time-string (car org-time-stamp-formats)
+				      (seconds-to-time end))))
+		(setq start (+ 86400 start))))))
+
+	(defun my-org-clocktable-indent-string (level)
+	  (if (= level 1)
+	      ""
+	    (let ((str "^"))
+	      (while (> level 2)
+		(setq level (1- level)
+		      str (concat str "--")))
+	      (concat str "-> "))))
+
+	(advice-add 'org-clocktable-indent-string :override #'my-org-clocktable-indent-string)
+	(setq org-file-apps
+	      '(("pdf" . "evince %s")
+		("\\.mm\\'" . default)
+		("\\.x?html?\\'" . default)))
+
+	:bind (("C-c a"  . org-agenda)
+	       ("C-c c" . org-capture)))
+
+      (defun org-babel-remove-all-results ()
+	(interactive)
+	(org-babel-map-src-blocks nil (org-babel-remove-result))
+	) 
+
+      ;; (use-package org2jekyll
+
+
+      ;;   :config
+      ;;   (custom-set-variables '(org2jekyll-blog-author       "ardumont")
+      ;;                         '(org2jekyll-source-directory  (expand-file-name "~/Dropbox/sync/org/blog"))
+      ;;                         '(org2jekyll-jekyll-directory  (expand-file-name "~/public_html"))
+      ;;                         '(org2jekyll-jekyll-drafts-dir "")
+      ;;                         '(org2jekyll-jekyll-posts-dir  "_posts/")
+      ;;                         '(org-publish-project-alist
+      ;;                           `(("default"
+      ;;                              :base-directory ,(org2jekyll-input-directory)
+      ;;                              :base-extension "org"
+      ;;                              ;; :publishing-directory "/ssh:user@host:~/html/notebook/"
+      ;;                              :publishing-directory ,(org2jekyll-output-directory)
+      ;;                              :publishing-function org-html-publish-to-html
+      ;;                              :headline-levels 4
+      ;;                              :section-numbers nil
+      ;;                              :with-toc nil
+      ;;                              :html-head "<link rel=\"stylesheet\" href=\"./css/style.css\" type=\"text/css\"/>"
+      ;;                              :html-preamble t
+      ;;                              :recursive t
+      ;;                              :make-index t
+      ;;                              :html-extension "html"
+      ;;                              :body-only t)
+
+      ;;                             ("post"
+      ;;                              :base-directory ,(org2jekyll-input-directory)
+      ;;                              :base-extension "org"
+      ;;                              :publishing-directory ,(org2jekyll-output-directory org2jekyll-jekyll-posts-dir)
+      ;;                              :publishing-function org-html-publish-to-html
+      ;;                              :headline-levels 4
+      ;;                              :section-numbers nil
+      ;;                              :with-toc nil
+      ;;                              :html-head "<link rel=\"stylesheet\" href=\"./css/style.css\" type=\"text/css\"/>"
+      ;;                              :html-preamble t
+      ;;                              :recursive t
+      ;;                              :make-index t
+      ;;                              :html-extension "html"
+      ;;                              :body-only t)
+
+      ;;                             ("images"
+      ;;                              :base-directory ,(org2jekyll-input-directory "img")
+      ;;                              :base-extension "jpg\\|gif\\|png"
+      ;;                              :publishing-directory ,(org2jekyll-output-directory "img")
+      ;;                              :publishing-function org-publish-attachment
+      ;;                              :recursive t)
+
+      ;;                             ("js"
+      ;;                              :base-directory ,(org2jekyll-input-directory "js")
+      ;;                              :base-extension "js"
+      ;;                              :publishing-directory ,(org2jekyll-output-directory "js")
+      ;;                              :publishing-function org-publish-attachment
+      ;;                              :recursive t)
+
+      ;;                             ("css"
+      ;;                              :base-directory ,(org2jekyll-input-directory "css")
+      ;;                              :base-extension "css\\|el"
+      ;;                              :publishing-directory ,(org2jekyll-output-directory "css")
+      ;;                              :publishing-function org-publish-attachment
+      ;;                              :recursive t)
+
+      ;;                             ("web" :components ("images" "js" "css"))))))
+
       (org-babel-do-load-languages
        'org-babel-load-languages
-       '((python . t)))
-      (add-to-list 'org-structure-template-alist
-                   '("p" "#+BEGIN_SRC python :session \n\n#+END_SRC"))
+       '((R . t)
+	 (shell . t)))
 
 
-
-      (defun my/beamer-to-pdf()
-        
-        (interactive)
-        (org-beamer-export-to-pdf nil t nil nil nil))
-      (bind-key "C-c e" 'my/beamer-to-pdf org-mode-map)
-
-      (use-package ob-ipython :defer t)
+  (defun org-babel-execute:graal-r (body params)
+    (org-babel-execute:clojure
+     (format "(.eval context \"R\" \"%s \" ) "  body) params))
 
 
-      (defun org-dblock-write:rangereport (params)
-        "Display day-by-day time reports."
-        (let* ((ts (plist-get params :tstart))
-               (te (plist-get params :tend))
-               (start (time-to-seconds
-                       (apply 'encode-time (org-parse-time-string ts))))
-               (end (time-to-seconds
-                     (apply 'encode-time (org-parse-time-string te))))
-               day-numbers)
-          (setq params (plist-put params :tstart nil))
-          (setq params (plist-put params :end nil))
-          (while (<= start end)
-            (save-excursion
-              (insert "\n\n"
-                      (format-time-string (car org-time-stamp-formats)
-                                          (seconds-to-time start))
-                      "----------------\n")
-              (org-dblock-write:clocktable
-               (plist-put
-                (plist-put
-                 params
-                 :tstart
-                 (format-time-string (car org-time-stamp-formats)
-                                     (seconds-to-time start)))
-                :tend
-                (format-time-string (car org-time-stamp-formats)
-                                    (seconds-to-time end))))
-              (setq start (+ 86400 start))))))
-
-      (defun my-org-clocktable-indent-string (level)
-        (if (= level 1)
-            ""
-          (let ((str "^"))
-            (while (> level 2)
-              (setq level (1- level)
-                    str (concat str "--")))
-            (concat str "-> "))))
-
-      (advice-add 'org-clocktable-indent-string :override #'my-org-clocktable-indent-string)
-      (setq org-file-apps
-            '(("pdf" . "evince %s")
-              ("\\.mm\\'" . default)
-              ("\\.x?html?\\'" . default)))
-
-      :bind (("C-c a"  . org-agenda)
-             ("C-c c" . org-capture)))
-
-    ;; (use-package org2jekyll
-
-
-    ;;   :config
-    ;;   (custom-set-variables '(org2jekyll-blog-author       "ardumont")
-    ;;                         '(org2jekyll-source-directory  (expand-file-name "~/Dropbox/sync/org/blog"))
-    ;;                         '(org2jekyll-jekyll-directory  (expand-file-name "~/public_html"))
-    ;;                         '(org2jekyll-jekyll-drafts-dir "")
-    ;;                         '(org2jekyll-jekyll-posts-dir  "_posts/")
-    ;;                         '(org-publish-project-alist
-    ;;                           `(("default"
-    ;;                              :base-directory ,(org2jekyll-input-directory)
-    ;;                              :base-extension "org"
-    ;;                              ;; :publishing-directory "/ssh:user@host:~/html/notebook/"
-    ;;                              :publishing-directory ,(org2jekyll-output-directory)
-    ;;                              :publishing-function org-html-publish-to-html
-    ;;                              :headline-levels 4
-    ;;                              :section-numbers nil
-    ;;                              :with-toc nil
-    ;;                              :html-head "<link rel=\"stylesheet\" href=\"./css/style.css\" type=\"text/css\"/>"
-    ;;                              :html-preamble t
-    ;;                              :recursive t
-    ;;                              :make-index t
-    ;;                              :html-extension "html"
-    ;;                              :body-only t)
-
-    ;;                             ("post"
-    ;;                              :base-directory ,(org2jekyll-input-directory)
-    ;;                              :base-extension "org"
-    ;;                              :publishing-directory ,(org2jekyll-output-directory org2jekyll-jekyll-posts-dir)
-    ;;                              :publishing-function org-html-publish-to-html
-    ;;                              :headline-levels 4
-    ;;                              :section-numbers nil
-    ;;                              :with-toc nil
-    ;;                              :html-head "<link rel=\"stylesheet\" href=\"./css/style.css\" type=\"text/css\"/>"
-    ;;                              :html-preamble t
-    ;;                              :recursive t
-    ;;                              :make-index t
-    ;;                              :html-extension "html"
-    ;;                              :body-only t)
-
-    ;;                             ("images"
-    ;;                              :base-directory ,(org2jekyll-input-directory "img")
-    ;;                              :base-extension "jpg\\|gif\\|png"
-    ;;                              :publishing-directory ,(org2jekyll-output-directory "img")
-    ;;                              :publishing-function org-publish-attachment
-    ;;                              :recursive t)
-
-    ;;                             ("js"
-    ;;                              :base-directory ,(org2jekyll-input-directory "js")
-    ;;                              :base-extension "js"
-    ;;                              :publishing-directory ,(org2jekyll-output-directory "js")
-    ;;                              :publishing-function org-publish-attachment
-    ;;                              :recursive t)
-
-    ;;                             ("css"
-    ;;                              :base-directory ,(org2jekyll-input-directory "css")
-    ;;                              :base-extension "css\\|el"
-    ;;                              :publishing-directory ,(org2jekyll-output-directory "css")
-    ;;                              :publishing-function org-publish-attachment
-    ;;                              :recursive t)
-
-    ;;                             ("web" :components ("images" "js" "css"))))))
-
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '((R . t)))
-
-    (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)   
-    (add-hook 'org-mode-hook 'org-display-inline-images)   
+      (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)   
+      (add-hook 'org-mode-hook 'org-display-inline-images)   
 
   #+END_SRC
 * ess
   #+BEGIN_SRC emacs-lisp
 
-    
-
-            (use-package ess
-              :config 
-              (require 'ess-site)
-              (require 'ess-custom)
-              (setq ess-R-font-lock-keywords
-
-                    (quote
-                     ((ess-R-fl-keyword:modifiers . t)
-                      (ess-R-fl-keyword:fun-defs . t)
-                      (ess-R-fl-keyword:keywords . t)
-                      (ess-R-fl-keyword:assign-ops . t)
-                      (ess-R-fl-keyword:constants . t)
-                      (ess-fl-keyword:fun-calls . t)
-                      (ess-fl-keyword:numbers . t)
-                      (ess-fl-keyword:operators . t)
-                      (ess-fl-keyword:delimiters . t)
-                      (ess-fl-keyword:= . t)
-                      (ess-R-fl-keyword:F&T . t)
-                      (ess-R-fl-keyword:%op% . t))))
-              (setq comint-move-point-for-output t)
-              (setq ess-help-own-frame nil
-                    ess-help-reuse-window  t)
-
-              (defun my-ess-execute-screen-options (foo)
-                "cycle through windows whose major mode is inferior-ess-mode and fix width"
-                (interactive)
-                (setq my-windows-list (window-list))
-                (while my-windows-list
-                  (when (with-selected-window (car my-windows-list) (string= "inferior-ess-mode" major-mode))
-                    (with-selected-window (car my-windows-list) (ess-execute-screen-options t)))
-                  (setq my-windows-list (cdr my-windows-list))))
-
-              (add-to-list 'window-size-change-functions 'my-ess-execute-screen-options)
-              (defvar pretty-alist
-                (cl-pairlis '() '()))
-              (add-to-list 'pretty-alist '("%>%" . "⇛"))
-              (add-to-list 'pretty-alist '("<-" . "⇐"))
-              (defun pretty-things ()
-                (mapc
-                 (lambda (x)
-                   (let ((word (car x))
-                         (char (cdr x)))
-                     (font-lock-add-keywords
-                      nil
-                      `((,(concat "\\(^\\|[^a-zA-Z0-9]\\)\\(" word "\\)[a-zA-Z]")
-                         (0 (progn
-                              (decompose-region (match-beginning 2) (match-end 2))
-                              nil)))))
-                     (font-lock-add-keywords
-                      nil
-                      `((,(concat "\\(^\\|[^a-zA-Z0-9]\\)\\(" word "\\)[^a-zA-Z]")
-                         (0 (progn
-                              (compose-region (match-beginning 2) (match-end 2)
-                                              ,char)
-                              nil)))))))
-                 pretty-alist))
-              (add-hook 'ess-mode-hook 'pretty-things)
-              (add-hook 'R-mode-hook
-                        (lambda ()
-                          (font-lock-add-keywords nil
-                                                  '(("\\(%>%\\)" 1
-                                                     font-lock-builtin-face t)))))
 
 
+  (use-package ess) 
+  ;; (setq ess-R-font-lock-keywords
 
-              (defun then_R_operator ()
-                "R - %>% operator or 'then' pipe operator"
-                (interactive)
-                (just-one-space 1)
-                (insert "%>%")
-                (reindent-then-newline-and-indent))
-              (define-key ess-mode-map (kbd "C-%") 'then_R_operator)
-              (define-key inferior-ess-mode-map (kbd "C-%") 'then_R_operator)
+  ;;       (quote
+  ;;        ((ess-R-fl-keyword:modifiers . t)
+  ;; 	(ess-R-fl-keyword:fun-defs . t)
+  ;; 	(ess-R-fl-keyword:keywords . t)
+  ;; 	(ess-R-fl-keyword:assign-ops . t)
+  ;; 	(ess-R-fl-keyword:constants . t)
+  ;; 	(ess-fl-keyword:fun-calls . t)
+  ;; 	(ess-fl-keyword:numbers . t)
+  ;; 	(ess-fl-keyword:operators . t)
+  ;; 	(ess-fl-keyword:delimiters . t)
+  ;; 	(ess-fl-keyword:= . t)
+  ;; 	(ess-R-fl-keyword:F&T . t)
+  ;; 	;;  (ess-R-fl-keyword:%op% . t)
+  ;; 	))
+  ;;       )
 
-              (define-key ess-mode-map [tab] 'company-complete)
-              (define-key inferior-ess-mode-map (kbd "TAB") 'company-complete)
+  ;; (setq comint-move-point-for-output t)
+   (setq ess-help-own-frame nil
+	ess-help-reuse-window  t)
 
-              ;; Magical shift+ENTER
-              ;; http://kieranhealy.org/blog/archives/2009/10/12/make-shift-enter-do-a-lot-in-ess/
-              (defun my-ess-eval ()
-                (interactive)
-                (if (and transient-mark-mode mark-active)
-                    (call-interactively 'ess-eval-region)
-                  (call-interactively 'ess-eval-line-and-step)))
-              (add-hook 'ess-mode-hook
-                        '(lambda()
-                           (local-set-key [(shift return)] 'my-ess-eval)))
-              (add-hook 'inferior-ess-mode-hook
-                        '(lambda()
-                           (local-set-key [up] 'comint-previous-input)
-                           (local-set-key [down] 'comint-next-input)))
-              (add-hook 'Rnw-mode-hook
-                        '(lambda()
-                           (local-set-key [(shift return)] 'my-ess-eval)))
-              (setq tab-always-indent 'complete)
-              (setq ess-tab-complete-in-script t)
+  (defun my-ess-execute-screen-options (foo)
+    "cycle through windows whose major mode is inferior-ess-mode and fix width"
+    (interactive)
+    (setq my-windows-list (window-list))
+    (while my-windows-list
+      (when (with-selected-window (car my-windows-list) (string= "inferior-ess-mode" major-mode))
+	(with-selected-window (car my-windows-list) (ess-execute-screen-options t)))
+      (setq my-windows-list (cdr my-windows-list))))
 
-              ;;(add-to-list 'company-backends 'company-ess-backend)
-              (setq company-minimum-prefix-length 2)
-(define-key comint-mode-map [up]
-  'comint-previous-matching-input-from-input)
-(define-key comint-mode-map [down]
-  'comint-next-matching-input-from-input)
+  (add-to-list 'window-size-change-functions 'my-ess-execute-screen-options)
 
 
+  (defun then_R_operator ()
+    "R - %>% operator or 'then' pipe operator"
+    (interactive)
+    (just-one-space 1)
+    (insert "%>%")
+    (reindent-then-newline-and-indent))
 
-)
+
+  (defun R-docker ()
+    (interactive)
+    (let ((ess-r-customize-alist
+	   (append ess-r-customize-alist
+		   '((inferior-ess-program . "~/bin/r-docker.sh"))))
+	  (ess-R-readline t))
+      (R)))
+
+
 
 
   #+END_SRC
@@ -649,8 +836,10 @@
     (use-package projectile 
       :config
       (projectile-global-mode)
+      (setq projectile-use-git-grep t)
       (setq projectile-file-exists-local-cache-expire (* 5 60)))
-
+(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+    (use-package ag)
   #+END_SRC
 
 * undo tree
@@ -752,96 +941,99 @@
 * polymode
   #+BEGIN_SRC emacs-lisp
 
-
-
     (use-package polymode
-      :defer 1
       :config
       (defun insert-r-chunk ()
-        (interactive)
-        (insert "```{r}
+	(interactive)
+	(insert "```{r}
 
-    ``` "))
+	    ``` ")))
 
-      (bind-key  "C-c C-r"  'ess-rmarkdown  polymode-mode-map)
-      (bind-key  "C-c C-i"  'insert-r-chunk  polymode-mode-map)
-
-
-
-      (eval-when-compile
-        (require 'polymode-core)  
-        (defvar pm/chunkmode))
-      (declare-function pm-map-over-spans "polymode-core")
-      (declare-function pm-narrow-to-span "polymode-core")
-
-      (defun rmd-send-chunk ()
-        "Send current R chunk to ess process."
-        (interactive)
-        (and (eq (oref pm/chunkmode :mode) 'r-mode) ;;'
-             (pm-with-narrowed-to-span nil
-               (goto-char (point-min))
-               (forward-line)
-               (ess-eval-region (point) (point-max) nil nil 'R)))) ;;'
-
-      (defun rmd-send-buffer (arg)
-        "Send all R code blocks in buffer to ess process. With prefix
-    send regions above point."
-        (interactive "P")
-        (save-restriction
-          (widen)
-          (save-excursion
-            (pm-map-over-spans
-             'rmd-send-chunk (point-min) ;;'
-             ;; adjust this point to send prior regions
-             (if arg (point) (point-max))))))
-
-      (bind-key "C-c r c" 'rmd-send-chunk)
-
-
-      )
-
-    (use-package markdown-mode 
-      :defer 1 
-      :config 
-      (require 'poly-markdown)
-      (require 'poly-R)
-      (add-to-list 'auto-mode-alist '("\\.Rmd" . poly-markdown+r-mode)))
-
-    (defun save-buffer-if-visiting-file ()
-      "Save the current buffer only if it is visiting a file"
-      (interactive)
-      (if (and (buffer-file-name) (buffer-modified-p))
-          (save-buffer)))
-
+    (use-package poly-R)
+    (use-package poly-markdown
+      :ensure t)
 
     (defun ess-rmarkdown ()
       "Compile R markdown (.Rmd). Should work for any output type."
       (interactive)
       (when (bound-and-true-p poly-markdown+r-mode)
-        (save-buffer-if-visiting-file)
-                                            ; Check if attached R-session
-        (condition-case nil
-            (ess-get-process)
-          ((error ""  ARGS)
-           (ess-switch-process)))
-        (let* ((rmd-buf (current-buffer)))
+	(save-buffer-if-visiting-file)
+					    ; Check if attached R-session
+	(condition-case nil
+	    (ess-get-process)
+	  ((error ""  ARGS)
+	   (ess-switch-process)))
+	(let* ((rmd-buf (current-buffer)))
 
-          (save-excursion
-            (let* ((sprocess (ess-get-process ess-current-process-name))
-                   (sbuffer (process-buffer sprocess))
-                   (buf-coding (symbol-name buffer-file-coding-system))
-                   (R-cmd
-                    (format "library(rmarkdown); rmarkdown::render(\"%s\")"
-                            buffer-file-name)))
-              (message "Running rmarkdown on %s" buffer-file-name)
-              (ess-execute R-cmd 'buffer nil nil)
-              (switch-to-buffer rmd-buf)
-              (ess-show-buffer (buffer-name sbuffer) nil))))))
+	  (save-excursion
+	    (let* ((sprocess (ess-get-process ess-current-process-name))
+		   (sbuffer (process-buffer sprocess))
+		   (buf-coding (symbol-name buffer-file-coding-system))
+		   (R-cmd
+		    (format "library(rmarkdown); rmarkdown::render(\"%s\")"
+			    buffer-file-name)))
+	      (message "Running rmarkdown on %s" buffer-file-name)
+	      (ess-execute R-cmd 'buffer nil nil)
+	      (switch-to-buffer rmd-buf)
+	      (ess-show-buffer (buffer-name sbuffer) nil))))))
 
 
-    (defun ess-auto-rmarkdown-enable ()
-      (interactive)
-      (run-with-idle-timer 1 t #'ess-rmarkdown))
+    (bind-key  "C-c C-r"  'ess-rmarkdown  polymode-mode-map)
+					    ;      (bind-key  "C-c C-i"  'insert-r-chunk  polymode-mode-map)
+
+
+
+    ;;   (eval-when-compile
+    ;;     (require 'polymode-core)  
+    ;;     (defvar pm/chunkmode))
+    ;;   (declare-function pm-map-over-spans "polymode-core")
+    ;;   (declare-function pm-narrow-to-span "polymode-core")
+
+    ;;   (defun rmd-send-chunk ()
+    ;;     "Send current R chunk to ess process."
+    ;;     (interactive)
+    ;;     (and (eq (oref pm/chunkmode :mode) 'r-mode) ;;'
+    ;;          (pm-with-narrowed-to-span nil
+    ;;            (goto-char (point-min))
+    ;;            (forward-line)
+    ;;            (ess-eval-region (point) (point-max) nil nil 'R)))) ;;'
+
+    ;;   (defun rmd-send-buffer (arg)
+    ;;     "Send all R code blocks in buffer to ess process. With prefix
+    ;; send regions above point."
+    ;;     (interactive "P")
+    ;;     (save-restriction
+    ;;       (widen)
+    ;;       (save-excursion
+    ;;         (pm-map-over-spans
+    ;;          'rmd-send-chunk (point-min) ;;'
+    ;;          ;; adjust this point to send prior regions
+    ;;          (if arg (point) (point-max))))))
+
+    ;;   (bind-key "C-c r c" 'rmd-send-chunk)
+
+
+    ;;   )
+
+    ;; (use-package markdown-mode 
+    ;;   :defer 1 
+    ;;   :config 
+    ;;   (require 'poly-markdown)
+    ;;   (require 'poly-R)
+    ;;   (add-to-list 'auto-mode-alist '("\\.Rmd" . poly-markdown+r-mode)))
+
+    ;; (defun save-buffer-if-visiting-file ()
+    ;;   "Save the current buffer only if it is visiting a file"
+    ;;   (interactive)
+    ;;   (if (and (buffer-file-name) (buffer-modified-p))
+    ;;       (save-buffer)))
+
+
+
+
+    ;; (defun ess-auto-rmarkdown-enable ()
+    ;;   (interactive)
+    ;;   (run-with-idle-timer 1 t #'ess-rmarkdown))
   #+END_SRC
   
 * password-store
@@ -884,266 +1076,272 @@
   
 * other
   #+BEGIN_SRC emacs-lisp
-    (setq browse-url-generic-program (executable-find "firefox"))
-    (setq browse-url-browser-function 'browse-url-firefox)
+  (setq browse-url-generic-program (executable-find "chromium"))
+  (setq browse-url-browser-function 'browse-url-generic)
 
-    (use-package focus)
+  (use-package focus)
 
-    (use-package google-this
-      :config
-      (global-set-key (kbd "C-c g") 'google-this-mode-submap))
-
-
-
-    (use-package which-key 
-      :defer 2
-      :config (which-key-mode)
-      :diminish  which-key-mode)
+  (use-package google-this
+    :config
+    (global-set-key (kbd "C-c g") 'google-this-mode-submap))
 
 
 
-    (defun hide-eol ()
-      "Do not show ^M in files containing mixed UNIX and DOS line endings."
-      (interactive)
-      (setq buffer-display-table (make-display-table))
-      (aset buffer-display-table ?\^M []))
-
-    (defun clear-shell ()
-      (interactive)
-      (let ((old-max comint-buffer-maximum-size))
-        (setq comint-buffer-maximum-size 0)
-        (comint-truncate-buffer)
-        (setq comint-buffer-maximum-size old-max)))
-
-    (use-package rainbow-delimiters
-      :config
-      (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
-
-    (use-package keyfreq
-      :config
-      (keyfreq-mode 1)
-      (keyfreq-autosave-mode 1))
-
-    (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
-    (fset 'yes-or-no-p 'y-or-n-p)
-
-    (use-package calfw
-      :defer 1
-      :config
-      ;;(require 'calfw-org)
-      (bind-key "C-c m" 'cfw:open-org-calendar)
-      (setq calendar-holidays '()))
-
-    (defun sudo-edit (&optional arg)
-      (interactive "P")
-      (if (or arg (not buffer-file-name))
-          (find-file (concat "/sudo:root@localhost:"
-                             (ido-read-file-name "Find file(as root): ")))
-        (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name))))
-
-    (use-package pandoc-mode
-      :defer t
-      :config
-      (add-hook 'markdown-mode-hook 'pandoc-mode))
+  (use-package which-key 
+    :defer 2
+    :config (which-key-mode)
+    :diminish  which-key-mode)
 
 
-    (defun save-all-and-compile ()
-      (interactive)
-      (save-some-buffers 1)
-      (compile compile-command))
 
-    (global-set-key [f5] 'save-all-and-compile)
+  (defun hide-eol ()
+    "Do not show ^M in files containing mixed UNIX and DOS line endings."
+    (interactive)
+    (setq buffer-display-table (make-display-table))
+    (aset buffer-display-table ?\^M []))
 
-    (setq skeleton-pair t)
+  (defun clear-shell ()
+    (interactive)
+    (let ((old-max comint-buffer-maximum-size))
+      (setq comint-buffer-maximum-size 0)
+      (comint-truncate-buffer)
+      (setq comint-buffer-maximum-size old-max)))
 
+  (use-package rainbow-delimiters
+    :config
+    (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
 
-    (use-package sunrise-commander :defer t)
+  (use-package keyfreq
+    :config
+    (keyfreq-mode 1)
+    (keyfreq-autosave-mode 1))
 
+  (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+  (fset 'yes-or-no-p 'y-or-n-p)
 
-    (use-package shell-pop
-      :bind ("<f9>" . shell-pop)
-      :config  (use-package shell  
-                 :bind ("TAB" . company-complete)))
+  (use-package calfw
+    :defer 1
+    :config
+    ;;(require 'calfw-org)
+    (bind-key "C-c m" 'cfw:open-org-calendar)
+    (setq calendar-holidays '()))
 
+  (defun sudo-edit (&optional arg)
+    (interactive "P")
+    (if (or arg (not buffer-file-name))
+	(find-file (concat "/sudo:root@localhost:"
+			   (ido-read-file-name "Find file(as root): ")))
+      (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name))))
 
-    (setq linum-format "%4d")
-    (require 'linum)
-    (defun linum-update-window-scale-fix (win)
-      "fix linum for scaled text"
-      (set-window-margins win
-                          (ceiling (* (if (boundp 'text-scale-mode-step)
-                                          (expt text-scale-mode-step
-                                                text-scale-mode-amount) 1)
-                                      (if (car (window-margins))
-                                          (car (window-margins)) 1)
-                                      ))))
-    (advice-add #'linum-update-window :after #'linum-update-window-scale-fix)
-
-    (winner-mode) 
-
-    (use-package anzu
-
-      :bind(("M-%" . anzu-query-replace)
-            ("M-C-%" . anzu-query-replace-regexp))
-      :config
-      (global-anzu-mode 1)
-      (set-face-attribute 'anzu-mode-line nil
-                          :foreground "orange" :weight 'bold))
-
-
-    ;; (use-package aggressive-indent
-    ;;   :disabled t
-    ;;   :config
-    ;;   (global-aggressive-indent-mode 1)
-    ;;   (add-to-list 'aggressive-indent-excluded-modes 'poly-markdown+r-mode)
-    ;;   (add-to-list 'aggressive-indent-excluded-modes 'polymode)
-    ;;   (add-to-list 'aggressive-indent-excluded-modes 'Polymode)
+  (use-package pandoc-mode
+    :defer t
+    :config
+    (add-hook 'markdown-mode-hook 'pandoc-mode))
 
 
-    ;;   )
+  (defun save-all-and-compile ()
+    (interactive)
+    (save-some-buffers 1)
+    (compile compile-command))
 
-    (use-package discover-my-major)
-    ;;(use-package yaml-mode)
+  (global-set-key [f5] 'save-all-and-compile)
 
-    (windmove-default-keybindings 'super)
-
-
-    (use-package dash-functional)
-    (defmacro my/convert-shell-scripts-to-interactive-commands (directory)
-      "Make the shell scripts in DIRECTORY available as interactive commands."
-      (cons 'progn
-            (-map
-             (lambda (filename)
-               (let ((function-name (intern (concat "my/shell/" (file-name-nondirectory filename)))))
-                 `(defun ,function-name (&rest args)
-                    (interactive)
-                    (apply 'call-process ,filename nil nil nil args))))
-             (-filter (-not #'file-directory-p)
-                      (-filter #'file-executable-p (directory-files directory t))))))
-    (when (file-directory-p "~/bin")
-      (my/convert-shell-scripts-to-interactive-commands "~/bin"))
-
-;;    (use-package pdf-tools
-;;      :config
-;;      (pdf-tools-install))
-
-    (add-to-list 'auto-mode-alist '("\\.cljs\\.hl\\'" . clojurescript-mode))
-    (add-hook 'clojure-mode-hook
-              '(lambda ()
-                 ;; Hoplon functions and macros
-                 (dolist (pair '((page . 'defun)
-                                 (loop-tpl . 'defun)
-                                 (if-tpl . '1)
-                                 (for-tpl . '1)
-                                 (case-tpl . '1)
-                                 (cond-tpl . 'defun)))
-                   (put-clojure-indent (car pair)
-                                       (car (last pair))))))
-
-    (use-package yaml-mode
-      :config
-      (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
-      )
-    (use-package dockerfile-mode)
+  (setq skeleton-pair t)
 
 
-    (use-package skewer-mode)
-    (skewer-setup)
-    (use-package ac-js2)
-    (add-hook 'js2-mode-hook 'ac-js2-mode)
-
-    (defun open-with (arg)
-      "Open visited file in default external program.
-
-    With a prefix ARG always prompt for command to use."
-      (interactive "P")
-      (when buffer-file-name
-        (shell-command (concat
-                        (cond
-                         ((and (not arg) (eq system-type 'darwin)) "open")
-                         ((and (not arg) (member system-type '(gnu gnu/linux gnu/kfreebsd))) "xdg-open")
-                         (t (read-shell-command "Open current file with: ")))
-                        " "
-                        (shell-quote-argument buffer-file-name)))))
+  (use-package sunrise-commander 
+    :disabled t
+    :defer t)
 
 
-    (use-package deft
-      :commands (deft)
-      :config (setq deft-directory "~/Dropbox/sync/org"
-                    deft-extensions '("md" "org")
-                    deft-recursive t))
+  (use-package shell-pop
+    :bind ("<f9>" . shell-pop))
+
+
+  (setq linum-format "%4d")
+  (require 'linum)
+  (defun linum-update-window-scale-fix (win)
+    "fix linum for scaled text"
+    (set-window-margins win
+			(ceiling (* (if (boundp 'text-scale-mode-step)
+					(expt text-scale-mode-step
+					      text-scale-mode-amount) 1)
+				    (if (car (window-margins))
+					(car (window-margins)) 1)
+				    ))))
+  (advice-add #'linum-update-window :after #'linum-update-window-scale-fix)
+
+  (winner-mode) 
+
+  (use-package anzu
+
+    :bind(("M-%" . anzu-query-replace)
+	  ("M-C-%" . anzu-query-replace-regexp))
+    :config
+    (global-anzu-mode 1)
+    (set-face-attribute 'anzu-mode-line nil
+			:foreground "orange" :weight 'bold))
+
+
+  ;; (use-package aggressive-indent
+  ;;   :disabled t
+  ;;   :config
+  ;;   (global-aggressive-indent-mode 1)
+  ;;   (add-to-list 'aggressive-indent-excluded-modes 'poly-markdown+r-mode)
+  ;;   (add-to-list 'aggressive-indent-excluded-modes 'polymode)
+  ;;   (add-to-list 'aggressive-indent-excluded-modes 'Polymode)
+
+
+  ;;   )
+
+  (use-package discover-my-major)
+  ;;(use-package yaml-mode)
+
+  (windmove-default-keybindings 'super)
+
+
+  (use-package dash-functional)
+  (defmacro my/convert-shell-scripts-to-interactive-commands (directory)
+    "Make the shell scripts in DIRECTORY available as interactive commands."
+    (cons 'progn
+	  (-map
+	   (lambda (filename)
+	     (let ((function-name (intern (concat "my/shell/" (file-name-nondirectory filename)))))
+	       `(defun ,function-name (&rest args)
+		  (interactive)
+		  (apply 'call-process ,filename nil nil nil args))))
+	   (-filter (-not #'file-directory-p)
+		    (-filter #'file-executable-p (directory-files directory t))))))
+  (when (file-directory-p "~/bin")
+    (my/convert-shell-scripts-to-interactive-commands "~/bin"))
+
+  ;;    (use-package pdf-tools
+  ;;      :config
+  ;;      (pdf-tools-install))
+
+  (add-to-list 'auto-mode-alist '("\\.cljs\\.hl\\'" . clojurescript-mode))
+  (add-hook 'clojure-mode-hook
+	    '(lambda ()
+	       ;; Hoplon functions and macros
+	       (dolist (pair '((page . 'defun)
+			       (loop-tpl . 'defun)
+			       (if-tpl . '1)
+			       (for-tpl . '1)
+			       (case-tpl . '1)
+			       (cond-tpl . 'defun)))
+		 (put-clojure-indent (car pair)
+				     (car (last pair))))))
+
+  (use-package yaml-mode
+    :config
+    (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
+    )
+  (use-package dockerfile-mode)
+
+
+  (use-package skewer-mode)
+  (skewer-setup)
+  (use-package ac-js2)
+  (add-hook 'js2-mode-hook 'ac-js2-mode)
+
+  (defun open-with (arg)
+    "Open visited file in default external program.
+
+      With a prefix ARG always prompt for command to use."
+    (interactive "P")
+    (when buffer-file-name
+      (shell-command (concat
+		      (cond
+		       ((and (not arg) (eq system-type 'darwin)) "open")
+		       ((and (not arg) (member system-type '(gnu gnu/linux gnu/kfreebsd))) "xdg-open")
+		       (t (read-shell-command "Open current file with: ")))
+		      " "
+		      (shell-quote-argument buffer-file-name)))))
+
+
+  (use-package deft
+    :commands (deft)
+    :config (setq deft-directory "~/Dropbox/sync/org"
+		  deft-extensions '("md" "org")
+		  deft-recursive t))
   #+END_SRC
 * Python
   #+BEGIN_SRC emacs-lisp
+    (use-package ob-ipython)
 
-    ;; (use-package jedi
-    ;;   :defer 1
-    ;;   :config 
+  (use-package pyvenv 
+	    ;:defer 1
+    :config
+					  ;(pyvenv-activate "~/miniconda/envs/dataScience")
+    (setq
+     python-shell-interpreter "ipython"
+     ))
 
-    ;;   (use-package company-jedi)
-    ;;   (defun my/python-mode-hook ()
-    ;;     (jedi-mode)
+    (add-to-list 'company-backends 'company-ob-ipython)
 
-    ;;     (add-to-list 'company-backends 'company-jedi))
-    ;;   (setq jedi:complete-on-dot t)
-    ;;   (add-hook 'python-mode-hook 'my/python-mode-hook))
+	;; (use-package jedi
+	;;   :defer 1
+	;;   :config 
 
-    ;; (use-package pyvenv 
-    ;;   :defer 1
-    ;;   :disabled t
-    ;;   :config
-    ;;   (pyvenv-activate "~/miniconda/envs/dataScience")
-    ;;   (setq
-    ;;    python-shell-interpreter "ipython"
-    ;;    org-babel-python-command "ipython"))
+	;;   (use-package company-jedi)
+	;;   (defun my/python-mode-hook ()
+	;;     (jedi-mode)
 
-    (defun python-shell-completion-complete-or-indent ()
-      "Complete or indent depending on the context.
-    If content before pointer is all whitespace, indent.
-    If not try to complete."
-      (interactive)
-      (if (string-match "^[[:space:]]*$"
-                        (buffer-substring (comint-line-beginning-position)
-                                          (point-marker)))
-          (indent-for-tab-command)
-        (company-complete)))
-(defun block-line-end ()
-    (setq indentation (current-indentation))
-    (forward-line)
-    (while (> (current-indentation) indentation)
-      (forward-line))
-    (forward-line -1)
-    (line-end-position))  
-(defun my-python-shell-send-region (&optional beg end)
-    (interactive)
-    (let ((beg (cond (beg beg)
-                ((region-active-p) (region-beginning))
-                (t (line-beginning-position))))
-          (end (cond (end end)
-                ((region-active-p) 
-                 (copy-marker (region-end)))
-                (t (block-line-end)))))
-      (python-shell-send-region beg end))
-    (forward-line))
+	;;     (add-to-list 'company-backends 'company-jedi))
+	;;   (setq jedi:complete-on-dot t)
+	;;   (add-hook 'python-mode-hook 'my/python-mode-hook))
 
-(eval-after-load "python"
-  '(define-key python-mode-map (kbd "C-<return>") 'my-python-shell-send-region))
+
+    ;;     (defun python-shell-completion-complete-or-indent ()
+    ;;       "Complete or indent depending on the context.
+    ;;     If content before pointer is all whitespace, indent.
+    ;;     If not try to complete."
+    ;;       (interactive)
+    ;;       (if (string-match "^[[:space:]]*$"
+    ;; 			(buffer-substring (comint-line-beginning-position)
+    ;; 					  (point-marker)))
+    ;; 	  (indent-for-tab-command)
+    ;; 	(company-complete)))
+    (defun block-line-end ()
+	(setq indentation (current-indentation))
+	(forward-line)
+	(while (> (current-indentation) indentation)
+	  (forward-line))
+	(forward-line -1)
+	(line-end-position))  
+    (defun my-python-shell-send-region (&optional beg end)
+	(interactive)
+	(let ((beg (cond (beg beg)
+		  ((region-active-p) (region-beginning))
+		  (t (line-beginning-position))))
+	    (end (cond (end end)
+		  ((region-active-p) 
+		   (copy-marker (region-end)))
+		  (t (block-line-end)))))
+	  (python-shell-send-region beg end))
+	(forward-line))
+
+    (eval-after-load "python"
+      '(define-key python-mode-map (kbd "C-<return>") 'my-python-shell-send-region))
 
   #+END_SRC 
 
 * ein   
   #+BEGIN_SRC emacs-lisp
-;;     (use-package ein
-;;           :defer t
-;;           :disabled t
-;;           :config
-;;             (setq ein:use-auto-complete-superpack t)
-;;             (defun my/ein-mode-hook ()
-;;                (company-mode 0)
-;;                (auto-complete-mode 1))
-;;             (add-hook 'ein:notebook-mode-hook 'my/ein-mode-hook))
-;; (require 'popup)
+	(use-package ein
+	      :config
+		;; (setq ein:use-auto-complete-superpack t)
+		;; (defun my/ein-mode-hook ()
+		;; 	 (company-mode 0)
+		;; 	 (auto-complete-mode 1))
+		;; (add-hook 'ein:notebook-mode-hook 'my/ein-mode-hook)
+
+  )
+    (require 'popup)
   #+END_SRC
+
+  #+RESULTS:
+  : popup
 
 * Dired
   #+BEGIN_SRC emacs-lisp
@@ -1167,7 +1365,7 @@
 
 
     (use-package dired+ 
-      
+      :disabled t
       :config
       (bind-key  "c"  'xah-dired-sort  dired-mode-map)
       (setq dired-dwim-target t)
@@ -1206,19 +1404,21 @@
   #+END_SRC 
 * smart parents
 #+BEGIN_SRC emacs-lisp
+(use-package smartparens)
+(require 'smartparens-config)
+(sp-use-smartparens-bindings)
+(smartparens-global-mode)
 
-  (setq sp-base-key-bindings 'sp)
+;  (setq sp-base-key-bindings 'sp)
+;  (use-package smartparens-config
+ ;   :ensure smartparens
+  ;  :init
+   ; (progn
+;      (smartparens-config)
+    ;  (show-smartparens-global-mode t)))
 
-  (use-package smartparens-config
-    :ensure smartparens
-    :init
-    (progn
-      ;(smartparens-config)
-      (show-smartparens-global-mode t)))
-
-  (add-hook 'prog-mode-hook 'turn-on-smartparens-strict-mode)
-  (add-hook 'markdown-mode-hook 'turn-on-smartparens-strict-mode)
-  (require 'smartparens-config)
+;  (add-hook 'prog-mode-hook 'turn-on-smartparens-strict-mode)
+ ; (add-hook 'markdown-mode-hook 'turn-on-smartparens-strict-mode)
 #+END_SRC
 * ace
 #+BEGIN_SRC emacs-lisp
@@ -1337,6 +1537,7 @@
 #+BEGIN_SRC emacs-lisp 
 (setq after-init-time (current-time))
 (message "Config successfully loaded in %s" (emacs-init-time))
+(set-frame-font "Hack" t t)
 
 #+END_SRC
 
